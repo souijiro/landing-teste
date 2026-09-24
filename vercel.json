@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "routes": [
+    { "src": "/carta/img/(.*)", "dest": "/carta/img/$1" },
+    { "src": "/carta(.*)", "status": 301, "headers": { "Location": "/baz$1" } },
+    { "src": "/baz/img/(.*)", "dest": "/carta/img/$1" },
+    { "src": "/baz/?", "dest": "/baz/index.html" },
+    { "src": "/docismavalerio/?", "dest": "/docismavalerio/index.html" },
+    { "src": "/girassol/?", "dest": "/girassol/index.html" },
+    { "src": "/ncm-obrigado/?", "dest": "/ncm-obrigado/index.html" },
+    { "src": "/but-obrigado/?", "dest": "/but-obrigado/index.html" },
+    { "src": "/mbp-lp1/?", "dest": "/mbp-lp1/index.html" },
+    { "src": "/mbp-obrigado/?", "dest": "/mbp-obrigado/index.html" },
+    { "src": "/pesquisaalunos/img/(.*)", "dest": "/pesquisaalunos/img/$1" },
+    { "src": "/pesquisaalunos/?", "dest": "/pesquisaalunos/index.html" }
+  ]
+}
