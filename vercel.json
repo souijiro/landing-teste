@@ -12,6 +12,7 @@
     { "src": "/mbp-lp1/?", "dest": "/mbp-lp1/index.html" },
     { "src": "/mbp-obrigado/?", "dest": "/mbp-obrigado/index.html" },
     { "src": "/pesquisaalunos/img/(.*)", "dest": "/pesquisaalunos/img/$1" },
-    { "src": "/pesquisaalunos/?", "dest": "/pesquisaalunos/index.html" }
+    { "src": "/pesquisaalunos/?", "dest": "/pesquisaalunos/index.html" },
+    { "src": "/canaga/?", "dest": "/canaga/index.html" }
   ]
 }
