@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Painel de Leads | Canagá</title>
+  <link rel="icon" href="/canaga/img/logo-canaga.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/leadscanaga/painel.css">
+</head>
+<body>
+
+  <!-- TRAVA -->
+  <section class="trava" id="trava">
+    <form class="trava__card" id="form-senha">
+      <img src="/canaga/img/logo-canaga.png" alt="Canagá" width="120" height="74">
+      <h1>Painel de leads</h1>
+      <p>Lançamento Canagá · área restrita</p>
+      <label class="sr-only" for="senha">Senha</label>
+      <input type="password" id="senha" placeholder="Digite a senha" autocomplete="current-password" required>
+      <button type="submit" class="btn">Entrar</button>
+      <p class="trava__erro" id="trava-erro" role="alert"></p>
+    </form>
+  </section>
+
+  <!-- PAINEL -->
+  <div class="painel" id="painel" hidden>
+    <header class="topo">
+      <div class="container topo__inner">
+        <div class="topo__marca">
+          <img src="/canaga/img/logo-canaga.png" alt="Canagá" width="80" height="49">
+          <span>Painel de leads</span>
+        </div>
+        <div class="topo__acoes">
+          <span class="topo__atualizado" id="atualizado"></span>
+          <button type="button" class="btn btn--ghost" id="btn-atualizar">Atualizar</button>
+          <button type="button" class="btn btn--ghost" id="btn-sair">Sair</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="kpis">
+        <div class="kpi kpi--destaque">
+          <span class="kpi__rotulo">Leads únicos do lançamento</span>
+          <strong class="kpi__valor" id="kpi-unicos">–</strong>
+          <span class="kpi__nota">por e-mail, sem repetição</span>
+        </div>
+        <div class="kpi">
+          <span class="kpi__rotulo">Cadastros totais</span>
+          <strong class="kpi__valor" id="kpi-total">–</strong>
+          <span class="kpi__nota">inclui quem se cadastrou mais de uma vez</span>
+        </div>
+        <div class="kpi">
+          <span class="kpi__rotulo">Leads via professores</span>
+          <strong class="kpi__valor" id="kpi-profs">–</strong>
+          <span class="kpi__nota" id="kpi-profs-nota"></span>
+        </div>
+      </section>
+
+      <section class="bloco">
+        <div class="bloco__cab">
+          <h2>Placar dos professores</h2>
+          <p>Leads únicos por <code>utm_source</code>. Clique em um professor para filtrar a tabela.</p>
+        </div>
+        <ol class="placar" id="placar"></ol>
+        <div class="outras" id="outras"></div>
+      </section>
+
+      <section class="bloco" id="bloco-tabela">
+        <div class="bloco__cab bloco__cab--linha">
+          <div>
+            <h2>Leads</h2>
+            <p id="filtro-resumo"></p>
+          </div>
+          <div class="filtros">
+            <select id="filtro-prof" aria-label="Filtrar por professor"></select>
+            <input type="search" id="filtro-busca" placeholder="Buscar nome, e-mail ou telefone" aria-label="Buscar">
+          </div>
+        </div>
+        <div class="tabela-wrap">
+          <table class="tabela">
+            <thead>
+              <tr>
+                <th>Data</th><th>Nome</th><th>E-mail</th><th>Telefone</th>
+                <th>utm_source</th><th>utm_medium</th><th>utm_campaign</th><th>utm_content</th><th>utm_term</th>
+              </tr>
+            </thead>
+            <tbody id="tabela-corpo"></tbody>
+          </table>
+        </div>
+        <div class="paginacao">
+          <button type="button" class="btn btn--ghost" id="pag-ant">‹ Anterior</button>
+          <span id="pag-info"></span>
+          <button type="button" class="btn btn--ghost" id="pag-prox">Próxima ›</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/canaga/professores.js"></script>
+  <script src="/leadscanaga/painel.js"></script>
+</body>
+</html>

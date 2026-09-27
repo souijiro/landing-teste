@@ -13,6 +13,7 @@
     { "src": "/mbp-obrigado/?", "dest": "/mbp-obrigado/index.html" },
     { "src": "/pesquisaalunos/img/(.*)", "dest": "/pesquisaalunos/img/$1" },
     { "src": "/pesquisaalunos/?", "dest": "/pesquisaalunos/index.html" },
-    { "src": "/canaga/?", "dest": "/canaga/index.html" }
+    { "src": "/canaga/?", "dest": "/canaga/index.html" },
+    { "src": "/leadscanaga/?", "dest": "/leadscanaga/index.html", "headers": { "X-Robots-Tag": "noindex, nofollow", "Cache-Control": "no-store" } }
   ]
 }
