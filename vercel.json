@@ -1,6 +1,8 @@
 {
   "version": 2,
   "routes": [
+    { "src": "/", "has": [{ "type": "host", "value": "c.canaga.com.br" }], "status": 302, "headers": { "Location": "/lancamento" } },
+    { "src": "/lancamento/?", "has": [{ "type": "host", "value": "c.canaga.com.br" }], "dest": "/canaga/index.html" },
     { "src": "/carta/img/(.*)", "dest": "/carta/img/$1" },
     { "src": "/carta(.*)", "status": 301, "headers": { "Location": "/baz$1" } },
     { "src": "/baz/img/(.*)", "dest": "/carta/img/$1" },
