@@ -60,7 +60,10 @@ const FOTO_PLACEHOLDER = `
   <circle cx="60" cy="46" r="20" fill="currentColor" opacity=".35"/>
   <path d="M22 108c4-22 20-34 38-34s34 12 38 34" fill="currentColor" opacity=".35"/></svg>`;
 
-document.getElementById("professores").innerHTML = (window.PROFESSORES || []).map((p) => {
+const PROFESSORES_VISIVEIS = (window.PROFESSORES || []).filter((p) => !p.oculto);
+document.querySelectorAll("[data-qtd]").forEach((el) => { el.textContent = PROFESSORES_VISIVEIS.length; });
+
+document.getElementById("professores").innerHTML = PROFESSORES_VISIVEIS.map((p) => {
   const ig = (p.instagram || "").replace(/^@/, "");
   return `
   <article class="professor">

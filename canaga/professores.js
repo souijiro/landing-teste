@@ -1,5 +1,6 @@
 // Lista dos 18 professores do sorteio (fonte: planilha PLANEJAMENTO LANÇAMENTO CANAGÁ, aba INFLUENCIADORES, status "Aceitou").
 // Para editar: troque os textos abaixo. As fotos ficam em img/professores/.
+// "oculto: true" esconde o professor da página e do painel de leads (a contagem de cursos se ajusta sozinha).
 window.PROFESSORES = [
   {
     nome: "Ana Bauer",
@@ -32,6 +33,7 @@ window.PROFESSORES = [
   {
     nome: "Carolina Xavier",
     instagram: "carolinaxavieroficial",
+    oculto: true, // escondido por enquanto — apague esta linha para voltar a exibir
     foto: "/canaga/img/professores/carolinaxavieroficial.jpg",
     curso: "Caseirinhos Perfeitos 3.0",
     descricao: "Aprenda a viver de bolos caseiros começando com o que você já tem na cozinha."
@@ -47,8 +49,8 @@ window.PROFESSORES = [
     nome: "Debora Alves",
     instagram: "debora.alves",
     foto: "/canaga/img/professores/debora.alves.jpg",
-    curso: "Método Turbinado",
-    descricao: "Confeitaria, marketing e vendas para transformar seus doces em um negócio lucrativo."
+    curso: "Faça e Venda com Chocolate",
+    descricao: "Receitas com chocolate pensadas para vender, com dicas de precificação e divulgação para lucrar desde o início."
   },
   {
     nome: "Julia Postigo",
@@ -60,6 +62,7 @@ window.PROFESSORES = [
   {
     nome: "Nati Moura",
     instagram: "natimoura",
+    oculto: true, // escondido por enquanto — apague esta linha para voltar a exibir
     foto: "/canaga/img/professores/natimoura.jpg",
     curso: "Formação Nati Moura em Doces Finos",
     descricao: "Chocolate, temperagem e bombons artísticos com chef formada pela Le Cordon Bleu."
@@ -123,6 +126,7 @@ window.PROFESSORES = [
   {
     nome: "Fabiano e Guilherme",
     instagram: "_ohmycandy",
+    oculto: true, // escondido por enquanto — apague esta linha para voltar a exibir
     foto: "/canaga/img/professores/_ohmycandy.jpg",
     curso: "Oh My Candy! Academy",
     descricao: "Bolos decorados e bento cakes em buttercream com a dupla da Oh My Candy."

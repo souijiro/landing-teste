@@ -11,7 +11,7 @@ const fmt = new Intl.NumberFormat("pt-BR");
 const fmtData = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 
 const norm = (s) => (s || "").trim().toLowerCase().replace(/^@+/, "");
-const PROFS = (window.PROFESSORES || []).map((p) => ({ ...p, handle: norm(p.instagram) }));
+const PROFS = (window.PROFESSORES || []).filter((p) => !p.oculto).map((p) => ({ ...p, handle: norm(p.instagram) }));
 const PROF_POR_HANDLE = Object.fromEntries(PROFS.map((p) => [p.handle, p]));
 
 const estado = { senha: null, filtro: "", busca: "", pagina: 1, dados: null, timer: null };
