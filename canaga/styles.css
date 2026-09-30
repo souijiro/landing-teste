@@ -69,6 +69,9 @@ a { color: inherit; }
 .hero h1 span { color: var(--dourado); }
 .hero__sub { font-size: 18px; color: #ffffffd9; max-width: 34em; }
 .hero__sub strong { color: var(--branco); }
+.hero__sub a { color: var(--dourado); text-decoration: none; }
+.hero__sub a strong { color: inherit; }
+.hero__sub a:hover { text-decoration: underline; }
 
 .evento { display: flex; align-items: center; gap: 16px; margin: 28px 0 24px; }
 .evento__data {

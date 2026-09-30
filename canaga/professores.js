@@ -27,7 +27,7 @@ window.PROFESSORES = [
     nome: "Cilaine Rodrigues",
     instagram: "docis.sp",
     foto: "/canaga/img/professores/docis.sp.jpg",
-    curso: "Brigadeiro de A a Z",
+    curso: "Brigadeiro de A a Z 5.0",
     descricao: "O método Docis completo: receitas, técnicas, precificação e mais de 15 módulos bônus."
   },
   {
