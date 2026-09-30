@@ -1,5 +1,6 @@
 // Painel de leads do lançamento Canagá.
-// A senha é verificada dentro do Supabase (função painel_leads_canaga); sem ela nenhum dado é retornado.
+// As senhas são verificadas dentro do Supabase (funções painel_leads_canaga e excluir_lead_canaga):
+// a de leitura só vê os dados; a de administrador também pode excluir leads.
 const SUPABASE_URL = "https://dhpfoynxsspaovtdbwmq.supabase.co";
 const SUPABASE_KEY = "sb_publishable_9jMmrFBHVzXufxLwGgUO_A_47HsuLx3";
 const POR_PAGINA = 50;
@@ -14,7 +15,7 @@ const norm = (s) => (s || "").trim().toLowerCase().replace(/^@+/, "");
 const PROFS = (window.PROFESSORES || []).filter((p) => !p.oculto).map((p) => ({ ...p, handle: norm(p.instagram) }));
 const PROF_POR_HANDLE = Object.fromEntries(PROFS.map((p) => [p.handle, p]));
 
-const estado = { senha: null, filtro: "", busca: "", pagina: 1, dados: null, timer: null };
+const estado = { senha: null, filtro: "", busca: "", pagina: 1, dados: null, timer: null, admin: false };
 
 function escapar(t) {
   const d = document.createElement("div");
@@ -23,26 +24,35 @@ function escapar(t) {
 }
 
 // ---------- API ----------
-async function consultar() {
-  const resp = await fetch(`${SUPABASE_URL}/rest/v1/rpc/painel_leads_canaga`, {
+async function rpc(funcao, params) {
+  const resp = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${funcao}`, {
     method: "POST",
     headers: { "apikey": SUPABASE_KEY, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      senha: estado.senha,
-      professor: estado.filtro || null,
-      busca: estado.busca || null,
-      limite: POR_PAGINA,
-      pagina: estado.pagina
-    })
+    body: JSON.stringify({ senha: estado.senha, ...params })
   });
   const corpo = await resp.json().catch(() => ({}));
-  if (!resp.ok) {
-    const err = new Error(corpo.message || `HTTP ${resp.status}`);
-    err.senhaInvalida = corpo.message === "senha_invalida";
+  if (!resp.ok || corpo.erro) {
+    const err = new Error(corpo.erro || corpo.message || `HTTP ${resp.status}`);
+    err.senhaInvalida = corpo.erro === "senha_invalida";
+    err.bloqueado = corpo.erro === "bloqueado";
+    err.semPermissao = corpo.erro === "sem_permissao";
     throw err;
   }
   return corpo;
 }
+
+async function consultar() {
+  const dados = await rpc("painel_leads_canaga", {
+    professor: estado.filtro || null,
+    busca: estado.busca || null,
+    limite: POR_PAGINA,
+    pagina: estado.pagina
+  });
+  estado.admin = dados.nivel === "admin";
+  return dados;
+}
+
+const MSG_BLOQUEADO = "Muitas tentativas erradas. Aguarde 15 minutos e tente novamente.";
 
 async function carregar() {
   $("btn-atualizar").disabled = true;
@@ -52,6 +62,7 @@ async function carregar() {
     $("atualizado").textContent = "Atualizado às " + new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
   } catch (e) {
     if (e.senhaInvalida) return sair("Sessão expirada. Digite a senha novamente.");
+    if (e.bloqueado) return sair(MSG_BLOQUEADO);
     console.error(e);
     $("atualizado").textContent = "Erro ao atualizar";
   } finally {
@@ -73,7 +84,9 @@ $("form-senha").addEventListener("submit", async (e) => {
     abrirPainel();
   } catch (err) {
     estado.senha = null;
-    $("trava-erro").textContent = err.senhaInvalida ? "Senha incorreta." : "Não foi possível conectar. Tente novamente.";
+    $("trava-erro").textContent = err.senhaInvalida ? "Senha incorreta."
+      : err.bloqueado ? MSG_BLOQUEADO
+      : "Não foi possível conectar. Tente novamente.";
   } finally {
     botao.disabled = false;
     botao.textContent = "Entrar";
@@ -94,6 +107,7 @@ function sair(msg) {
   clearInterval(estado.timer);
   estado.senha = null;
   estado.dados = null;
+  estado.admin = false;
   try { sessionStorage.removeItem("leadscanaga_senha"); } catch (err) {}
   $("painel").hidden = true;
   $("trava").hidden = false;
@@ -209,6 +223,10 @@ function renderizar() {
     `${fmt.format(d.filtro_unicos)} únicos · ${fmt.format(d.filtro_total)} cadastros — ${nomeFiltro}` +
     (estado.busca ? ` · busca "${estado.busca}"` : "");
 
+  // Modo administrador
+  $("modo-admin").hidden = !estado.admin;
+  $("th-acoes").hidden = !estado.admin;
+
   // Tabela
   const linhas = d.leads || [];
   $("tabela-corpo").innerHTML = linhas.length ? linhas.map((l) => `
@@ -222,8 +240,11 @@ function renderizar() {
       <td>${escapar(l.utm_campaign)}</td>
       <td>${escapar(l.utm_content)}</td>
       <td>${escapar(l.utm_term)}</td>
+      ${estado.admin ? `<td><button type="button" class="btn-excluir" data-excluir="${escapar(l.id)}"
+        data-desc="${escapar([l.nome, l.sobrenome].filter(Boolean).join(" ") + " (" + (l.email || "sem e-mail") + ")")}"
+        title="Excluir lead" aria-label="Excluir lead">Excluir</button></td>` : ""}
     </tr>`).join("")
-    : `<tr><td colspan="9" class="tabela__vazio">Nenhum lead encontrado para este filtro.</td></tr>`;
+    : `<tr><td colspan="${estado.admin ? 10 : 9}" class="tabela__vazio">Nenhum lead encontrado para este filtro.</td></tr>`;
 
   // Paginação
   const paginas = Math.max(1, Math.ceil(d.filtro_total / POR_PAGINA));
@@ -233,8 +254,30 @@ function renderizar() {
   $("pag-prox").disabled = estado.pagina >= paginas;
 }
 
+// Exclusão de lead (só administrador; o Supabase confere a senha de novo)
+async function excluirLead(botao) {
+  const id = Number(botao.dataset.excluir);
+  if (!confirm(`Excluir este lead de forma permanente?\n\n${botao.dataset.desc}\n\nEssa ação não pode ser desfeita.`)) return;
+  botao.disabled = true;
+  botao.textContent = "Excluindo...";
+  try {
+    const r = await rpc("excluir_lead_canaga", { lead_id: id });
+    if (!r.ok) alert("Esse lead não foi encontrado (talvez já tenha sido excluído).");
+    await carregar();
+  } catch (err) {
+    if (err.senhaInvalida) return sair("Sessão expirada. Digite a senha novamente.");
+    alert(err.bloqueado ? MSG_BLOQUEADO
+      : err.semPermissao ? "Somente a senha de administrador pode excluir leads."
+      : "Não foi possível excluir. Tente novamente.");
+    botao.disabled = false;
+    botao.textContent = "Excluir";
+  }
+}
+
 // Clique/teclado nos cards do placar e nos chips
 document.addEventListener("click", (e) => {
+  const excluir = e.target.closest("[data-excluir]");
+  if (excluir) return excluirLead(excluir);
   if (e.target.closest(".prof__ig")) return; // link do Instagram abre normalmente
   const alvo = e.target.closest("[data-filtro]");
   if (alvo) aplicarFiltro(alvo.dataset.filtro);
@@ -254,6 +297,6 @@ document.addEventListener("keydown", (e) => {
     estado.dados = await consultar();
     abrirPainel();
   } catch (err) {
-    sair(err.senhaInvalida ? "" : "Não foi possível conectar. Tente novamente.");
+    sair(err.senhaInvalida ? "" : err.bloqueado ? MSG_BLOQUEADO : "Não foi possível conectar. Tente novamente.");
   }
 })();

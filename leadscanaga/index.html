@@ -35,6 +35,7 @@
           <span>Painel de leads</span>
         </div>
         <div class="topo__acoes">
+          <span class="modo-admin" id="modo-admin" hidden>Administrador</span>
           <span class="topo__atualizado" id="atualizado"></span>
           <button type="button" class="btn btn--ghost" id="btn-atualizar">Atualizar</button>
           <button type="button" class="btn btn--ghost" id="btn-sair">Sair</button>
@@ -87,6 +88,7 @@
               <tr>
                 <th>Data</th><th>Nome</th><th>E-mail</th><th>Telefone</th>
                 <th>utm_source</th><th>utm_medium</th><th>utm_campaign</th><th>utm_content</th><th>utm_term</th>
+                <th id="th-acoes" hidden></th>
               </tr>
             </thead>
             <tbody id="tabela-corpo"></tbody>

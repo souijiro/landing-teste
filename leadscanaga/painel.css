@@ -127,6 +127,16 @@ img { display: block; max-width: 100%; height: auto; }
 .tabela td { padding: 9px 12px; border-top: 1px solid var(--chocolate-10); font-variant-numeric: tabular-nums; }
 .tabela tbody tr:hover { background: #fcf3ee80; }
 .tabela__vazio { text-align: center; padding: 32px !important; color: var(--texto-suave); white-space: normal; }
+.btn-excluir {
+  font: inherit; font-size: 12px; color: #b3261e; background: transparent;
+  border: 1px solid #b3261e55; border-radius: 999px; padding: 4px 12px; cursor: pointer;
+}
+.btn-excluir:hover { background: #b3261e; color: var(--branco); }
+.btn-excluir:disabled { opacity: .6; cursor: wait; }
+.modo-admin {
+  font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--branco);
+  background: var(--laranja); border-radius: 999px; padding: 4px 10px;
+}
 .paginacao { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 16px; font-size: 13px; color: var(--texto-suave); }
 
 @media (max-width: 800px) {
