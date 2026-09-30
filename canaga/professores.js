@@ -33,7 +33,6 @@ window.PROFESSORES = [
   {
     nome: "Carolina Xavier",
     instagram: "carolinaxavieroficial",
-    oculto: true, // escondido por enquanto — apague esta linha para voltar a exibir
     foto: "/canaga/img/professores/carolinaxavieroficial.jpg",
     curso: "Caseirinhos Perfeitos 3.0",
     descricao: "Aprenda a viver de bolos caseiros começando com o que você já tem na cozinha."
@@ -56,8 +55,8 @@ window.PROFESSORES = [
     nome: "Julia Postigo",
     instagram: "ajuliapostigo",
     foto: "/canaga/img/professores/ajuliapostigo.jpg",
-    curso: "Laboratório de Confeitaria",
-    descricao: "A ciência por trás da confeitaria: entenda cada ingrediente e crie receitas que dão certo."
+    curso: "Função dos Ingredientes",
+    descricao: "A base técnica da confeitaria: entenda o papel de cada ingrediente para ajustar e corrigir qualquer receita."
   },
   {
     nome: "Nati Moura",
@@ -85,22 +84,22 @@ window.PROFESSORES = [
     nome: "Tamise Albuquerque",
     instagram: "ammedoces",
     foto: "/canaga/img/professores/ammedoces.jpg",
-    curso: "Modelados 360º 2.0",
-    descricao: "Doces personalizados em pasta de leite em pó, lucrativos mesmo começando do zero."
+    curso: "Doces Exclusivos 1.0",
+    descricao: "Doces personalizados e exclusivos em pasta de leite em pó, verdadeiras obras de arte para vender."
   },
   {
     nome: "Lais",
     instagram: "bolodalais",
     foto: "/canaga/img/professores/bolodalais.jpg",
-    curso: "Festival de Fatias",
-    descricao: "Bolos caseiros em fatias com vários sabores a partir de poucas massas e recheios."
+    curso: "Bolos de Sucesso",
+    descricao: "Bolos super recheados que vendem o ano todo, com mais de 10 coberturas e recheios clássicos."
   },
   {
     nome: "Jaque Sobral",
     instagram: "jaquesobralconfeitaria",
     foto: "/canaga/img/professores/jaquesobralconfeitaria.jpg",
-    curso: "Torre de Carolinas",
-    descricao: "Carolinas perfeitas e a montagem da torre que é sucesso em festas e eventos."
+    curso: "3 E-books Mamãe Fez Bolo",
+    descricao: "Caseirinhos Afetivos, Bolo de Iogurte e Bolo de Churros: as receitas que marcaram a história da MfB."
   },
   {
     nome: "Poly Morais",
@@ -126,7 +125,6 @@ window.PROFESSORES = [
   {
     nome: "Fabiano e Guilherme",
     instagram: "_ohmycandy",
-    oculto: true, // escondido por enquanto — apague esta linha para voltar a exibir
     foto: "/canaga/img/professores/_ohmycandy.jpg",
     curso: "Oh My Candy! Academy",
     descricao: "Bolos decorados e bento cakes em buttercream com a dupla da Oh My Candy."
