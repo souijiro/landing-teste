@@ -1,6 +1,7 @@
 {
   "version": 2,
   "routes": [
+    { "src": "/(controles(?:-[a-z0-9-]+)?(?:/.*)?)", "has": [{ "type": "host", "value": "c.docis.com.br" }], "dest": "https://docis-controles.vercel.app/$1" },
     { "src": "/", "has": [{ "type": "host", "value": "c.canaga.com.br" }], "status": 302, "headers": { "Location": "/lancamento" } },
     { "src": "/lancamento/?", "has": [{ "type": "host", "value": "c.canaga.com.br" }], "dest": "/canaga/index.html" },
     { "src": "/carta/img/(.*)", "dest": "/carta/img/$1" },
