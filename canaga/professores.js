@@ -41,8 +41,8 @@ window.PROFESSORES = [
     nome: "Jéssica e Pedro",
     instagram: "expertbrownie",
     foto: "/canaga/img/professores/expertbrownie.jpg",
-    curso: "Curso Expert em Brownie",
-    descricao: "O método para faturar vendendo brownies, da receita à estratégia de vendas."
+    curso: "Fatias Brownie",
+    descricao: "Brownies em fatias recheadas e decoradas para vender por unidade e lucrar mais com cada forma."
   },
   {
     nome: "Debora Alves",
