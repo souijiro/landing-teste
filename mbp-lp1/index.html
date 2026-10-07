@@ -121,6 +121,11 @@ window.gpages_conversion = gpages_conversion;
         url = url + sep + 'src=' + encodeURIComponent(src);
       }
       link.setAttribute('href', url);
+      try {
+        if (typeof fbq === 'function') {
+          fbq('track', 'InitiateCheckout', {value: 16.99, currency: 'BRL', content_name: 'Guia do Brigadeiro Perfeito', perfil: src});
+        }
+      } catch (err) {}
 
       stepQuestion.style.display = 'none';
       stepThanks.style.display = '';
