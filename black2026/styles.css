@@ -59,7 +59,7 @@ img { max-width: 100%; display: block; }
 .expert__tag { text-align: center; margin: 0 0 18px; font-weight: 600; font-size: .85rem; letter-spacing: .08em; text-transform: uppercase; color: var(--amarelo); }
 .expert__card { background: #000; border: 1px solid rgba(255,255,255,.12); border-radius: 18px; padding: 0 16px 16px; overflow: hidden; }
 .expert__foto { width: 82%; height: auto; margin: 0 auto -60px; }
-.expert__foto--quadrada { width: calc(100% + 32px); max-width: none; margin: 0 -16px 16px; aspect-ratio: 1; object-fit: cover; object-position: center 30%; }
+.expert__foto--com-fundo { border-radius: 0 0 14px 14px; margin-top: 16px; border-radius: 14px; }
 .expert__cursos { position: relative; display: grid; gap: 10px; }
 .expert__cursos img { width: 100%; height: auto; aspect-ratio: 521 / 196; object-fit: cover; border-radius: 14px; }
 
