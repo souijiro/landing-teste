@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Dash Black Vitalícia 2026</title>
+  <link rel="icon" href="/black2026/img/brigadeiro.webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/dash/dash.css?v=1">
+</head>
+<body>
+
+  <!-- Login -->
+  <section class="login" id="login" hidden>
+    <form class="login__caixa" id="login-form">
+      <img src="/black2026/img/logo-escuro.webp?v=3" alt="Black Vitalícia" width="1200" height="600">
+      <label for="senha">Senha do dashboard</label>
+      <input type="password" id="senha" autocomplete="current-password" required autofocus>
+      <button type="submit" id="login-btn">Entrar</button>
+      <p class="login__erro" id="login-erro" hidden>Senha incorreta.</p>
+    </form>
+  </section>
+
+  <!-- App -->
+  <div class="app" id="app" hidden>
+    <header class="topo">
+      <div class="topo__marca">
+        <img src="/black2026/img/logo-escuro.webp?v=3" alt="Black Vitalícia" width="1200" height="600">
+        <div>
+          <strong>Dashboard de leads</strong>
+          <span id="atualizado">Carregando…</span>
+        </div>
+      </div>
+      <nav class="abas" role="tablist">
+        <button role="tab" class="aba ativa" data-aba="painel" aria-selected="true">Dashboard</button>
+        <button role="tab" class="aba" data-aba="leads" aria-selected="false">Leads</button>
+      </nav>
+      <div class="topo__acoes">
+        <button class="btn-sec" id="recarregar" title="Atualizar agora">↻ Atualizar</button>
+        <button class="btn-sec" id="sair">Sair</button>
+      </div>
+    </header>
+
+    <!-- ===== Aba Dashboard ===== -->
+    <main class="aba-conteudo" id="aba-painel">
+      <section class="hero">
+        <div class="hero__principal">
+          <p class="rotulo">Leads únicos</p>
+          <p class="hero__numero" id="k-unicos">0</p>
+          <p class="hero__meta">de <strong>10.000</strong> · meta</p>
+          <div class="barra" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="barra">
+            <div class="barra__fill" id="barra-fill"></div>
+          </div>
+          <div class="hero__rodape">
+            <span><strong id="k-pct">0%</strong> da meta</span>
+            <span>faltam <strong id="k-faltam">10.000</strong></span>
+          </div>
+        </div>
+        <div class="kpis">
+          <div class="kpi"><p class="rotulo">Hoje</p><p class="kpi__num" id="k-hoje">0</p><p class="kpi__sub" id="k-hoje-sub"></p></div>
+          <div class="kpi"><p class="rotulo">Ontem</p><p class="kpi__num" id="k-ontem">0</p></div>
+          <div class="kpi"><p class="rotulo">Média/dia (7 dias)</p><p class="kpi__num" id="k-media">0</p></div>
+          <div class="kpi"><p class="rotulo">Ritmo necessário/dia</p><p class="kpi__num" id="k-ritmo">0</p><p class="kpi__sub" id="k-ritmo-sub"></p></div>
+          <div class="kpi"><p class="rotulo">Projeção até 5/11</p><p class="kpi__num" id="k-proj">0</p><p class="kpi__sub" id="k-proj-sub"></p></div>
+          <div class="kpi"><p class="rotulo">Cadastros (com repetidos)</p><p class="kpi__num" id="k-total">0</p><p class="kpi__sub" id="k-dup"></p></div>
+        </div>
+      </section>
+
+      <section class="grade-2">
+        <div class="cartao">
+          <div class="cartao__topo">
+            <h2>Leads únicos por dia</h2>
+            <div class="legenda" id="legenda-dia"></div>
+          </div>
+          <div class="grafico"><canvas id="g-dia" aria-label="Leads únicos por dia, por tipo de origem"></canvas></div>
+        </div>
+        <div class="cartao">
+          <div class="cartao__topo"><h2>Acumulado × meta de 10.000</h2></div>
+          <div class="grafico"><canvas id="g-acum" aria-label="Leads únicos acumulados comparados à meta"></canvas></div>
+        </div>
+      </section>
+
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Por dia</h2></div>
+        <div class="tabela-wrap">
+          <table class="tabela" id="t-dia">
+            <thead><tr><th>Data</th><th class="n">Tráfego</th><th class="n">Orgânico</th><th class="n">Sem UTM</th><th class="n">Total</th><th class="n">% meta</th><th class="n">Acumulado</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="grade-3" id="quebras"></section>
+    </main>
+
+    <!-- ===== Aba Leads ===== -->
+    <main class="aba-conteudo" id="aba-leads" hidden>
+      <section class="cartao filtros">
+        <div class="filtros__linha">
+          <input type="search" id="f-busca" placeholder="Buscar nome, e-mail ou telefone">
+          <label>De <input type="date" id="f-de"></label>
+          <label>Até <input type="date" id="f-ate"></label>
+          <label class="check"><input type="checkbox" id="f-unicos" checked> Só únicos</label>
+        </div>
+        <div class="filtros__linha" id="f-selects"></div>
+        <div class="filtros__linha filtros__rodape">
+          <span id="f-contagem">0 leads</span>
+          <span class="espaco"></span>
+          <button class="btn-sec" id="f-limpar">Limpar filtros</button>
+          <button class="btn-pri" id="f-csv">Baixar CSV</button>
+        </div>
+      </section>
+
+      <section class="cartao">
+        <div class="tabela-wrap">
+          <table class="tabela tabela--leads" id="t-leads">
+            <thead><tr><th>Data/hora</th><th>Nome</th><th>E-mail</th><th>Telefone</th><th>País</th><th>Tipo</th><th>Campanha</th><th>Fonte</th><th>Meio</th><th>Conteúdo</th><th>Termo</th><th>Perfil</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="paginacao">
+          <button class="btn-sec" id="p-ant">← Anterior</button>
+          <span id="p-info"></span>
+          <button class="btn-sec" id="p-prox">Próxima →</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="/dash/dash.js?v=1"></script>
+</body>
+</html>

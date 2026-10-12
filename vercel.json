@@ -5,6 +5,7 @@
     { "src": "/(deliverydeaaz(?:/.*)?)", "has": [{ "type": "host", "value": "c.docis.com.br" }], "dest": "https://docis-delivery.vercel.app/$1" },
     { "src": "/", "has": [{ "type": "host", "value": "c.canaga.com.br" }], "status": 302, "headers": { "Location": "/lancamento" } },
     { "src": "/lancamento/?", "has": [{ "type": "host", "value": "c.canaga.com.br" }], "dest": "/canaga/index.html" },
+    { "src": "/dash/?", "dest": "/dash/index.html", "headers": { "X-Robots-Tag": "noindex, nofollow", "Cache-Control": "no-store" } },
     { "src": "/black2026/?", "dest": "/black2026/index.html" },
     { "src": "/black2026/obrigado/?", "dest": "/black2026/obrigado/index.html", "headers": { "X-Robots-Tag": "noindex, nofollow" } },
     { "src": "/carta/img/(.*)", "dest": "/carta/img/$1" },
