@@ -31,7 +31,9 @@ img { max-width: 100%; display: block; }
 
 /* ---------- Hero ---------- */
 .hero { padding: 26px 0 40px; text-align: center; background: radial-gradient(120% 60% at 50% 0%, #232113 0%, var(--preto) 70%); }
-.hero__logo { width: 100%; max-width: 340px; height: auto; margin: 0 auto 26px; }
+.hero__marca { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0 auto 26px; max-width: 480px; }
+.hero__logo { flex: 1 1 auto; min-width: 0; width: 100%; max-width: 300px; height: auto; }
+.hero__cabeca { flex: none; width: 52px; height: auto; filter: drop-shadow(0 4px 10px rgba(0,0,0,.5)); }
 .hero h1 { font-size: 1.6rem; line-height: 1.22; margin: 0 0 18px; font-weight: 800; letter-spacing: -.01em; }
 .hero h1 em { font-style: normal; color: var(--amarelo); }
 .hero p { margin: 0 0 14px; color: var(--texto-suave); }
@@ -118,7 +120,8 @@ img { max-width: 100%; display: block; }
 @media (min-width: 640px) {
   body { font-size: 18px; }
   .hero { padding-top: 40px; }
-  .hero__logo { max-width: 420px; }
+  .hero__logo { max-width: 380px; }
+  .hero__cabeca { width: 72px; }
   .hero h1 { font-size: 2.1rem; }
   .modal { align-items: center; }
   .modal__caixa { border-radius: 20px; border-bottom: 1px solid rgba(255,255,255,.14); padding-bottom: 24px; }
