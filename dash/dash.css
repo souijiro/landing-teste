@@ -19,9 +19,18 @@ body { margin: 0; background: var(--fundo); color: var(--texto); font: 500 14px/
 img { display: block; max-width: 100%; }
 button { font: inherit; cursor: pointer; }
 [hidden] { display: none !important; }
+html { background: var(--preto); }
+body { min-height: 100dvh; }
+.aba-conteudo { padding-bottom: calc(16px + env(safe-area-inset-bottom)) !important; }
+
+/* Dica de instalação (só Safari do iPhone, fora do app) */
+.instalar { position: relative; margin: 12px 16px 0; padding: 12px 40px 12px 14px; background: #fff7b8; border: 1px solid #f0e06a; border-radius: 12px; font-size: .85rem; color: #3b3500; }
+.instalar p { margin: 0; }
+.instalar__icone { display: inline-block; font-weight: 800; }
+.instalar__fechar { position: absolute; top: 4px; right: 4px; width: 34px; height: 34px; border: 0; background: none; font-size: 1.4rem; color: #3b3500; }
 
 /* ---------- Login ---------- */
-.login { min-height: 100dvh; display: grid; place-items: center; background: var(--preto); padding: 16px; }
+.login { min-height: 100dvh; display: grid; place-items: center; background: var(--preto); padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)); }
 .login__caixa { width: 100%; max-width: 340px; display: grid; gap: 10px; }
 .login__caixa img { width: 220px; height: auto; margin: 0 auto 18px; }
 .login__caixa label { color: #cfc9c4; font-size: .85rem; }
@@ -30,7 +39,7 @@ button { font: inherit; cursor: pointer; }
 .login__erro { color: #f2a0a6; text-align: center; margin: 4px 0 0; }
 
 /* ---------- Topo ---------- */
-.topo { position: relative; z-index: 10; background: var(--preto); color: #fff; padding: 10px 16px; display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; }
+.topo { position: relative; z-index: 10; background: var(--preto); color: #fff; padding: calc(10px + env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 10px max(16px, env(safe-area-inset-left)); display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; }
 .topo__marca { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .topo__marca img { width: 74px; height: auto; flex: none; }
 .topo__marca strong { display: block; font-size: .95rem; }

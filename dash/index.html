@@ -3,13 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0b0b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Black 2026">
+  <link rel="manifest" href="/dash/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/dash/icons/apple-touch-icon.png">
   <meta name="robots" content="noindex, nofollow">
   <title>Dash Black Vitalícia 2026</title>
-  <link rel="icon" href="/black2026/img/brigadeiro.webp">
+  <link rel="icon" href="/dash/icons/icon-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/dash/dash.css?v=2">
+  <link rel="stylesheet" href="/dash/dash.css?v=3">
 </head>
 <body>
 
@@ -43,6 +50,11 @@
         <button class="btn-sec" id="sair">Sair</button>
       </div>
     </header>
+
+    <div class="instalar" id="instalar" hidden>
+      <p>📲 <strong>Instale como app:</strong> toque em <span class="instalar__icone" aria-label="Compartilhar">⬆︎</span> Compartilhar e depois em <strong>Adicionar à Tela de Início</strong>.</p>
+      <button class="instalar__fechar" id="instalar-fechar" aria-label="Fechar">×</button>
+    </div>
 
     <!-- ===== Aba Dashboard ===== -->
     <main class="aba-conteudo" id="aba-painel">
@@ -131,6 +143,6 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-  <script src="/dash/dash.js?v=2"></script>
+  <script src="/dash/dash.js?v=3"></script>
 </body>
 </html>

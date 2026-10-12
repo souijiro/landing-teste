@@ -324,6 +324,19 @@ $("#f-csv").addEventListener("click", () => {
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 });
 
+// ---------- Dica de instalação no iPhone ----------
+(function () {
+  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const instalado = window.navigator.standalone === true || matchMedia("(display-mode: standalone)").matches;
+  let dispensado = false;
+  try { dispensado = localStorage.getItem("dash_instalar_ok") === "1"; } catch (e) {}
+  if (ios && !instalado && !dispensado) $("#instalar").hidden = false;
+  $("#instalar-fechar").addEventListener("click", () => {
+    $("#instalar").hidden = true;
+    try { localStorage.setItem("dash_instalar_ok", "1"); } catch (e) {}
+  });
+})();
+
 // ---------- Início ----------
 if (lerToken()) { mostrarApp(); carregar(); } else mostrarLogin();
 document.addEventListener("visibilitychange", () => { if (!document.hidden && lerToken()) carregar(); });
