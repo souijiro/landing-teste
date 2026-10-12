@@ -7,7 +7,7 @@
   --texto-2: #57534e;
   --texto-3: #8a857f;
   --linha: #e7e2db;
-  --vermelho: #ea1d2c;
+  --amarelo: #ffee00;
   /* séries (paleta validada: azul, laranja, verde-água) */
   --s-trafego: #2a78d6;
   --s-organico: #eb6834;
@@ -53,7 +53,7 @@ button { font: inherit; cursor: pointer; }
 .hero__meta { margin: 6px 0 16px; color: #cfc9c4; }
 .hero__meta strong { color: #fff; }
 .barra { height: 14px; background: #2a2727; border-radius: 999px; overflow: hidden; }
-.barra__fill { height: 100%; width: 0; background: linear-gradient(90deg, #f05a66, var(--vermelho)); border-radius: 999px; transition: width .6s ease; }
+.barra__fill { height: 100%; width: 0; background: linear-gradient(90deg, #fff59a, var(--amarelo)); border-radius: 999px; transition: width .6s ease; }
 .hero__rodape { display: flex; justify-content: space-between; margin-top: 10px; color: #cfc9c4; font-size: .9rem; }
 .hero__rodape strong { color: #fff; }
 .kpis { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }

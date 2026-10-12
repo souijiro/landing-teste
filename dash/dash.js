@@ -184,7 +184,7 @@ function renderPainel() {
   const acum = dias.map((d) => (ac += tot(d)));
   const dsAc = [
     { label: "Leads únicos acumulados", data: acum, borderColor: "#0b0b0b", backgroundColor: "rgba(11,11,11,.06)", fill: true, borderWidth: 2, pointRadius: 0, pointHoverRadius: 5, tension: .25 },
-    { label: "Meta 10.000", data: dias.map(() => META), borderColor: "#ea1d2c", borderDash: [6, 5], borderWidth: 2, pointRadius: 0, pointHoverRadius: 0 }
+    { label: "Meta 10.000", data: dias.map(() => META), borderColor: "#c9a800", borderDash: [6, 5], borderWidth: 2, pointRadius: 0, pointHoverRadius: 0 }
   ];
   if (gAcum) { gAcum.data.labels = labels; gAcum.data.datasets[0].data = acum; gAcum.data.datasets[1].data = dsAc[1].data; gAcum.update(); }
   else gAcum = new Chart($("#g-acum"), { type: "line", data: { labels, datasets: dsAc }, options: opcoesGrafico({ legenda: true, max: META * 1.05 }) });
