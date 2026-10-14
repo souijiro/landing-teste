@@ -210,6 +210,7 @@ function renderPainel() {
     ["Por anúncio (utm_term)", (l) => l.utm_term],
     ["Por perfil", (l) => (l.perfil ? PERFIS[l.perfil] || l.perfil : "A definir")],
     ["Por país", (l) => l.pais],
+    ["Por domínio da página", (l) => { try { return new URL(l.pagina_origem).hostname; } catch (e) { return ""; } }],
     ["Por hora do dia", (l) => new Intl.DateTimeFormat("pt-BR", { timeZone: TZ, hour: "2-digit" }).format(new Date(l.criado_em)) + "h", true]
   ];
   $("#quebras").innerHTML = quebras.map(([titulo, fn, ordemNatural], i) => {

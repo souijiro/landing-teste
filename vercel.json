@@ -1,6 +1,9 @@
 {
   "version": 2,
   "routes": [
+    { "src": "/", "has": [{ "type": "host", "value": "black.confeitaria5estrelas.com" }], "dest": "/black2026/index.html" },
+    { "src": "/obrigado/?", "has": [{ "type": "host", "value": "black.confeitaria5estrelas.com" }], "dest": "/black2026/obrigado/index.html", "headers": { "X-Robots-Tag": "noindex, nofollow" } },
+    { "src": "/(?!black2026/(?:img/|styles\\.css|script\\.js)).*", "has": [{ "type": "host", "value": "black.confeitaria5estrelas.com" }], "status": 404 },
     { "src": "/(controles(?:-[a-z0-9-]+)?(?:/.*)?)", "has": [{ "type": "host", "value": "c.docis.com.br" }], "dest": "https://docis-controles.vercel.app/$1" },
     { "src": "/(deliverydeaaz(?:/.*)?)", "has": [{ "type": "host", "value": "c.docis.com.br" }], "dest": "https://docis-delivery.vercel.app/$1" },
     { "src": "/", "has": [{ "type": "host", "value": "c.canaga.com.br" }], "status": 302, "headers": { "Location": "/lancamento" } },

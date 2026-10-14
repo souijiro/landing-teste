@@ -4,7 +4,8 @@ import ptBR from "https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/i1
 const SUPABASE_URL = "https://eoqyoeohbcpdjxghfwua.supabase.co";
 const SUPABASE_KEY = "sb_publishable_cv-1jB60ZGb1hJHYQi0qPA_LwF9DS98";
 const TABELA = "leads_black2026";
-const PAGINA_OBRIGADO = "/black2026/obrigado";
+// No domínio do Felipe a página fica na raiz: black.confeitaria5estrelas.com/obrigado
+const PAGINA_OBRIGADO = location.hostname === "black.confeitaria5estrelas.com" ? "/obrigado" : "/black2026/obrigado";
 
 const UTM_CAMPOS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"];
 

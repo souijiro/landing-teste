@@ -8,21 +8,27 @@
   <meta name="theme-color" content="#000000">
   <link rel="icon" href="/black2026/img/brigadeiro.webp">
 
-  <!-- Meta Pixel Code (Docis) -->
+  <!-- Meta Pixel: um por domínio (mesmas páginas servidas em c.docis.com.br e black.confeitaria5estrelas.com) -->
   <script>
-    !function(f,b,e,v,n,t,s)
-    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-    n.queue=[];t=b.createElement(e);t.async=!0;
-    t.src=v;s=b.getElementsByTagName(e)[0];
-    s.parentNode.insertBefore(t,s)}(window, document,'script',
-    'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', '1893587064519515');
-    fbq('track', 'PageView');
+    window.PIXELS = {
+      "black.confeitaria5estrelas.com": "",   // pixel do Felipe Russo — preencher quando chegar
+      "padrao": "1893587064519515"           // pixel Docis
+    };
+    window.PIXEL_ID = location.hostname in PIXELS ? PIXELS[location.hostname] : PIXELS.padrao;
+    if (PIXEL_ID) {
+      !function(f,b,e,v,n,t,s)
+      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+      n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t,s)}(window, document,'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init', PIXEL_ID);
+      fbq('track', 'PageView');
+    }
   </script>
-  <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1893587064519515&ev=PageView&noscript=1"/></noscript>
-  <!-- End Meta Pixel Code -->
+  <!-- End Meta Pixel -->
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
