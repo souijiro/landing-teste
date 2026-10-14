@@ -14,7 +14,7 @@ const MEIOS_PAGOS = ["cpc", "paid", "pago", "ads", "trafego", "tráfego", "paid_
 const TIPOS = ["Tráfego", "Orgânico", "Sem UTM"];
 const COR = { "Tráfego": "#2a78d6", "Orgânico": "#eb6834", "Sem UTM": "#1baf7a" };
 const TAG = { "Tráfego": "trafego", "Orgânico": "organico", "Sem UTM": "semutm" };
-const PERFIS = { aluno_docis: "Aluno Docis", aluno_felipe_russo: "Aluno Felipe Russo", ambos: "Ambos", nenhum: "Nenhum" };
+const PERFIS = { aluno_docis: "Aluno Docis", aluno_docis_black: "Aluno Docis (Black)", aluno_felipe: "Aluno Felipe", aluno_felipe_black: "Aluno Felipe (Black)", aluno_ambos: "Aluno dos dois", nao_aluno: "Não aluno" };
 
 const $ = (s) => document.querySelector(s);
 const fmt = (n) => Math.round(n).toLocaleString("pt-BR");
@@ -208,7 +208,7 @@ function renderPainel() {
     ["Por meio (utm_medium)", (l) => l.utm_medium],
     ["Por expert / conteúdo (utm_content)", (l) => l.utm_content],
     ["Por anúncio (utm_term)", (l) => l.utm_term],
-    ["Por perfil", (l) => (l.perfil ? PERFIS[l.perfil] || l.perfil : "A definir")],
+    ["Por perfil de aluno", (l) => (l.perfil ? PERFIS[l.perfil] || l.perfil : "Não aluno")],
     ["Por país", (l) => l.pais],
     ["Por domínio da página", (l) => { try { return new URL(l.pagina_origem).hostname; } catch (e) { return ""; } }],
     ["Por hora do dia", (l) => new Intl.DateTimeFormat("pt-BR", { timeZone: TZ, hour: "2-digit" }).format(new Date(l.criado_em)) + "h", true]
