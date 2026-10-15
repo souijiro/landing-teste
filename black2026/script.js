@@ -50,6 +50,7 @@ function abrir() {
   document.body.style.overflow = "hidden";
   setTimeout(() => document.getElementById("nome").focus(), 60);
   if (window.fbq) fbq("trackCustom", "AbriuPopupBlack2026");
+  if (window.dataLayer) window.dataLayer.push({ event: "abriu_popup_black2026" });
 }
 function fechar() {
   modal.classList.remove("aberto");
