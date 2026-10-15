@@ -130,6 +130,8 @@ form.addEventListener("submit", async (e) => {
 
   // Pixel: Lead
   if (window.fbq) fbq("track", "Lead", { content_name: "Black Vitalícia 2026" });
+  // GTM (só existe no c.docis.com.br)
+  if (window.dataLayer) window.dataLayer.push({ event: "lead_black2026", pais: lead.pais, utm_source: lead.utm_source, utm_campaign: lead.utm_campaign });
 
   // Leva as UTMs para a página de obrigado
   const qs = new URLSearchParams();

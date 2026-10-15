@@ -18,7 +18,7 @@
   <!-- Meta Pixel: um por domínio (mesmas páginas servidas em c.docis.com.br e black.confeitaria5estrelas.com) -->
   <script>
     window.PIXELS = {
-      "black.confeitaria5estrelas.com": "",   // pixel do Felipe Russo — preencher quando chegar
+      "black.confeitaria5estrelas.com": "3168622129919221",   // pixel Felipe Russo
       "padrao": "1893587064519515"           // pixel Docis
     };
     window.PIXEL_ID = location.hostname in PIXELS ? PIXELS[location.hostname] : PIXELS.padrao;
@@ -36,6 +36,17 @@
     }
   </script>
   <!-- End Meta Pixel -->
+  <!-- Google Tag Manager (GTM-55ZVC8K) — só no domínio da Docis -->
+  <script>
+    if (location.hostname === "c.docis.com.br") {
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-55ZVC8K');
+    }
+  </script>
+  <!-- End Google Tag Manager -->
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -182,6 +193,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/intlTelInputWithUtils.min.js"></script>
-  <script type="module" src="script.js?v=3"></script>
+  <script type="module" src="script.js?v=4"></script>
 </body>
 </html>
