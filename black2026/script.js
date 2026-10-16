@@ -100,7 +100,9 @@ form.addEventListener("submit", async (e) => {
     telefone: iti.getNumber(), // E.164, ex: +5511999999999
     pais: iti.getSelectedCountryData().iso2 || null,
     ...UTMS,
-    pagina_origem: PAGINA_ORIGEM
+    pagina_origem: PAGINA_ORIGEM,
+    // mesmo ID no banco, no pixel e no GTM: a Meta descarta Leads repetidos com o mesmo event_id
+    event_id: (crypto.randomUUID ? crypto.randomUUID() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (c) => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)))
   };
 
   btn.disabled = true;
@@ -118,7 +120,7 @@ form.addEventListener("submit", async (e) => {
         },
         body: JSON.stringify(lead)
       });
-      salvo = r.ok;
+      salvo = r.ok || r.status === 409; // 409 = já gravado numa tentativa anterior (mesmo event_id)
     } catch (err) { /* tenta de novo */ }
   }
 
@@ -129,15 +131,26 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
-  // Pixel: Lead
-  if (window.fbq) fbq("track", "Lead", { content_name: "Black Vitalícia 2026" });
-  // GTM (só existe no c.docis.com.br)
-  if (window.dataLayer) window.dataLayer.push({ event: "lead_black2026", pais: lead.pais, utm_source: lead.utm_source, utm_campaign: lead.utm_campaign });
-
-  // Leva as UTMs para a página de obrigado
+  // Leva as UTMs para a página de obrigado (uma vez só)
   const qs = new URLSearchParams();
   UTM_CAMPOS.forEach((c) => { if (UTMS[c]) qs.set(c, UTMS[c]); });
-  setTimeout(() => {
+  let foi = false;
+  const irParaObrigado = () => {
+    if (foi) return; foi = true;
     location.href = PAGINA_OBRIGADO + (qs.toString() ? "?" + qs : "");
-  }, 350);
+  };
+
+  // Pixel direto (domínio do Felipe): Lead uma vez, com event_id
+  if (window.fbq) fbq("track", "Lead", { content_name: "Black Vitalícia 2026" }, { eventID: lead.event_id });
+  // GTM (c.docis.com.br): evento único do cadastro; redireciona quando as tags terminarem
+  if (window.dataLayer && window.google_tag_manager) {
+    window.dataLayer.push({
+      event: "lead_black2026", event_id: lead.event_id,
+      pais: lead.pais, utm_source: lead.utm_source, utm_campaign: lead.utm_campaign,
+      eventCallback: irParaObrigado, eventTimeout: 2000
+    });
+    setTimeout(irParaObrigado, 2500); // segurança caso o GTM não responda
+  } else {
+    setTimeout(irParaObrigado, 400);
+  }
 });
