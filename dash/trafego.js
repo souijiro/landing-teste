@@ -25,9 +25,17 @@ const grupoLead = (l) => PERFIL_GRUPO[l.perfil] || "nao";
 let TRAF = { ads: [], insights: [], alcance: {}, sync: null, ultimaOk: null };
 let ADS = new Map();          // ad_id -> anúncio
 let ATRIB = new Map();        // lead.id -> [{ad_id, peso}]
-let ordem = { col: "investimento", dir: -1 };
+let ordem = { col: "leads", dir: -1 };
+// Desempate dos rankings de anúncios: 1) mais leads, 2) menor CPL, 3) mais leads que são alunos
+const arred = (v) => Math.round((v || 0) * 1000) / 1000;
+const alunosDe = (r) => (r.ci || 0) + (r.felipe || 0) + (r.ambos || 0);
+function desempate(a, b) {
+  return arred(b.leads) - arred(a.leads)
+    || (a.cpl ?? Infinity) - (b.cpl ?? Infinity)
+    || arred(alunosDe(b)) - arred(alunosDe(a));
+}
 let gInv = null, gCpl = null, gHora = null, diaHora = null;
-try { const o = JSON.parse(localStorage.getItem("dash_traf_ordem") || "null"); if (o) ordem = o; } catch (e) {}
+try { const o = JSON.parse(localStorage.getItem("dash_traf_ordem2") || "null"); if (o) ordem = o; } catch (e) {}
 
 const norm = (v) => String(v ?? "").trim().toLowerCase();
 
@@ -234,8 +242,9 @@ function renderRanking() {
   grupos.sort((a, b) => {
     if (ordem.col === "nome") return ordem.dir * a[0].localeCompare(b[0], "pt-BR", { numeric: true });
     const va = val(a[1]), vb = val(b[1]);
-    if (va == null && vb == null) return 0; if (va == null) return 1; if (vb == null) return -1;
-    return ordem.dir * (va - vb);
+    if (va == null && vb == null) return desempate(a[1], b[1]);
+    if (va == null) return 1; if (vb == null) return -1;
+    return ordem.dir * (arred(va) - arred(vb)) || desempate(a[1], b[1]); // empate na coluna escolhida -> leads, CPL, alunos
   });
   const seta = (c) => (ordem.col === c ? (ordem.dir > 0 ? " ▲" : " ▼") : "");
   const nomeDim = DIMENSOES.find((d) => d[0] === dim)[1];
@@ -243,11 +252,11 @@ function renderRanking() {
   $("#t-rank tbody").innerHTML = grupos.map(([k, r]) => `<tr>
     <td title="${esc(k)}"><div class="rank-nome">${dim === "anuncio" && criativoDe(k) ? `<img class="thumb" src="${thumbUrl(criativoDe(k))}" alt="" loading="lazy" referrerpolicy="no-referrer" data-criativo="${esc(k)}">` : ""}<div><strong>${esc(k)}</strong>${r.campanha ? `<span class="sub">${esc(r.campanha)}${r.conjunto ? " · " + esc(r.conjunto) : ""}</span>` : ""}</div></div></td>
     ${COLUNAS.map(([c]) => `<td class="n">${celula(c, r)}</td>`).join("")}</tr>`).join("") || `<tr><td colspan="${COLUNAS.length + 1}" class="vazio">Sem dados.</td></tr>`;
-  $("#t-rank-info").textContent = `${fmt(grupos.length)} ${grupos.length === 1 ? "linha" : "linhas"} · clique no título da coluna para ordenar`;
+  $("#t-rank-info").textContent = `${fmt(grupos.length)} ${grupos.length === 1 ? "linha" : "linhas"} · clique no título da coluna para ordenar · empate: leads, CPL, alunos`;
   $("#t-rank thead").querySelectorAll("th").forEach((th) => th.addEventListener("click", () => {
     const c = th.dataset.col;
     ordem = { col: c, dir: ordem.col === c ? -ordem.dir : (c === "nome" ? 1 : -1) };
-    try { localStorage.setItem("dash_traf_ordem", JSON.stringify(ordem)); } catch (e) {}
+    try { localStorage.setItem("dash_traf_ordem2", JSON.stringify(ordem)); } catch (e) {}
     renderRanking();
   }));
   TRAF.ultimoRanking = { dim: nomeDim, grupos };
@@ -396,7 +405,7 @@ function renderHora(dia, linhas) {
 // ---------- Top 5 ----------
 function renderTop5(f) {
   const ads = [...agregar(f, "anuncio").entries()].filter(([, r]) => r.leads > 0)
-    .sort((a, b) => b[1].leads - a[1].leads || (a[1].cpl ?? 1e9) - (b[1].cpl ?? 1e9)).slice(0, 5);
+    .sort((a, b) => desempate(a[1], b[1])).slice(0, 5);
   $("#t-top5").innerHTML = ads.map(([nome, r], i) => {
     const c = criativoDe(nome);
     return `<article class="top5__card">
