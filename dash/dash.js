@@ -309,7 +309,10 @@ function renderLeads() {
   const paginas = Math.max(1, Math.ceil(lista.length / POR_PAGINA));
   pagina = Math.min(pagina, paginas);
   const fatia = lista.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA);
-  $("#f-contagem").textContent = `${fmt(lista.length)} lead${lista.length === 1 ? "" : "s"}`;
+  const unicosNaLista = lista.filter((l) => l.unico).length;
+  $("#f-contagem").textContent = $("#f-unicos").checked
+    ? `${fmt(lista.length)} lead${lista.length === 1 ? "" : "s"} único${lista.length === 1 ? "" : "s"}`
+    : `${fmt(lista.length)} cadastro${lista.length === 1 ? "" : "s"} (${fmt(unicosNaLista)} únicos + ${fmt(lista.length - unicosNaLista)} repetidos)`;
   $("#t-leads tbody").innerHTML = fatia.map((l) => `<tr>
     <td>${horaSP.format(new Date(l.criado_em))}</td>
     <td title="${esc(l.nome)}">${esc(l.nome)}</td>
@@ -319,7 +322,9 @@ function renderLeads() {
     <td><span class="tag tag--${TAG[l.tipo]}">${l.tipo}</span></td>
     <td>${esc(l.utm_campaign)}</td><td>${esc(l.utm_source)}</td><td>${esc(l.utm_medium)}</td><td>${esc(l.utm_content)}</td><td>${esc(l.utm_term)}</td>
     <td>${esc(l.perfil ? PERFIS[l.perfil] || l.perfil : "")}</td></tr>`).join("") || `<tr><td colspan="12" style="color:#8a857f">Nenhum lead com esses filtros.</td></tr>`;
-  $("#p-info").textContent = `Página ${pagina} de ${paginas}`;
+  $("#p-info").textContent = lista.length
+    ? `Mostrando ${fmt((pagina - 1) * POR_PAGINA + 1)}–${fmt(Math.min(pagina * POR_PAGINA, lista.length))} de ${fmt(lista.length)} · página ${pagina} de ${paginas}`
+    : "";
   $("#p-ant").disabled = pagina <= 1;
   $("#p-prox").disabled = pagina >= paginas;
 }

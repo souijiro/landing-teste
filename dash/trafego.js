@@ -176,7 +176,7 @@ function renderTrafego() {
   // KPIs
   const kpis = [
     ["Investimento", brl(total.investimento)], ["Impressões", fmt(total.impressoes)], ["Cliques", fmt(total.cliques)],
-    ["Page views", fmt(total.page_views)], ["Leads", num1(total.leads)], ["Alcance", (total.alcanceAprox ? "≈ " : "") + fmt(total.alcance)],
+    ["Page views", fmt(total.page_views)], ["Leads de anúncios", num1(total.leads)], ["Alcance", (total.alcanceAprox ? "≈ " : "") + fmt(total.alcance)],
     ["Tx carregamento LP", fmtDerivada.tx_lp(total.tx_lp)], ["CPM", fmtDerivada.cpm(total.cpm)], ["CTR", fmtDerivada.ctr(total.ctr)],
     ["CPC", fmtDerivada.cpc(total.cpc)], ["Conv. cliques → leads", fmtDerivada.conv_cliques(total.conv_cliques)],
     ["Conv. LP", fmtDerivada.conv_lp(total.conv_lp)], ["CPL", fmtDerivada.cpl(total.cpl)]
