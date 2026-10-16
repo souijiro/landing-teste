@@ -62,10 +62,12 @@ const pluginCabecas = {
 function renderAlunos() {
   const cont = Object.fromEntries(GRUPOS_ALUNO.map((g) => [g.chave, 0]));
   const black = { docis: 0, felipe: 0 };
+  let lowTicket = 0; // alunos Docis que só compraram low ticket
   UNICOS.forEach((l) => {
     const g = grupoDoPerfil(l.perfil);
     cont[g.chave]++;
     if (g.black && l.perfil === g.black) black[g.chave]++;
+    if (g.chave === "docis" && l.low_ticket) lowTicket++;
   });
   const total = UNICOS.length;
   const alunos = cont.docis + cont.felipe + cont.ambos;
@@ -89,7 +91,8 @@ function renderAlunos() {
 
   const icone = (t) => t === "ci" ? `<img src="${CABECA_CI.src}" alt="">` : t === "felipe" ? `<img src="${CABECA_FELIPE.src}" alt="">`
     : t === "ambos" ? `<img src="${CABECA_CI.src}" alt=""><img src="${CABECA_FELIPE.src}" alt="">` : `<span class="nenhum" aria-hidden="true"></span>`;
-  const sub = (g) => g.black ? `${fmt(black[g.chave])} da Black` : g.chave === "ambos" ? "Docis e Felipe Russo" : "não estão em nenhuma lista";
+  const sub = (g) => g.chave === "docis" ? `${fmt(black.docis)} da Black · ${fmt(lowTicket)} do Low Ticket`
+    : g.black ? `${fmt(black[g.chave])} da Black` : g.chave === "ambos" ? "Docis e Felipe Russo" : "não estão em nenhuma lista";
   $("#alunos-lista").innerHTML = GRUPOS_ALUNO.map((g) => `<li>
       <span class="alunos__icone">${icone(g.icone)}</span>
       <span class="alunos__nome"><i class="cor" style="background:${g.cor}"></i>${g.nome}<span class="alunos__sub">${sub(g)}</span></span>

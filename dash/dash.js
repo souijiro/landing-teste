@@ -78,7 +78,7 @@ function tipoOrigem(l) {
 function preparar(linhas) {
   LEADS = linhas.map((r) => {
     const l = { id: r[0], criado_em: r[1], nome: r[2], email: (r[3] || "").toLowerCase(), telefone: r[4], pais: (r[5] || "").toUpperCase(),
-      utm_source: r[6], utm_medium: r[7], utm_campaign: r[8], utm_content: r[9], utm_term: r[10], pagina_origem: r[11], perfil: r[12] };
+      utm_source: r[6], utm_medium: r[7], utm_campaign: r[8], utm_content: r[9], utm_term: r[10], pagina_origem: r[11], perfil: r[12], low_ticket: r[13] === true };
     l.dia = diaSP.format(new Date(l.criado_em));
     l.tipo = tipoOrigem(l);
     return l;
