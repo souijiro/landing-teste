@@ -65,6 +65,12 @@ function resolverUtms(ad: any, urlTags: string, link: string) {
   return res;
 }
 
+// vídeo x imagem pelo próprio criativo da Meta
+function formatoDoCriativo(c: any): "video" | "imagem" {
+  if (c?.video_id || c?.object_story_spec?.video_data || (c?.asset_feed_spec?.videos || []).length || c?.object_type === "VIDEO") return "video";
+  return "imagem";
+}
+
 function linkDoCriativo(c: any): string {
   return c?.object_story_spec?.link_data?.link
     || c?.object_story_spec?.video_data?.call_to_action?.value?.link
@@ -93,7 +99,7 @@ Deno.serve(async () => {
    for (const { id: CONTA, nome: CONTA_NOME } of CONTAS) {
     // 1) anúncios + UTMs
     const ads = await graph(`${CONTA}/ads`, {
-      fields: "id,name,effective_status,adset{id,name},campaign{id,name},creative{url_tags,object_story_spec,asset_feed_spec,link_url}",
+      fields: "id,name,effective_status,adset{id,name},campaign{id,name},creative{url_tags,object_story_spec,asset_feed_spec,link_url,object_type,video_id}",
       filtering: filtro, limit: "200",
     }, token);
     const linhasAds = ads.map((ad) => {
@@ -102,7 +108,8 @@ Deno.serve(async () => {
       return {
         ad_id: ad.id, ad_name: ad.name, adset_id: ad.adset?.id, adset_name: ad.adset?.name,
         campaign_id: ad.campaign?.id, campaign_name: ad.campaign?.name, status: ad.effective_status,
-        url_tags: urlTags, link_url: link, ...resolverUtms(ad, urlTags, link), conta_id: CONTA, conta_nome: CONTA_NOME, atualizado_em: agora,
+        url_tags: urlTags, link_url: link, ...resolverUtms(ad, urlTags, link), conta_id: CONTA, conta_nome: CONTA_NOME,
+        formato: formatoDoCriativo(ad.creative), atualizado_em: agora,
       };
     });
 

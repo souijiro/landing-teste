@@ -8,7 +8,7 @@ const num1 = (n) => (n < 10 && n % 1 ? n.toLocaleString("pt-BR", { maximumFracti
 
 const UTMS_AD = ["utm_source", "utm_campaign", "utm_content", "utm_term"]; // utm_medium = {{placement}}, não resolvível
 const DIMENSOES = [
-  ["conta", "Conta de anúncio"], ["campanha", "Campanha (Meta)"], ["conjunto", "Conjunto (Meta)"], ["anuncio", "Anúncio (Meta)"],
+  ["conta", "Conta de anúncio"], ["formato", "Formato (vídeo/imagem)"], ["campanha", "Campanha (Meta)"], ["conjunto", "Conjunto (Meta)"], ["anuncio", "Anúncio (Meta)"],
   ["utm_source", "utm_source"], ["utm_campaign", "utm_campaign"], ["utm_content", "utm_content"], ["utm_term", "utm_term"]
 ];
 const COLUNAS = [
@@ -42,7 +42,9 @@ const norm = (v) => String(v ?? "").trim().toLowerCase();
 function prepararTrafego(d) {
   TRAF.ads = (d.ads || []).map((a) => ({
     ad_id: a[0], anuncio: a[1] || a[0], adset_id: a[2], conjunto: a[3] || a[2], campaign_id: a[4], campanha: a[5] || a[4], status: a[6],
-    utm_source: a[7], utm_medium: a[8], utm_campaign: a[9], utm_content: a[10], utm_term: a[11], url_tags: a[12], conta_id: a[13], conta: a[14] || "Docis"
+    utm_source: a[7], utm_medium: a[8], utm_campaign: a[9], utm_content: a[10], utm_term: a[11], url_tags: a[12], conta_id: a[13], conta: a[14] || "Docis",
+    // formato pela Meta; se não vier, pelo arquivo do Drive
+    formato: (a[15] || (criativoDe(a[1])?.tipo === "vid" ? "video" : "imagem")) === "video" ? "Vídeo" : "Imagem"
   }));
   ADS = new Map(TRAF.ads.map((a) => [a.ad_id, a]));
   TRAF.insights = (d.insights || []).map((r) => ({ dia: r[0], ad_id: r[1], investimento: +r[2] || 0, impressoes: +r[3] || 0, cliques: +r[4] || 0, page_views: +r[5] || 0, leads_meta: +r[6] || 0, alcance: +r[7] || 0 }));
@@ -77,7 +79,7 @@ function atribuirLeads() {
 }
 
 // ---------- Filtros ----------
-const FILTROS_T = [["conta", "Conta"], ["campanha", "Campanha"], ["conjunto", "Conjunto"], ["anuncio", "Anúncio"], ["utm_source", "utm_source"], ["utm_campaign", "utm_campaign"], ["utm_content", "utm_content"], ["utm_term", "utm_term"]];
+const FILTROS_T = [["conta", "Conta"], ["formato", "Formato"], ["campanha", "Campanha"], ["conjunto", "Conjunto"], ["anuncio", "Anúncio"], ["utm_source", "utm_source"], ["utm_campaign", "utm_campaign"], ["utm_content", "utm_content"], ["utm_term", "utm_term"]];
 
 function montarFiltrosTrafego() {
   const wrap = $("#t-selects");
@@ -126,7 +128,7 @@ function celula(col, r) {
   return def[2](r[col], r);
 }
 
-function chaveDim(a, dim) { return dim === "conta" ? a.conta : dim === "campanha" ? a.campanha : dim === "conjunto" ? a.conjunto : dim === "anuncio" ? a.anuncio : (a[dim] || "(vazio)"); }
+function chaveDim(a, dim) { return dim === "formato" ? a.formato : dim === "conta" ? a.conta : dim === "campanha" ? a.campanha : dim === "conjunto" ? a.conjunto : dim === "anuncio" ? a.anuncio : (a[dim] || "(vazio)"); }
 
 function agregar(f, dim) {
   const grupos = new Map();
@@ -138,7 +140,7 @@ function agregar(f, dim) {
     const r = g(dim ? chaveDim(a, dim) : "total");
     r.investimento += i.investimento; r.impressoes += i.impressoes; r.cliques += i.cliques;
     r.page_views += i.page_views; r.leads_meta += i.leads_meta; r.alcance += i.alcance;
-    if (dim === "anuncio") { r.campanha = a.campanha; r.conjunto = a.conjunto; }
+    if (dim === "anuncio") { r.campanha = a.campanha; r.conjunto = a.conjunto; r.formato = a.formato; }
     if (dim === "conjunto") r.campanha = a.campanha;
   });
   UNICOS.forEach((l) => {
@@ -250,7 +252,7 @@ function renderRanking() {
   const nomeDim = DIMENSOES.find((d) => d[0] === dim)[1];
   $("#t-rank thead").innerHTML = `<tr><th data-col="nome" class="ordenavel">${esc(nomeDim)}${seta("nome")}</th>${COLUNAS.map(([c, n]) => `<th data-col="${c}" class="n ordenavel">${n}${seta(c)}</th>`).join("")}</tr>`;
   $("#t-rank tbody").innerHTML = grupos.map(([k, r]) => `<tr>
-    <td title="${esc(k)}"><div class="rank-nome">${dim === "anuncio" && criativoDe(k) ? `<img class="thumb" src="${thumbUrl(criativoDe(k))}" alt="" loading="lazy" referrerpolicy="no-referrer" data-criativo="${esc(k)}">` : ""}<div><strong>${esc(k)}</strong>${r.campanha ? `<span class="sub">${esc(r.campanha)}${r.conjunto ? " · " + esc(r.conjunto) : ""}</span>` : ""}</div></div></td>
+    <td title="${esc(k)}"><div class="rank-nome">${dim === "anuncio" && criativoDe(k) ? `<img class="thumb" src="${thumbUrl(criativoDe(k))}" alt="" loading="lazy" referrerpolicy="no-referrer" data-criativo="${esc(k)}">` : ""}<div><strong>${dim === "anuncio" ? iconeFormato(r.formato) : ""}${esc(k)}</strong>${r.campanha ? `<span class="sub">${esc(r.campanha)}${r.conjunto ? " · " + esc(r.conjunto) : ""}</span>` : ""}</div></div></td>
     ${COLUNAS.map(([c]) => `<td class="n">${celula(c, r)}</td>`).join("")}</tr>`).join("") || `<tr><td colspan="${COLUNAS.length + 1}" class="vazio">Sem dados.</td></tr>`;
   $("#t-rank-info").textContent = `${fmt(grupos.length)} ${grupos.length === 1 ? "linha" : "linhas"} · clique no título da coluna para ordenar · empate: leads, CPL, alunos`;
   $("#t-rank thead").querySelectorAll("th").forEach((th) => th.addEventListener("click", () => {
@@ -404,14 +406,22 @@ function renderHora(dia, linhas) {
 
 // ---------- Top 5 ----------
 function renderTop5(f) {
-  const ads = [...agregar(f, "anuncio").entries()].filter(([, r]) => r.leads > 0)
-    .sort((a, b) => desempate(a[1], b[1])).slice(0, 5);
-  $("#t-top5").innerHTML = ads.map(([nome, r], i) => {
+  const todos = [...agregar(f, "anuncio").entries()].filter(([, r]) => r.leads > 0).sort((a, b) => desempate(a[1], b[1]));
+  desenharTop($("#t-top5"), todos.slice(0, 5), "Ainda sem leads ligados a anúncios.");
+  const videos = todos.filter(([, r]) => r.formato === "Vídeo").slice(0, 5);
+  const temVideo = TRAF.ads.some((a) => a.formato === "Vídeo" && adPassa(a, f));
+  desenharTop($("#t-top5-video"), videos, temVideo ? "Os vídeos ainda não trouxeram leads no período." : "Nenhum anúncio em vídeo rodando nas campanhas blf26 (com os filtros escolhidos).");
+}
+function iconeFormato(fmt) {
+  return fmt === "Vídeo" ? '<span class="fmt fmt--video" title="Vídeo" aria-label="Vídeo">▶</span>' : '<span class="fmt fmt--img" title="Imagem" aria-label="Imagem">▣</span>';
+}
+function desenharTop(el, ads, vazioMsg) {
+  el.innerHTML = ads.map(([nome, r], i) => {
     const c = criativoDe(nome);
     return `<article class="top5__card">
       <button type="button" class="top5__img" data-criativo="${esc(nome)}" aria-label="Ver o anúncio ${esc(nome)}">
         ${c ? `<img src="${thumbUrl(c, 480)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : ""}
-        <span class="top5__pos">#${i + 1}</span>${c && c.tipo === "vid" ? '<span class="top5__tipo">▶ vídeo</span>' : ""}
+        <span class="top5__pos">#${i + 1}</span><span class="top5__tipo">${r.formato === "Vídeo" ? "▶ vídeo" : "▣ imagem"}</span>
       </button>
       <div class="top5__info">
         <span class="top5__nome">${esc(nome)}</span>
@@ -422,5 +432,5 @@ function renderTop5(f) {
           <span><b>${num1(r.ci)}</b>Ci</span><span><b>${num1(r.felipe)}</b>Felipe</span><span><b>${num1(r.ambos)}</b>Ambos</span><span><b>${num1(r.nao)}</b>Não alunos</span>
         </div>
       </div></article>`;
-  }).join("") || `<p class="t-nota">Ainda sem leads ligados a anúncios.</p>`;
+  }).join("") || `<p class="t-nota">${vazioMsg}</p>`;
 }

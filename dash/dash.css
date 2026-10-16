@@ -208,3 +208,8 @@ body { min-height: 100dvh; }
   .top5__card { display: grid; grid-template-columns: 120px minmax(0, 1fr); }
   .top5__img { aspect-ratio: auto; height: 100%; min-height: 150px; }
 }
+
+/* ícone de formato no ranking */
+.fmt { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 5px; font-size: .62rem; margin-right: 6px; vertical-align: 1px; color: #fff; }
+.fmt--video { background: #e5484d; }
+.fmt--img { background: #57534e; }
