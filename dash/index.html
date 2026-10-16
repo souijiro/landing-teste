@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/dash/dash.css?v=3">
+  <link rel="stylesheet" href="/dash/dash.css?v=5">
 </head>
 <body>
 
@@ -43,6 +43,7 @@
       </div>
       <nav class="abas" role="tablist">
         <button role="tab" class="aba ativa" data-aba="painel" aria-selected="true">Dashboard</button>
+        <button role="tab" class="aba" data-aba="trafego" aria-selected="false">Tráfego</button>
         <button role="tab" class="aba" data-aba="leads" aria-selected="false">Leads</button>
       </nav>
       <div class="topo__acoes">
@@ -77,6 +78,8 @@
           <div class="kpi"><p class="rotulo">Média/dia (7 dias)</p><p class="kpi__num" id="k-media">0</p></div>
           <div class="kpi"><p class="rotulo">Ritmo necessário/dia</p><p class="kpi__num" id="k-ritmo">0</p><p class="kpi__sub" id="k-ritmo-sub"></p></div>
           <div class="kpi"><p class="rotulo">Projeção até 5/11</p><p class="kpi__num" id="k-proj">0</p><p class="kpi__sub" id="k-proj-sub"></p></div>
+          <div class="kpi"><p class="rotulo">Investimento total (Meta)</p><p class="kpi__num" id="k-inv">—</p><p class="kpi__sub" id="k-inv-sub"></p></div>
+          <div class="kpi"><p class="rotulo">CPL (tráfego)</p><p class="kpi__num" id="k-cpl">—</p><p class="kpi__sub" id="k-cpl-sub"></p></div>
           <div class="kpi"><p class="rotulo">Cadastros (com repetidos)</p><p class="kpi__num" id="k-total">0</p><p class="kpi__sub" id="k-dup"></p></div>
         </div>
       </section>
@@ -99,13 +102,63 @@
         <div class="cartao__topo"><h2>Por dia</h2></div>
         <div class="tabela-wrap">
           <table class="tabela" id="t-dia">
-            <thead><tr><th>Data</th><th class="n">Tráfego</th><th class="n">Orgânico</th><th class="n">Sem UTM</th><th class="n">Total</th><th class="n">% meta</th><th class="n">Acumulado</th></tr></thead>
+            <thead><tr><th>Data</th><th class="n">Tráfego</th><th class="n">Orgânico</th><th class="n">Sem UTM</th><th class="n">Total</th><th class="n">% meta</th><th class="n">Acumulado</th><th class="n">Investimento</th><th class="n">CPL</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
       </section>
 
       <section class="grade-3" id="quebras"></section>
+    </main>
+
+    <!-- ===== Aba Tráfego ===== -->
+    <main class="aba-conteudo" id="aba-trafego" hidden>
+      <section class="cartao filtros">
+        <div class="filtros__linha">
+          <label>De <input type="date" id="t-de"></label>
+          <label>Até <input type="date" id="t-ate"></label>
+          <span class="espaco"></span>
+          <span class="t-sync" id="t-sync"></span>
+        </div>
+        <div class="filtros__linha" id="t-selects"></div>
+        <div class="filtros__linha filtros__rodape">
+          <span class="t-nota">Leads = leads únicos ligados a um anúncio blf26 pelas UTMs (utm_source, utm_campaign, utm_content = conjunto, utm_term = anúncio).</span>
+          <span class="espaco"></span>
+          <button class="btn-sec" id="t-limpar">Limpar filtros</button>
+        </div>
+      </section>
+
+      <section class="kpis kpis--trafego" id="t-kpis"></section>
+      <p class="aviso-traf" id="t-aviso" hidden></p>
+
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Investimento por dia</h2></div>
+        <div class="grafico"><canvas id="g-inv" aria-label="Investimento por dia na Meta"></canvas></div>
+      </section>
+
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Por dia</h2></div>
+        <div class="tabela-wrap">
+          <table class="tabela" id="tr-dia">
+            <thead><tr><th>Data</th><th class="n">Orgânico</th><th class="n">Tráfego</th><th class="n">Investimento</th><th class="n">Impressões</th><th class="n">Cliques</th><th class="n">Page views</th><th class="n">Leads</th><th class="n">Alcance</th><th class="n">Tx carreg. LP</th><th class="n">CPM</th><th class="n">CTR</th><th class="n">CPC</th><th class="n">Conv. cliques→leads</th><th class="n">Conv. LP</th><th class="n">CPL</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="cartao">
+        <div class="cartao__topo">
+          <h2>Ranking</h2>
+          <div class="filtros__linha">
+            <label>Agrupar por <select id="t-dim"></select></label>
+            <button class="btn-pri" id="t-csv">Baixar CSV</button>
+          </div>
+        </div>
+        <p class="t-nota" id="t-rank-info"></p>
+        <div class="tabela-wrap tabela-wrap--alta">
+          <table class="tabela tabela--rank" id="t-rank"><thead></thead><tbody></tbody></table>
+        </div>
+      </section>
     </main>
 
     <!-- ===== Aba Leads ===== -->
@@ -143,6 +196,7 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-  <script src="/dash/dash.js?v=5"></script>
+  <script src="/dash/dash.js?v=6"></script>
+  <script src="/dash/trafego.js?v=1"></script>
 </body>
 </html>

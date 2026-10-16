@@ -97,11 +97,16 @@ async function carregar() {
   if (!token) return mostrarLogin();
   $("#recarregar").disabled = true;
   try {
-    const linhas = await rpc("dash_leads_black2026", { p_token: token });
+    const [linhas, traf] = await Promise.all([
+      rpc("dash_leads_black2026", { p_token: token }),
+      rpc("dash_trafego_black2026", { p_token: token }).catch((e) => { if (e.code === "28000") throw e; return null; })
+    ]);
     preparar(linhas || []);
+    if (traf) prepararTrafego(traf);
     renderPainel();
     montarFiltros();
     renderLeads();
+    if (traf) { montarFiltrosTrafego(); renderTrafego(); }
     $("#atualizado").textContent = "Atualizado " + horaSP.format(new Date()) + " · atualiza sozinho a cada 1 min";
   } catch (err) {
     if (err.code === "28000") { apagarToken(); return mostrarLogin(); }
@@ -117,8 +122,8 @@ $("#recarregar").addEventListener("click", carregar);
 // ---------- Abas ----------
 document.querySelectorAll(".aba").forEach((b) => b.addEventListener("click", () => {
   document.querySelectorAll(".aba").forEach((x) => { x.classList.toggle("ativa", x === b); x.setAttribute("aria-selected", x === b); });
-  $("#aba-painel").hidden = b.dataset.aba !== "painel";
-  $("#aba-leads").hidden = b.dataset.aba !== "leads";
+  document.querySelectorAll(".aba-conteudo").forEach((m) => { m.hidden = m.id !== "aba-" + b.dataset.aba; });
+  if (b.dataset.aba === "trafego" && typeof gInv !== "undefined" && gInv) gInv.resize();
   try { localStorage.setItem("dash_aba", b.dataset.aba); } catch (e) {}
 }));
 try { const a = localStorage.getItem("dash_aba"); if (a) document.querySelector(`.aba[data-aba="${a}"]`)?.click(); } catch (e) {}
@@ -166,6 +171,16 @@ function renderPainel() {
   $("#k-proj").textContent = fmt(proj);
   $("#k-proj-sub").textContent = `${pct(proj, META)} da meta no ritmo dos últimos 7 dias`;
 
+  // tráfego (Meta)
+  const invDia = typeof totaisTrafegoPorDia === "function" ? totaisTrafegoPorDia() : new Map();
+  const invTotal = [...invDia.values()].reduce((s, v) => s + v, 0);
+  const leadsAtrib = (d) => UNICOS.filter((l) => (!d || l.dia === d) && typeof ATRIB !== "undefined" && ATRIB.has(l.id)).length;
+  const totAtrib = leadsAtrib(null);
+  $("#k-inv").textContent = brl(invTotal);
+  $("#k-inv-sub").textContent = `hoje: ${brl(invDia.get(hoje) || 0)}`;
+  $("#k-cpl").textContent = totAtrib ? brl(invTotal / totAtrib) : "—";
+  $("#k-cpl-sub").textContent = `${fmt(totAtrib)} leads ligados aos anúncios`;
+
   $("#k-total").textContent = fmt(LEADS.length);
   $("#k-dup").textContent = `${fmt(LEADS.length - n)} cadastros repetidos (mesmo e-mail)`;
 
@@ -197,8 +212,10 @@ function renderPainel() {
       ${TIPOS.map((t) => `<td class="n">${fmt(porDia[d][t])}</td>`).join("")}
       <td class="n"><strong>${fmt(tot(d))}</strong></td>
       <td class="n">${pct(tot(d), META)}</td>
-      <td class="n">${fmt(ac)}</td></tr>`).join("")
-    + `<tr class="total"><td>Total</td>${TIPOS.map((t) => `<td class="n">${fmt(UNICOS.filter((l) => l.tipo === t).length)}</td>`).join("")}<td class="n">${fmt(n)}</td><td class="n">${pct(n, META)}</td><td class="n"></td></tr>`;
+      <td class="n">${fmt(ac)}</td>
+      <td class="n">${invDia.get(d) ? brl(invDia.get(d)) : "—"}</td>
+      <td class="n">${invDia.get(d) && leadsAtrib(d) ? brl(invDia.get(d) / leadsAtrib(d)) : "—"}</td></tr>`).join("")
+    + `<tr class="total"><td>Total</td>${TIPOS.map((t) => `<td class="n">${fmt(UNICOS.filter((l) => l.tipo === t).length)}</td>`).join("")}<td class="n">${fmt(n)}</td><td class="n">${pct(n, META)}</td><td class="n"></td><td class="n">${brl(invTotal)}</td><td class="n">${totAtrib ? brl(invTotal / totAtrib) : "—"}</td></tr>`;
 
   // quebras
   const quebras = [

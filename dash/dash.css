@@ -42,6 +42,7 @@ body { min-height: 100dvh; }
 .topo { position: relative; z-index: 10; background: var(--preto); color: #fff; padding: calc(10px + env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 10px max(16px, env(safe-area-inset-left)); display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; }
 .topo__marca { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .topo__marca img { width: 74px; height: auto; flex: none; }
+.topo__marca > div { min-width: 0; }
 .topo__marca strong { display: block; font-size: .95rem; }
 .topo__marca span { display: block; color: #a8a29e; font-size: .75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .topo__acoes { display: flex; gap: 6px; }
@@ -122,7 +123,7 @@ body { min-height: 100dvh; }
 
 @media (min-width: 720px) {
   .topo { position: sticky; top: 0; grid-template-columns: auto 1fr auto; padding: 10px 24px; }
-  .abas { grid-column: auto; justify-self: center; width: 320px; }
+  .abas { grid-column: auto; justify-self: center; width: 440px; }
   .aba-conteudo { padding: 22px 24px; gap: 20px; }
   .kpis { grid-template-columns: repeat(3, 1fr); }
   .grade-3 { grid-template-columns: repeat(2, 1fr); }
@@ -134,3 +135,20 @@ body { min-height: 100dvh; }
   .grade-2 { grid-template-columns: 1.4fr 1fr; }
   .grade-3 { grid-template-columns: repeat(3, 1fr); }
 }
+
+/* ---------- Aba Tráfego ---------- */
+.kpis--trafego { grid-template-columns: repeat(2, 1fr); }
+.kpi--destaque { background: var(--preto); color: #fff; border-color: var(--preto); }
+.kpi--destaque .rotulo { color: #a8a29e; }
+.aviso-traf { margin: 0; padding: 10px 14px; background: #fff7b8; border: 1px solid #f0e06a; border-radius: 10px; font-size: .82rem; color: #3b3500; }
+.t-nota { font-size: .75rem; color: var(--texto-3); margin: 0; }
+.t-sync { font-size: .75rem; color: var(--texto-2); }
+.tabela th.ordenavel { cursor: pointer; user-select: none; }
+.tabela th.ordenavel:hover { color: var(--texto); }
+.tabela--rank td:first-child { max-width: 280px; overflow: hidden; text-overflow: ellipsis; }
+.tabela--rank .sub { display: block; font-size: .7rem; color: var(--texto-3); font-weight: 500; overflow: hidden; text-overflow: ellipsis; }
+.tabela--rank th:first-child, .tabela--rank td:first-child { position: sticky; left: 0; background: var(--cartao); z-index: 1; }
+.tabela-wrap--alta { max-height: 640px; overflow: auto; }
+.tabela .vazio { color: var(--texto-3); }
+@media (min-width: 720px) { .kpis--trafego { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 1080px) { .kpis--trafego { grid-template-columns: repeat(7, 1fr); } }
