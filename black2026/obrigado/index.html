@@ -87,20 +87,36 @@
   <footer>Copyright © 2026 - Todos os direitos reservados</footer>
 
   <script>
-    // Link do grupo de WhatsApp: preencher quando os grupos forem definidos.
-    const GRUPO_URL = "https://chat.whatsapp.com/FrnZvN5W8chFWzCMgiklKV?mode=gi_t";
+    // O grupo de cada pessoa é escolhido no banco no cadastro (alunos x não alunos, rodízio de 10 em 10).
+    // Se não der para descobrir (ex.: abriu esta página direto), usa o grupo padrão.
+    const GRUPO_PADRAO = "https://chat.whatsapp.com/FrnZvN5W8chFWzCMgiklKV";
+    const SUPABASE_URL = "https://eoqyoeohbcpdjxghfwua.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_cv-1jB60ZGb1hJHYQi0qPA_LwF9DS98";
 
     const btn = document.getElementById("grupo");
-    if (GRUPO_URL) {
-      btn.href = GRUPO_URL;
-      btn.addEventListener("click", () => {
-        if (window.fbq) fbq("trackCustom", "EntrouGrupoBlack2026");
-        if (window.dataLayer) window.dataLayer.push({ event: "entrou_grupo_black2026" });
-      });
-    } else {
-      btn.setAttribute("aria-disabled", "true");
-      btn.addEventListener("click", (e) => { e.preventDefault(); document.getElementById("aviso").style.display = "block"; });
-    }
+    btn.href = GRUPO_PADRAO;
+    btn.addEventListener("click", () => {
+      if (window.fbq) fbq("trackCustom", "EntrouGrupoBlack2026");
+      if (window.dataLayer) window.dataLayer.push({ event: "entrou_grupo_black2026" });
+    });
+
+    (async function () {
+      let eventId = new URLSearchParams(location.search).get("e");
+      try { eventId = eventId || sessionStorage.getItem("black2026_event_id"); } catch (e) {}
+      if (!eventId || !/^[0-9a-f-]{36}$/i.test(eventId)) return;
+      for (let tentativa = 0; tentativa < 3; tentativa++) {
+        try {
+          const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/grupo_black2026`, {
+            method: "POST",
+            headers: { apikey: SUPABASE_KEY, "Content-Type": "application/json" },
+            body: JSON.stringify({ p_event_id: eventId })
+          });
+          const url = r.ok ? await r.json() : null;
+          if (url && /^https:\/\/chat\.whatsapp\.com\//.test(url)) { btn.href = url; return; }
+        } catch (e) { /* tenta de novo */ }
+        await new Promise((ok) => setTimeout(ok, 700));
+      }
+    })();
   </script>
 </body>
 </html>

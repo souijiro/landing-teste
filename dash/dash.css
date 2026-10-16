@@ -152,3 +152,59 @@ body { min-height: 100dvh; }
 .tabela .vazio { color: var(--texto-3); }
 @media (min-width: 720px) { .kpis--trafego { grid-template-columns: repeat(4, 1fr); } }
 @media (min-width: 1080px) { .kpis--trafego { grid-template-columns: repeat(7, 1fr); } }
+
+/* ---------- Alunos (pizza com cabecinhas) ---------- */
+.alunos__corpo { display: grid; gap: 18px; align-items: center; }
+.alunos__pizza { position: relative; width: 100%; max-width: 320px; aspect-ratio: 1; margin: 0 auto; }
+.alunos__lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.alunos__lista li { display: grid; grid-template-columns: 64px 1fr auto; gap: 12px; align-items: center; padding: 10px 12px; border: 1px solid var(--linha); border-radius: 12px; }
+.alunos__lista li.total { background: var(--preto); color: #fff; border-color: var(--preto); }
+.alunos__icone { display: flex; justify-content: center; align-items: center; height: 48px; }
+.alunos__icone img { height: 46px; width: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,.25)); }
+.alunos__icone img + img { margin-left: -12px; }
+.alunos__icone .nenhum { width: 40px; height: 40px; border-radius: 50%; border: 4px solid #e5484d; position: relative; }
+.alunos__icone .nenhum::after { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 4px; margin-left: -2px; background: #e5484d; transform: rotate(45deg); }
+.alunos__nome { font-weight: 700; font-size: .9rem; }
+.alunos__sub { display: block; font-size: .72rem; color: var(--texto-3); font-weight: 500; }
+.alunos__lista li.total .alunos__sub { color: #a8a29e; }
+.alunos__num { text-align: right; font-weight: 800; font-size: 1.4rem; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.alunos__num small { display: block; font-size: .72rem; font-weight: 600; color: var(--texto-3); }
+.alunos__lista li.total .alunos__num small { color: #a8a29e; }
+.alunos__lista i.cor { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: 1px; }
+@media (min-width: 720px) { .alunos__corpo { grid-template-columns: 320px 1fr; } }
+
+/* ---------- Criativos: Top 5, miniaturas e prévia ---------- */
+.top5 { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.top5__card { border: 1px solid var(--linha); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; background: #fff; }
+.top5__img { position: relative; aspect-ratio: 4 / 5; background: #f1ece6; cursor: zoom-in; border: 0; padding: 0; display: block; width: 100%; }
+.top5__img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.top5__pos { position: absolute; top: 8px; left: 8px; background: var(--preto); color: #fff; font-weight: 800; font-size: .8rem; border-radius: 999px; padding: 3px 9px; }
+.top5__tipo { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,.7); color: #fff; font-size: .68rem; font-weight: 700; border-radius: 6px; padding: 2px 6px; }
+.top5__info { padding: 10px 12px 12px; display: grid; gap: 6px; font-size: .8rem; }
+.top5__nome { font-weight: 800; font-size: .9rem; }
+.top5__linha { display: flex; justify-content: space-between; gap: 8px; }
+.top5__linha strong { font-variant-numeric: tabular-nums; }
+.top5__perfis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; border-top: 1px solid var(--linha); padding-top: 8px; text-align: center; }
+.top5__perfis span { display: grid; gap: 2px; font-size: .64rem; color: var(--texto-3); min-width: 0; overflow-wrap: anywhere; }
+.top5__perfis b { font-size: .9rem; color: var(--texto); font-variant-numeric: tabular-nums; }
+.thumb { width: 40px; height: 50px; border-radius: 6px; object-fit: cover; background: #f1ece6; cursor: zoom-in; display: block; flex: none; }
+.rank-nome { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.rank-nome > div { min-width: 0; }
+.previa { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,.8); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.previa__caixa { width: 100%; max-width: 420px; background: #111; border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; max-height: calc(100dvh - 32px); }
+.previa__topo { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; color: #fff; }
+.previa__topo .btn-sec { color: #fff; }
+.previa iframe { width: 100%; aspect-ratio: 4 / 5; border: 0; background: #000; max-height: calc(100dvh - 100px); }
+.previa-hover { position: fixed; z-index: 55; width: 240px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.35); pointer-events: none; background: #f1ece6; }
+@media (min-width: 720px) { .top5 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 1080px) { .top5 { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+@media (hover: none) { .previa-hover { display: none !important; } }
+.previa__caixa > img { width: 100%; max-height: calc(100dvh - 130px); object-fit: contain; background: #000; display: block; }
+.previa__link { display: block; text-align: center; color: #cfc9c4; font-size: .8rem; padding: 10px; }
+.previa [hidden] { display: none !important; }
+
+/* Top 5 no celular: imagem ao lado das informações (fica no fim para valer sobre .top5__card) */
+@media (max-width: 719px) {
+  .top5__card { display: grid; grid-template-columns: 120px minmax(0, 1fr); }
+  .top5__img { aspect-ratio: auto; height: 100%; min-height: 150px; }
+}

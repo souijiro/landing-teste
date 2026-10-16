@@ -133,6 +133,8 @@ form.addEventListener("submit", async (e) => {
 
   // Leva as UTMs para a página de obrigado (uma vez só)
   const qs = new URLSearchParams();
+  qs.set("e", lead.event_id); // a página de obrigado usa para achar o grupo de WhatsApp desta pessoa
+  try { sessionStorage.setItem("black2026_event_id", lead.event_id); } catch (e) {}
   UTM_CAMPOS.forEach((c) => { if (UTMS[c]) qs.set(c, UTMS[c]); });
   let foi = false;
   const irParaObrigado = () => {

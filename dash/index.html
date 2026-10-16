@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/dash/dash.css?v=5">
+  <link rel="stylesheet" href="/dash/dash.css?v=9">
 </head>
 <body>
 
@@ -84,6 +84,14 @@
         </div>
       </section>
 
+      <section class="cartao alunos">
+        <div class="cartao__topo"><h2>Alunos entre os leads</h2><span class="t-nota" id="alunos-nota"></span></div>
+        <div class="alunos__corpo">
+          <div class="alunos__pizza"><canvas id="g-alunos" aria-label="Leads por perfil de aluno: Docis, Felipe Russo, dos dois e não alunos"></canvas></div>
+          <ul class="alunos__lista" id="alunos-lista"></ul>
+        </div>
+      </section>
+
       <section class="grade-2">
         <div class="cartao">
           <div class="cartao__topo">
@@ -132,6 +140,27 @@
       <p class="aviso-traf" id="t-aviso" hidden></p>
 
       <section class="cartao">
+        <div class="cartao__topo"><h2>Por conta de anúncio</h2><span class="t-nota">leads e alunos captados por cada conta, para separar os custos</span></div>
+        <div class="tabela-wrap">
+          <table class="tabela" id="t-contas">
+            <thead><tr><th>Conta</th><th class="n">Investimento</th><th class="n">Leads</th><th class="n">Alunos Ci</th><th class="n">Alunos Felipe</th><th class="n">Ambos</th><th class="n">Não alunos</th><th class="n">CPL</th><th class="n">CPL não aluno</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="grade-2">
+        <div class="cartao">
+          <div class="cartao__topo"><h2>CPL por dia</h2><span class="t-nota">clique num dia para ver hora a hora</span></div>
+          <div class="grafico"><canvas id="g-cpl" aria-label="CPL por dia"></canvas></div>
+        </div>
+        <div class="cartao">
+          <div class="cartao__topo"><h2 id="hora-titulo">Hora a hora</h2><span class="t-nota" id="hora-nota">escolha um dia no gráfico ao lado</span></div>
+          <div class="grafico"><canvas id="g-hora" aria-label="CPL hora a hora do dia escolhido"></canvas></div>
+        </div>
+      </section>
+
+      <section class="cartao">
         <div class="cartao__topo"><h2>Investimento por dia</h2></div>
         <div class="grafico"><canvas id="g-inv" aria-label="Investimento por dia na Meta"></canvas></div>
       </section>
@@ -144,6 +173,11 @@
             <tbody></tbody>
           </table>
         </div>
+      </section>
+
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Top 5 anúncios</h2><span class="t-nota">mais leads no período e filtros escolhidos · toque na imagem para ver o anúncio</span></div>
+        <div class="top5" id="t-top5"></div>
       </section>
 
       <section class="cartao">
@@ -195,8 +229,21 @@
     </main>
   </div>
 
+  <!-- Prévia do criativo (Drive) -->
+  <div class="previa" id="previa" hidden>
+    <div class="previa__caixa">
+      <div class="previa__topo"><strong id="previa-titulo"></strong><button type="button" class="btn-sec" id="previa-fechar">Fechar</button></div>
+      <img id="previa-img" alt="" hidden referrerpolicy="no-referrer">
+      <iframe id="previa-frame" title="Prévia do anúncio" allow="autoplay" hidden></iframe>
+      <a class="previa__link" id="previa-link" target="_blank" rel="noopener">Abrir no Drive ↗</a>
+    </div>
+  </div>
+  <img class="previa-hover" id="previa-hover" alt="" hidden>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-  <script src="/dash/dash.js?v=6"></script>
-  <script src="/dash/trafego.js?v=1"></script>
+  <script src="/dash/dash.js?v=7"></script>
+  <script src="/dash/alunos.js?v=1"></script>
+  <script src="/dash/criativos.js?v=1"></script>
+  <script src="/dash/trafego.js?v=3"></script>
 </body>
 </html>

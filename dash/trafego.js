@@ -8,21 +8,25 @@ const num1 = (n) => (n < 10 && n % 1 ? n.toLocaleString("pt-BR", { maximumFracti
 
 const UTMS_AD = ["utm_source", "utm_campaign", "utm_content", "utm_term"]; // utm_medium = {{placement}}, não resolvível
 const DIMENSOES = [
-  ["campanha", "Campanha (Meta)"], ["conjunto", "Conjunto (Meta)"], ["anuncio", "Anúncio (Meta)"],
+  ["conta", "Conta de anúncio"], ["campanha", "Campanha (Meta)"], ["conjunto", "Conjunto (Meta)"], ["anuncio", "Anúncio (Meta)"],
   ["utm_source", "utm_source"], ["utm_campaign", "utm_campaign"], ["utm_content", "utm_content"], ["utm_term", "utm_term"]
 ];
 const COLUNAS = [
   ["investimento", "Investimento", brl], ["impressoes", "Impressões", fmt], ["cliques", "Cliques", fmt],
   ["page_views", "Page views", fmt], ["leads", "Leads", num1], ["leads_meta", "Leads (Meta)", fmt], ["alcance", "Alcance", (v, r) => (r.alcanceAprox ? "≈ " : "") + fmt(v)],
   ["tx_lp", "Tx carreg. LP", null], ["cpm", "CPM", null], ["ctr", "CTR", null], ["cpc", "CPC", null],
-  ["conv_cliques", "Conv. cliques→leads", null], ["conv_lp", "Conv. LP", null], ["cpl", "CPL", null]
+  ["conv_cliques", "Conv. cliques→leads", null], ["conv_lp", "Conv. LP", null], ["cpl", "CPL", null],
+  ["ci", "Alunos Ci", num1], ["felipe", "Alunos Felipe", num1], ["ambos", "Alunos dos dois", num1], ["nao", "Não alunos", num1]
 ];
+// perfil do lead -> grupo (Ci = Docis)
+const PERFIL_GRUPO = { aluno_docis: "ci", aluno_docis_black: "ci", aluno_felipe: "felipe", aluno_felipe_black: "felipe", aluno_ambos: "ambos" };
+const grupoLead = (l) => PERFIL_GRUPO[l.perfil] || "nao";
 
 let TRAF = { ads: [], insights: [], alcance: {}, sync: null, ultimaOk: null };
 let ADS = new Map();          // ad_id -> anúncio
 let ATRIB = new Map();        // lead.id -> [{ad_id, peso}]
 let ordem = { col: "investimento", dir: -1 };
-let gInv = null;
+let gInv = null, gCpl = null, gHora = null, diaHora = null;
 try { const o = JSON.parse(localStorage.getItem("dash_traf_ordem") || "null"); if (o) ordem = o; } catch (e) {}
 
 const norm = (v) => String(v ?? "").trim().toLowerCase();
@@ -30,7 +34,7 @@ const norm = (v) => String(v ?? "").trim().toLowerCase();
 function prepararTrafego(d) {
   TRAF.ads = (d.ads || []).map((a) => ({
     ad_id: a[0], anuncio: a[1] || a[0], adset_id: a[2], conjunto: a[3] || a[2], campaign_id: a[4], campanha: a[5] || a[4], status: a[6],
-    utm_source: a[7], utm_medium: a[8], utm_campaign: a[9], utm_content: a[10], utm_term: a[11], url_tags: a[12]
+    utm_source: a[7], utm_medium: a[8], utm_campaign: a[9], utm_content: a[10], utm_term: a[11], url_tags: a[12], conta_id: a[13], conta: a[14] || "Docis"
   }));
   ADS = new Map(TRAF.ads.map((a) => [a.ad_id, a]));
   TRAF.insights = (d.insights || []).map((r) => ({ dia: r[0], ad_id: r[1], investimento: +r[2] || 0, impressoes: +r[3] || 0, cliques: +r[4] || 0, page_views: +r[5] || 0, leads_meta: +r[6] || 0, alcance: +r[7] || 0 }));
@@ -65,7 +69,7 @@ function atribuirLeads() {
 }
 
 // ---------- Filtros ----------
-const FILTROS_T = [["campanha", "Campanha"], ["conjunto", "Conjunto"], ["anuncio", "Anúncio"], ["utm_source", "utm_source"], ["utm_campaign", "utm_campaign"], ["utm_content", "utm_content"], ["utm_term", "utm_term"]];
+const FILTROS_T = [["conta", "Conta"], ["campanha", "Campanha"], ["conjunto", "Conjunto"], ["anuncio", "Anúncio"], ["utm_source", "utm_source"], ["utm_campaign", "utm_campaign"], ["utm_content", "utm_content"], ["utm_term", "utm_term"]];
 
 function montarFiltrosTrafego() {
   const wrap = $("#t-selects");
@@ -95,7 +99,7 @@ const adPassa = (a, f) => a && f.sel.every(([c, v]) => (a[c] || "") === v);
 const diaPassa = (d, f) => (!f.de || d >= f.de) && (!f.ate || d <= f.ate);
 
 // ---------- Agregação ----------
-function vazio() { return { investimento: 0, impressoes: 0, cliques: 0, page_views: 0, leads: 0, leads_meta: 0, alcance: 0, alcanceAprox: true }; }
+function vazio() { return { investimento: 0, impressoes: 0, cliques: 0, page_views: 0, leads: 0, leads_meta: 0, alcance: 0, alcanceAprox: true, ci: 0, felipe: 0, ambos: 0, nao: 0 }; }
 function derivar(r) {
   r.tx_lp = r.cliques ? r.page_views / r.cliques : null;
   r.cpm = r.impressoes ? r.investimento / r.impressoes * 1000 : null;
@@ -104,6 +108,7 @@ function derivar(r) {
   r.conv_cliques = r.cliques ? r.leads / r.cliques : null;
   r.conv_lp = r.page_views ? r.leads / r.page_views : null;
   r.cpl = r.leads ? r.investimento / r.leads : null;
+  r.cpl_nao = r.nao ? r.investimento / r.nao : null;
   return r;
 }
 const fmtDerivada = { tx_lp: (v) => (v == null ? "—" : taxa(v, 1)), ctr: (v) => (v == null ? "—" : taxa(v, 1)), conv_cliques: (v) => (v == null ? "—" : taxa(v, 1)), conv_lp: (v) => (v == null ? "—" : taxa(v, 1)), cpm: (v) => (v == null ? "—" : brl(v)), cpc: (v) => (v == null ? "—" : brl(v)), cpl: (v) => (v == null ? "—" : brl(v)) };
@@ -113,7 +118,7 @@ function celula(col, r) {
   return def[2](r[col], r);
 }
 
-function chaveDim(a, dim) { return dim === "campanha" ? a.campanha : dim === "conjunto" ? a.conjunto : dim === "anuncio" ? a.anuncio : (a[dim] || "(vazio)"); }
+function chaveDim(a, dim) { return dim === "conta" ? a.conta : dim === "campanha" ? a.campanha : dim === "conjunto" ? a.conjunto : dim === "anuncio" ? a.anuncio : (a[dim] || "(vazio)"); }
 
 function agregar(f, dim) {
   const grupos = new Map();
@@ -131,7 +136,8 @@ function agregar(f, dim) {
   UNICOS.forEach((l) => {
     const at = ATRIB.get(l.id);
     if (!at || !diaPassa(l.dia, f)) return;
-    at.forEach(({ ad_id, peso }) => { const a = ADS.get(ad_id); if (adPassa(a, f)) g(dim ? chaveDim(a, dim) : "total").leads += peso; });
+    const gl = grupoLead(l);
+    at.forEach(({ ad_id, peso }) => { const a = ADS.get(ad_id); if (adPassa(a, f)) { const r = g(dim ? chaveDim(a, dim) : "total"); r.leads += peso; r[gl] += peso; } });
   });
   // alcance deduplicado quando dá (período inteiro e nível da Meta, ou total sem filtro)
   grupos.forEach((r, k) => {
@@ -172,7 +178,11 @@ function renderTrafego() {
   $("#t-aviso").hidden = !semAnuncio;
   $("#t-aviso").textContent = `${fmt(semAnuncio)} lead${semAnuncio === 1 ? "" : "s"} de tráfego no período não ${semAnuncio === 1 ? "bateu" : "bateram"} com nenhum anúncio blf26 (UTMs diferentes ou anúncio de outra campanha) e não ${semAnuncio === 1 ? "entra" : "entram"} no CPL.`;
 
+  renderContas(f);
+  if (diaHora) carregarHora(diaHora); // atualiza o dia que já estava aberto
+  renderCplDia(f);                     // na primeira vez, abre o último dia
   renderDiaTrafego(f);
+  renderTop5(f);
   renderRanking();
 }
 
@@ -231,7 +241,7 @@ function renderRanking() {
   const nomeDim = DIMENSOES.find((d) => d[0] === dim)[1];
   $("#t-rank thead").innerHTML = `<tr><th data-col="nome" class="ordenavel">${esc(nomeDim)}${seta("nome")}</th>${COLUNAS.map(([c, n]) => `<th data-col="${c}" class="n ordenavel">${n}${seta(c)}</th>`).join("")}</tr>`;
   $("#t-rank tbody").innerHTML = grupos.map(([k, r]) => `<tr>
-    <td title="${esc(k)}"><strong>${esc(k)}</strong>${r.campanha ? `<span class="sub">${esc(r.campanha)}${r.conjunto ? " · " + esc(r.conjunto) : ""}</span>` : ""}</td>
+    <td title="${esc(k)}"><div class="rank-nome">${dim === "anuncio" && criativoDe(k) ? `<img class="thumb" src="${thumbUrl(criativoDe(k))}" alt="" loading="lazy" referrerpolicy="no-referrer" data-criativo="${esc(k)}">` : ""}<div><strong>${esc(k)}</strong>${r.campanha ? `<span class="sub">${esc(r.campanha)}${r.conjunto ? " · " + esc(r.conjunto) : ""}</span>` : ""}</div></div></td>
     ${COLUNAS.map(([c]) => `<td class="n">${celula(c, r)}</td>`).join("")}</tr>`).join("") || `<tr><td colspan="${COLUNAS.length + 1}" class="vazio">Sem dados.</td></tr>`;
   $("#t-rank-info").textContent = `${fmt(grupos.length)} ${grupos.length === 1 ? "linha" : "linhas"} · clique no título da coluna para ordenar`;
   $("#t-rank thead").querySelectorAll("th").forEach((th) => th.addEventListener("click", () => {
@@ -267,4 +277,141 @@ function totaisTrafegoPorDia() {
   const inv = new Map();
   TRAF.insights.forEach((i) => inv.set(i.dia, (inv.get(i.dia) || 0) + i.investimento));
   return inv;
+}
+
+// ---------- Criativos (Drive) ----------
+function criativoDe(nomeAnuncio) {
+  const C = window.CRIATIVOS || {};
+  if (C[nomeAnuncio]) return C[nomeAnuncio];
+  const num = String(nomeAnuncio || "").match(/(\d{3})$/);          // cai para o número (únicos entre os criativos)
+  if (num) { const k = Object.keys(C).find((x) => x.endsWith("_" + num[1])); if (k) return C[k]; }
+  return null;
+}
+const thumbUrl = (c, w = 200) => `https://drive.google.com/thumbnail?id=${encodeURIComponent(c.id)}&sz=w${w}`;
+
+function abrirPrevia(nome) {
+  const c = criativoDe(nome); if (!c) return;
+  $("#previa-titulo").textContent = nome + (c.tipo === "vid" ? " · vídeo" : "");
+  const video = c.tipo === "vid";
+  $("#previa-img").hidden = video; $("#previa-frame").hidden = !video;
+  if (video) $("#previa-frame").src = `https://drive.google.com/file/d/${encodeURIComponent(c.id)}/preview`;
+  else $("#previa-img").src = thumbUrl(c, 1200);
+  $("#previa-link").href = `https://drive.google.com/file/d/${encodeURIComponent(c.id)}/view`;
+  $("#previa").hidden = false;
+}
+function fecharPrevia() { $("#previa").hidden = true; $("#previa-frame").src = "about:blank"; $("#previa-img").removeAttribute("src"); }
+$("#previa-fechar").addEventListener("click", fecharPrevia);
+$("#previa").addEventListener("click", (e) => { if (e.target.id === "previa") fecharPrevia(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("#previa").hidden) fecharPrevia(); });
+
+// prévia rápida ao passar o mouse (desktop) + clique abre o anúncio (qualquer aparelho)
+document.addEventListener("mouseover", (e) => {
+  const t = e.target.closest("[data-criativo]"); const h = $("#previa-hover");
+  if (!t || !matchMedia("(hover: hover)").matches) { h.hidden = true; return; }
+  const c = criativoDe(t.dataset.criativo); if (!c) return;
+  h.src = thumbUrl(c, 480); h.hidden = false;
+  const r = t.getBoundingClientRect();
+  h.style.left = Math.min(innerWidth - 256, r.right + 12) + "px";
+  h.style.top = Math.max(8, Math.min(innerHeight - 320, r.top - 40)) + "px";
+});
+document.addEventListener("click", (e) => {
+  const t = e.target.closest("[data-criativo]"); if (!t) return;
+  $("#previa-hover").hidden = true; abrirPrevia(t.dataset.criativo);
+});
+
+// ---------- Por conta ----------
+function renderContas(f) {
+  const grupos = [...agregar(f, "conta").entries()].sort((a, b) => b[1].investimento - a[1].investimento);
+  const t = derivar(grupos.reduce((s, [, r]) => { ["investimento", "leads", "ci", "felipe", "ambos", "nao"].forEach((c) => { s[c] += r[c]; }); return s; }, vazio()));
+  const linha = (nome, r, cls = "") => `<tr class="${cls}"><td><strong>${esc(nome)}</strong></td><td class="n">${brl(r.investimento)}</td><td class="n">${num1(r.leads)}</td>
+    <td class="n">${num1(r.ci)}</td><td class="n">${num1(r.felipe)}</td><td class="n">${num1(r.ambos)}</td><td class="n">${num1(r.nao)}</td>
+    <td class="n">${fmtDerivada.cpl(r.cpl)}</td><td class="n">${r.cpl_nao == null ? "—" : brl(r.cpl_nao)}</td></tr>`;
+  $("#t-contas tbody").innerHTML = grupos.map(([k, r]) => linha(k, r)).join("") + (grupos.length > 1 ? linha("Total", t, "total") : "")
+    || `<tr><td colspan="9" class="vazio">Sem dados.</td></tr>`;
+}
+
+// ---------- CPL por dia + hora a hora ----------
+function renderCplDia(f) {
+  const porDia = new Map();
+  const g = (d) => { if (!porDia.has(d)) porDia.set(d, { inv: 0, leads: 0 }); return porDia.get(d); };
+  TRAF.insights.forEach((i) => { if (adPassa(ADS.get(i.ad_id), f) && diaPassa(i.dia, f)) g(i.dia).inv += i.investimento; });
+  UNICOS.forEach((l) => {
+    const at = ATRIB.get(l.id); if (!at || !diaPassa(l.dia, f)) return;
+    at.forEach(({ ad_id, peso }) => { if (adPassa(ADS.get(ad_id), f)) g(l.dia).leads += peso; });
+  });
+  const dias = [...porDia.keys()].sort();
+  const cpl = dias.map((d) => { const r = porDia.get(d); return r.leads ? +(r.inv / r.leads).toFixed(2) : null; });
+  const labels = dias.map(dataBR);
+  if (gCpl) { gCpl.data.labels = labels; gCpl.data.datasets[0].data = cpl; gCpl.$dias = dias; gCpl.$porDia = porDia; gCpl.update(); return; }
+  const o = opcoesGrafico({});
+  o.interaction = { mode: "nearest", intersect: false, axis: "x" };
+  o.plugins.tooltip.callbacks.label = (c) => ` CPL: ${brl(c.parsed.y)}`;
+  o.plugins.tooltip.callbacks.afterLabel = (c) => { const r = gCpl.$porDia.get(gCpl.$dias[c.dataIndex]); return r ? ` Investimento: ${brl(r.inv)} · Leads: ${num1(r.leads)}` : ""; };
+  o.plugins.tooltip.callbacks.footer = () => "Clique para ver hora a hora";
+  o.scales.y.ticks.callback = (v) => brl(v);
+  o.onClick = (ev, els) => { const el = els[0]; if (el) carregarHora(gCpl.$dias[el.index]); };
+  o.onHover = (ev, els) => { ev.native.target.style.cursor = els.length ? "pointer" : "default"; };
+  gCpl = new Chart($("#g-cpl"), { type: "line", data: { labels, datasets: [{ label: "CPL", data: cpl, borderColor: "#2a78d6", backgroundColor: "#2a78d6", borderWidth: 2, pointRadius: 5, pointHoverRadius: 8, tension: .25, spanGaps: true }] }, options: o });
+  gCpl.$dias = dias; gCpl.$porDia = porDia;
+  if (!diaHora && dias.length) carregarHora(dias[dias.length - 1]);
+}
+
+const horaLead = new Intl.DateTimeFormat("en-GB", { timeZone: TZ, hour: "2-digit", hourCycle: "h23" });
+async function carregarHora(dia) {
+  diaHora = dia;
+  $("#hora-titulo").textContent = `Hora a hora · ${dataBR(dia)}`;
+  $("#hora-nota").textContent = "carregando…";
+  let linhas = [];
+  try { linhas = await rpc("dash_trafego_hora_black2026", { p_token: lerToken(), p_dia: dia }); } catch (e) { $("#hora-nota").textContent = "não foi possível carregar"; return; }
+  renderHora(dia, linhas || []);
+}
+function renderHora(dia, linhas) {
+  const f = estadoFiltros();
+  const inv = Array(24).fill(0), leads = Array(24).fill(0);
+  linhas.forEach(([h, ad_id, v]) => { if (adPassa(ADS.get(ad_id), f)) inv[h] += +v || 0; });
+  UNICOS.forEach((l) => {
+    if (l.dia !== dia) return; const at = ATRIB.get(l.id); if (!at) return;
+    const h = parseInt(horaLead.format(new Date(l.criado_em)), 10);
+    at.forEach(({ ad_id, peso }) => { if (adPassa(ADS.get(ad_id), f)) leads[h] += peso; });
+  });
+  let ai = 0, al = 0;
+  const cplHora = inv.map((v, h) => (leads[h] ? +(v / leads[h]).toFixed(2) : null));
+  const cplAcum = inv.map((v, h) => { ai += v; al += leads[h]; return al ? +(ai / al).toFixed(2) : null; });
+  const ult = Math.max(...inv.map((v, h) => (v || leads[h] ? h : -1)), 0);
+  const labels = Array.from({ length: ult + 1 }, (_, h) => `${String(h).padStart(2, "0")}h`);
+  const ds = [
+    { label: "CPL da hora", data: cplHora.slice(0, ult + 1), borderColor: "#eb6834", backgroundColor: "#eb6834", borderWidth: 2, pointRadius: 3, spanGaps: true, tension: .2 },
+    { label: "CPL acumulado do dia", data: cplAcum.slice(0, ult + 1), borderColor: "#0b0b0b", backgroundColor: "#0b0b0b", borderWidth: 2, pointRadius: 0, tension: .2, spanGaps: true }
+  ];
+  $("#hora-nota").textContent = `${brl(inv.reduce((s, v) => s + v, 0))} · ${num1(leads.reduce((s, v) => s + v, 0))} leads · horário de Brasília`;
+  if (gHora) { gHora.data.labels = labels; gHora.data.datasets.forEach((d, i) => { d.data = ds[i].data; }); gHora.$inv = inv; gHora.$leads = leads; gHora.update(); return; }
+  const o = opcoesGrafico({ legenda: true });
+  o.plugins.tooltip.callbacks.label = (c) => ` ${c.dataset.label}: ${c.parsed.y == null ? "—" : brl(c.parsed.y)}`;
+  o.plugins.tooltip.callbacks.afterBody = (items) => { const h = items[0].dataIndex; return `Investimento: ${brl(gHora.$inv[h])} · Leads: ${num1(gHora.$leads[h])}`; };
+  o.scales.y.ticks.callback = (v) => brl(v);
+  gHora = new Chart($("#g-hora"), { type: "line", data: { labels, datasets: ds }, options: o });
+  gHora.$inv = inv; gHora.$leads = leads;
+}
+
+// ---------- Top 5 ----------
+function renderTop5(f) {
+  const ads = [...agregar(f, "anuncio").entries()].filter(([, r]) => r.leads > 0)
+    .sort((a, b) => b[1].leads - a[1].leads || (a[1].cpl ?? 1e9) - (b[1].cpl ?? 1e9)).slice(0, 5);
+  $("#t-top5").innerHTML = ads.map(([nome, r], i) => {
+    const c = criativoDe(nome);
+    return `<article class="top5__card">
+      <button type="button" class="top5__img" data-criativo="${esc(nome)}" aria-label="Ver o anúncio ${esc(nome)}">
+        ${c ? `<img src="${thumbUrl(c, 480)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : ""}
+        <span class="top5__pos">#${i + 1}</span>${c && c.tipo === "vid" ? '<span class="top5__tipo">▶ vídeo</span>' : ""}
+      </button>
+      <div class="top5__info">
+        <span class="top5__nome">${esc(nome)}</span>
+        <span class="top5__linha"><span>Leads</span><strong>${num1(r.leads)}</strong></span>
+        <span class="top5__linha"><span>CPL</span><strong>${fmtDerivada.cpl(r.cpl)}</strong></span>
+        <span class="top5__linha"><span>Investimento</span><strong>${brl(r.investimento)}</strong></span>
+        <div class="top5__perfis">
+          <span><b>${num1(r.ci)}</b>Ci</span><span><b>${num1(r.felipe)}</b>Felipe</span><span><b>${num1(r.ambos)}</b>Ambos</span><span><b>${num1(r.nao)}</b>Não alunos</span>
+        </div>
+      </div></article>`;
+  }).join("") || `<p class="t-nota">Ainda sem leads ligados a anúncios.</p>`;
 }

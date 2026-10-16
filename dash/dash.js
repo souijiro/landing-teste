@@ -217,6 +217,8 @@ function renderPainel() {
       <td class="n">${invDia.get(d) && leadsAtrib(d) ? brl(invDia.get(d) / leadsAtrib(d)) : "—"}</td></tr>`).join("")
     + `<tr class="total"><td>Total</td>${TIPOS.map((t) => `<td class="n">${fmt(UNICOS.filter((l) => l.tipo === t).length)}</td>`).join("")}<td class="n">${fmt(n)}</td><td class="n">${pct(n, META)}</td><td class="n"></td><td class="n">${brl(invTotal)}</td><td class="n">${totAtrib ? brl(invTotal / totAtrib) : "—"}</td></tr>`;
 
+  if (typeof renderAlunos === "function") renderAlunos();
+
   // quebras
   const quebras = [
     ["Por origem", (l) => l.tipo],

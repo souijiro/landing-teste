@@ -3,7 +3,10 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
-const CONTA = "act_259868608977585";
+// Contas de anúncio da Black. Para incluir a do Felipe: { id: "act_...", nome: "Felipe Russo" } (o usuário do sistema precisa ter acesso)
+const CONTAS = [
+  { id: "act_259868608977585", nome: "Docis" },
+];
 const FILTRO_CAMPANHA = "blf26";
 const INICIO = "2026-10-01";
 const API = "https://graph.facebook.com/v23.0";
@@ -84,7 +87,10 @@ Deno.serve(async () => {
   }
   const agora = new Date().toISOString();
   const periodo = JSON.stringify({ since: INICIO, until: hojeSP() });
+  const resumo: string[] = [];
+  let totalLinhas = 0;
   try {
+   for (const { id: CONTA, nome: CONTA_NOME } of CONTAS) {
     // 1) anúncios + UTMs
     const ads = await graph(`${CONTA}/ads`, {
       fields: "id,name,effective_status,adset{id,name},campaign{id,name},creative{url_tags,object_story_spec,asset_feed_spec,link_url}",
@@ -96,7 +102,7 @@ Deno.serve(async () => {
       return {
         ad_id: ad.id, ad_name: ad.name, adset_id: ad.adset?.id, adset_name: ad.adset?.name,
         campaign_id: ad.campaign?.id, campaign_name: ad.campaign?.name, status: ad.effective_status,
-        url_tags: urlTags, link_url: link, ...resolverUtms(ad, urlTags, link), atualizado_em: agora,
+        url_tags: urlTags, link_url: link, ...resolverUtms(ad, urlTags, link), conta_id: CONTA, conta_nome: CONTA_NOME, atualizado_em: agora,
       };
     });
 
@@ -122,27 +128,48 @@ Deno.serve(async () => {
         conhecidos.add(r.ad_id);
         linhasAds.push({ ad_id: r.ad_id, ad_name: r.ad_name, adset_id: r.adset_id, adset_name: r.adset_name,
           campaign_id: r.campaign_id, campaign_name: r.campaign_name, status: "DELETED", url_tags: "", link_url: "",
-          utm_source: null, utm_medium: null, utm_campaign: null, utm_content: null, utm_term: null, atualizado_em: agora } as any);
+          utm_source: null, utm_medium: null, utm_campaign: null, utm_content: null, utm_term: null, conta_id: CONTA, conta_nome: CONTA_NOME, atualizado_em: agora } as any);
       }
     }
+
+    // 2b) por hora (fuso da conta) — só os últimos 3 dias a cada rodada; os anteriores já ficaram gravados
+    const inicioHora = [INICIO, new Date(Date.now() - 2 * 86400000).toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" })].sort()[1];
+    const horarios = await graph(`${CONTA}/insights`, {
+      time_range: JSON.stringify({ since: inicioHora, until: hojeSP() }), filtering: filtro, limit: "500",
+      level: "ad", time_increment: "1", breakdowns: "hourly_stats_aggregated_by_advertiser_time_zone",
+      fields: "ad_id,spend,impressions,inline_link_clicks,actions",
+    }, token);
+    const linhasHora = horarios.map((r) => ({
+      dia: r.date_start, hora: parseInt(String(r.hourly_stats_aggregated_by_advertiser_time_zone || "0").slice(0, 2), 10) || 0, ad_id: r.ad_id,
+      investimento: Number(r.spend) || 0, impressoes: Number(r.impressions) || 0, cliques: Number(r.inline_link_clicks) || 0,
+      page_views: acao(r.actions, ["landing_page_view", "omni_landing_page_view"]),
+      leads_meta: acao(r.actions, ["lead", "offsite_conversion.fb_pixel_lead", "onsite_web_lead"]),
+      atualizado_em: agora,
+    }));
 
     // 3) alcance deduplicado
     const alcance: any[] = [];
     const contaDia = await graph(`${CONTA}/insights`, { ...base, level: "account", time_increment: "1", fields: "reach" }, token);
-    contaDia.forEach((r) => alcance.push({ nivel: "conta", chave: "total", periodo: r.date_start, alcance: Number(r.reach) || 0 }));
+    // com uma conta só, "total" = alcance deduplicado da conta; com várias, cada conta fica com a sua chave
+    const chaveConta = CONTAS.length === 1 ? "total" : CONTA;
+    contaDia.forEach((r) => alcance.push({ nivel: "conta", chave: chaveConta, periodo: r.date_start, alcance: Number(r.reach) || 0 }));
     for (const [nivel, campo] of [["conta", null], ["campanha", "campaign_id"], ["conjunto", "adset_id"], ["anuncio", "ad_id"]] as const) {
       const level = { conta: "account", campanha: "campaign", conjunto: "adset", anuncio: "ad" }[nivel];
       const rows = await graph(`${CONTA}/insights`, { ...base, level, fields: `reach${campo ? "," + campo : ""}` }, token);
-      rows.forEach((r) => alcance.push({ nivel, chave: campo ? r[campo] : "total", periodo: "total", alcance: Number(r.reach) || 0 }));
+      rows.forEach((r) => alcance.push({ nivel, chave: campo ? r[campo] : chaveConta, periodo: "total", alcance: Number(r.reach) || 0 }));
     }
     alcance.forEach((a) => { a.atualizado_em = agora; });
 
     await upsert("meta_ads_black2026", linhasAds, "ad_id");
     await upsert("meta_insights_black2026", linhasInsights, "dia,ad_id");
     await upsert("meta_alcance_black2026", alcance, "nivel,chave,periodo");
+    await upsert("meta_insights_hora_black2026", linhasHora, "dia,hora,ad_id");
 
-    const msg = `${linhasAds.length} anúncios, ${linhasInsights.length} linhas diárias`;
-    await supabase.from("meta_sync_log").insert({ ok: true, mensagem: msg, linhas: linhasInsights.length });
+    resumo.push(`${CONTA_NOME}: ${linhasAds.length} anúncios, ${linhasInsights.length} linhas diárias, ${linhasHora.length} por hora`);
+    totalLinhas += linhasInsights.length;
+   }
+    const msg = resumo.join(" · ");
+    await supabase.from("meta_sync_log").insert({ ok: true, mensagem: msg, linhas: totalLinhas });
     return new Response(JSON.stringify({ ok: true, mensagem: msg }), { headers: { "Content-Type": "application/json" } });
   } catch (e) {
     const msg = String((e as Error).message || e).slice(0, 500);
