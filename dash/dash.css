@@ -213,3 +213,14 @@ body { min-height: 100dvh; }
 .fmt { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 5px; font-size: .62rem; margin-right: 6px; vertical-align: 1px; color: #fff; }
 .fmt--video { background: #e5484d; }
 .fmt--img { background: #57534e; }
+
+/* gráfico do acumulado mais alto (vai até 5/11) */
+.grafico--alto { height: 300px; }
+@media (min-width: 720px) { .grafico--alto { height: 360px; } }
+
+/* setas da tabela por dia */
+.seta { display: inline-block; width: 14px; margin-left: 4px; font-size: .7rem; text-align: center; }
+.seta--sobe { color: #1a8f4c; }
+.seta--desce { color: #d13b3f; }
+.seta--igual { color: #a8a29e; }
+.tabela-legenda { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .74rem; color: var(--texto-3); margin: 10px 0 0; }
