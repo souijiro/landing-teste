@@ -134,21 +134,22 @@ document.querySelectorAll(".aba").forEach((b) => b.addEventListener("click", () 
 try { const a = localStorage.getItem("dash_aba"); if (a) document.querySelector(`.aba[data-aba="${a}"]`)?.click(); } catch (e) {}
 
 // ---------- Aba Dashboard ----------
-let gDia = null, gAcum = null;
+let gDia = null;
 
 function serieDias() {
   const hoje = diaSP.format(new Date());
-  const inicio = UNICOS.length ? UNICOS[0].dia : hoje;
+  const inicio = hoje < INICIO_CAPTACAO ? hoje : INICIO_CAPTACAO; // captação: 16/10 a 5/11
   const dias = [];
   for (let d = inicio; d <= hoje; d = somaDias(d, 1)) dias.push(d);
   const porDia = Object.fromEntries(dias.map((d) => [d, { "Tráfego": 0, "Orgânico": 0, "Sem UTM": 0 }]));
   UNICOS.forEach((l) => { if (porDia[l.dia]) porDia[l.dia][l.tipo]++; });
-  return { dias, porDia, hoje };
+  const antes = UNICOS.filter((l) => l.dia < inicio).length; // cadastros de teste antes da captação
+  return { dias, porDia, hoje, antes };
 }
 
 function renderPainel() {
   const n = UNICOS.length;
-  const { dias, porDia, hoje } = serieDias();
+  const { dias, porDia, hoje, antes } = serieDias();
   const tot = (d) => (porDia[d] ? TIPOS.reduce((s, t) => s + porDia[d][t], 0) : 0);
   const ontem = somaDias(hoje, -1);
 
@@ -195,54 +196,63 @@ function renderPainel() {
   $("#k-total").textContent = fmt(LEADS.length);
   $("#k-dup").textContent = `${fmt(LEADS.length - n)} cadastros repetidos (mesmo e-mail)`;
 
-  // gráfico por dia (barras empilhadas)
-  $("#legenda-dia").innerHTML = TIPOS.map((t) => `<span><i style="background:${COR[t]}"></i>${t}</span>`).join("");
-  const labels = dias.map(dataBR);
-  const dsDia = TIPOS.map((t) => ({
-    label: t, data: dias.map((d) => porDia[d][t]), backgroundColor: COR[t],
-    borderColor: "#fff", borderWidth: { top: 2 }, borderRadius: 4, borderSkipped: "bottom", maxBarThickness: 36, stack: "s"
-  }));
-  if (gDia) { gDia.data.labels = labels; gDia.data.datasets.forEach((ds, i) => { ds.data = dsDia[i].data; }); gDia.update(); }
-  else gDia = new Chart($("#g-dia"), { type: "bar", data: { labels, datasets: dsDia }, options: opcoesGrafico({ stacked: true }) });
-
-  // acumulado × meta, todos os dias até o lançamento + projeção no ritmo da média
+  // gráfico único: barras = leads por dia (eixo esquerdo) · linhas = acumulado, projeção e meta (eixo direito)
   const diasAte = [];
   for (let d = dias[0] || hoje; d <= FIM_CAPTACAO; d = somaDias(d, 1)) diasAte.push(d);
-  let ac = 0;
+  let ac = antes;
   const acumPorDia = Object.fromEntries(dias.map((d) => [d, (ac += tot(d))]));
   const acumHoje = acumPorDia[hoje] ?? ac;
   const fimDeHoje = acumHoje + Math.max(0, media7 - tot(hoje));
   const serieReal = diasAte.map((d) => (d <= hoje ? acumPorDia[d] ?? null : null));
   const serieProj = diasAte.map((d) => (d < hoje ? null : d === hoje ? acumHoje : Math.round(fimDeHoje + media7 * difDias(hoje, d))));
-  const labelsAte = diasAte.map(dataBR);
-  $("#legenda-acum").innerHTML = `<span><i style="background:#0b0b0b"></i>Leads únicos acumulados</span>
-    <span><i style="background:rgba(87,83,78,.4)"></i>Projeção no ritmo atual (${fmt(media7)}/dia)</span>
-    <span><i style="background:#c9a800"></i>Meta 10.000</span><span>🚀 Lançamento 5/11</span>`;
-  const maxY = Math.max(META, ...serieProj.filter((v) => v != null)) * 1.08;
-  if (gAcum) {
-    gAcum.data.labels = labelsAte;
-    gAcum.data.datasets[0].data = serieReal; gAcum.data.datasets[1].data = serieProj; gAcum.data.datasets[2].data = diasAte.map(() => META);
-    gAcum.options.scales.y.suggestedMax = maxY; gAcum.update();
+  const labels = diasAte.map(dataBR);
+  const maxY2 = Math.max(META, ...serieProj.filter((v) => v != null)) * 1.08;
+  const maxY = Math.max(10, ...dias.map(tot)) * 1.25;
+  $("#legenda-dia").innerHTML = TIPOS.map((t) => `<span><i style="background:${COR[t]}"></i>${t}</span>`).join("")
+    + `<span><i style="background:#0b0b0b;height:3px"></i>Acumulado</span>
+       <span><i style="background:rgba(87,83,78,.4);height:3px"></i>Projeção (${fmt(media7)}/dia)</span>
+       <span><i style="background:#c9a800;height:3px"></i>Meta 10.000</span><span>🚀 5/11</span>`;
+  $("#nota-captacao").textContent = `Captação de 16/10 a 5/11. Barras: leads únicos do dia (eixo da esquerda). Linhas: total acumulado, projeção no ritmo da média diária e meta (eixo da direita).${antes ? ` O acumulado inclui ${fmt(antes)} cadastro${antes > 1 ? "s" : ""} de teste antes de 16/10.` : ""}`;
+  const barras = TIPOS.map((t) => ({
+    type: "bar", label: t, yAxisID: "y", stack: "s", order: 2,
+    data: diasAte.map((d) => (porDia[d] ? porDia[d][t] : null)), backgroundColor: COR[t],
+    borderColor: "#fff", borderWidth: { top: 2 }, borderRadius: 4, borderSkipped: "bottom", maxBarThickness: 30
+  }));
+  const linhasGraf = [
+    { type: "line", label: "Acumulado", yAxisID: "y2", order: 1, data: serieReal, borderColor: "#0b0b0b", backgroundColor: "#0b0b0b", borderWidth: 2.5, pointRadius: 2, pointHoverRadius: 5, tension: .25 },
+    { type: "line", label: "Projeção", yAxisID: "y2", order: 1, data: serieProj, borderColor: "rgba(87,83,78,.4)", backgroundColor: "rgba(87,83,78,.4)", borderWidth: 3, pointRadius: 0, pointHoverRadius: 4, tension: 0 },
+    { type: "line", label: "Meta", yAxisID: "y2", order: 1, data: diasAte.map(() => META), borderColor: "#c9a800", borderDash: [6, 5], borderWidth: 2, pointRadius: 0, pointHoverRadius: 0 }
+  ];
+  if (gDia) {
+    gDia.data.labels = labels;
+    [...barras, ...linhasGraf].forEach((ds, k) => { gDia.data.datasets[k].data = ds.data; });
+    gDia.options.scales.y.suggestedMax = maxY; gDia.options.scales.y2.suggestedMax = maxY2;
+    gDia.update();
   } else {
-    const o = opcoesGrafico({ max: maxY });
-    o.plugins.tooltip.filter = (i) => i.parsed.y != null;
+    const o = opcoesGrafico({ stacked: true, max: maxY });
+    o.plugins.tooltip.filter = (i) => i.parsed.y != null && !(i.dataset.type === "bar" && i.parsed.y === 0 && i.dataIndex > dias.length - 1);
     o.plugins.tooltip.callbacks.label = (c) => ` ${c.dataset.label}: ${fmt(c.parsed.y)}`;
-    o.layout = { padding: { top: 26, right: 12 } };
-    o.scales.x.ticks.autoSkip = true; o.scales.x.ticks.maxTicksLimit = 12;
-    gAcum = new Chart($("#g-acum"), {
-      type: "line",
-      data: { labels: labelsAte, datasets: [
-        { label: "Leads únicos acumulados", data: serieReal, borderColor: "#0b0b0b", backgroundColor: "rgba(11,11,11,.06)", fill: true, borderWidth: 2.5, pointRadius: 0, pointHoverRadius: 5, tension: .25 },
-        { label: "Projeção no ritmo atual", data: serieProj, borderColor: "rgba(87,83,78,.4)", backgroundColor: "rgba(87,83,78,.4)", borderWidth: 3, pointRadius: 0, pointHoverRadius: 4, tension: 0 },
-        { label: "Meta", data: diasAte.map(() => META), borderColor: "#c9a800", borderDash: [6, 5], borderWidth: 2, pointRadius: 0, pointHoverRadius: 0 }
-      ] },
+    o.plugins.tooltip.callbacks.footer = (items) => {
+      const b = items.filter((i) => i.dataset.type === "bar");
+      return b.length ? "Leads do dia: " + fmt(b.reduce((s2, i) => s2 + (i.parsed.y || 0), 0)) : "";
+    };
+    o.layout = { padding: { top: 26 } };
+    o.scales.x.ticks.maxTicksLimit = 11;
+    o.scales.y.title = { display: true, text: "leads por dia", color: "#8a857f", font: { family: "Montserrat", size: 11 } };
+    o.scales.y2 = {
+      position: "right", beginAtZero: true, suggestedMax: maxY2, grid: { drawOnChartArea: false }, border: { display: false },
+      title: { display: true, text: "acumulado", color: "#8a857f", font: { family: "Montserrat", size: 11 } },
+      ticks: { color: "#8a857f", font: { family: "Montserrat", size: 11 }, precision: 0, callback: (v) => fmt(v) }
+    };
+    gDia = new Chart($("#g-dia"), {
+      type: "bar",
+      data: { labels, datasets: [...barras, ...linhasGraf] },
       options: o,
       plugins: [{
         id: "foguete",
         afterDatasetsDraw(chart) {
           const { ctx, chartArea, scales } = chart;
-          const i = chart.data.labels.length - 1;
-          const x = scales.x.getPixelForValue(i);
+          const x = scales.x.getPixelForValue(chart.data.labels.length - 1);
           ctx.save();
           ctx.strokeStyle = "rgba(201,168,0,.6)"; ctx.setLineDash([3, 4]); ctx.lineWidth = 1.5;
           ctx.beginPath(); ctx.moveTo(x, chartArea.top); ctx.lineTo(x, chartArea.bottom); ctx.stroke();
@@ -277,7 +287,7 @@ function renderPainel() {
     const txt = `${tipo === "sobe" ? "acima" : tipo === "desce" ? "abaixo" : "igual (±10%)"} da média dos dias anteriores${quando} (${medTxt})`;
     return `<span class="seta seta--${cor}" title="${txt}" aria-label="${txt}">${simbolo}</span>`;
   };
-  ac = 0;
+  ac = antes;
   const linhas = dias.map((d) => { ac += tot(d); return { d, ac }; }).reverse();
   $("#t-dia tbody").innerHTML = linhas.map(({ d, ac }) => {
     const anteriores = dias.filter((x) => x >= INICIO_CAPTACAO && x < d);
@@ -295,6 +305,7 @@ function renderPainel() {
       <td class="n">${invDia.get(d) ? brl(invDia.get(d)) : "—"}${comparavel && !parcial ? seta(invDia.get(d) || null, media(anteriores.map((x) => invDia.get(x) || null)), false, false, brl) : '<span class="seta"></span>'}</td>
       <td class="n">${cplDia(d) ? brl(cplDia(d)) : "—"}${comparavel ? seta(cplDia(d), media(anteriores.map(cplDia)), true, false, brl) : '<span class="seta"></span>'}</td></tr>`;
   }).join("")
+    + (antes ? `<tr><td class="vazio">antes de 16/10 (testes)</td><td class="n" colspan="3"></td><td class="n">${fmt(antes)}</td><td class="n" colspan="4"></td></tr>` : "")
     + `<tr class="total"><td>Total</td>${TIPOS.map((t) => `<td class="n">${fmt(UNICOS.filter((l) => l.tipo === t).length)}</td>`).join("")}<td class="n">${fmt(n)}</td><td class="n">${pct(n, META)}</td><td class="n"></td><td class="n">${brl(invTotal)}</td><td class="n">${totAtrib ? brl(invTotal / totAtrib) : "—"}</td></tr>`;
 
   if (typeof renderAlunos === "function") renderAlunos();
