@@ -54,10 +54,6 @@
 </head>
 <body>
 
-  <header class="topo">
-    <picture class="topo-pic"><img class="topo-logo" src="img/logo.webp" alt="Delivery de A a Z" width="1748" height="899"></picture>
-  </header>
-
   <main>
     <!-- ===== DOBRA: título, botão, VSL ===== -->
     <section class="dobra">
@@ -65,14 +61,15 @@
       <h1>Como transformar um delivery do <span class="mk">zero</span> aos <span class="mk r">1.000 pedidos</span> por mês</h1>
       <p class="sub">Sem se matar de trabalhar, sem vender baratinho e com dinheiro sobrando no bolso.</p>
 
-      <a class="cta js-cta" href="#" data-local="acima_video">Quero entrar no Delivery de A a Z</a>
-
       <div class="vsl">
         <!-- ===== VTURB ===== -->
         <vturb-smartplayer id="vid-6ad4c5816d43e9e7d5f52dd9" style="display: block; margin: 0 auto; width: 100%; max-width: 400px;"><div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 177.77777777777777% 0 0; z-index: 0; background-color: black;"></div></vturb-smartplayer>
         <script type="text/javascript"> var s=document.createElement("script"); s.src="https://scripts.converteai.net/d67a34bd-879a-4c0b-b5e8-24d75e809e47/players/6ad4c5816d43e9e7d5f52dd9/v4/player.js", s.async=!0,document.head.appendChild(s); </script>
       </div>
       <p class="som">🔊 Assista com o som ligado</p>
+
+      <!-- Oculto: o vturb exibe o #botao_cta no momento configurado no player -->
+      <a class="cta js-cta" id="botao_cta" href="#" data-local="abaixo_video" style="display: none;">Quero entrar no Delivery de A a Z</a>
     </section>
 
     <!-- ===== NÚMEROS REAIS ===== -->
@@ -207,7 +204,6 @@
   </div>
 
   <script>
-    if (document.documentElement.dataset.theme === "escuro") document.querySelector(".topo-logo").src = "img/logo-escuro.webp";
     // Botões de compra: abrem o popup de planos; cada plano leva ao checkout com os parâmetros da URL (utm etc.)
     (function () {
       var qs = location.search.slice(1).replace(/(^|&)tema=escuro/, "");
