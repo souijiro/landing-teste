@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/dash/dash.css?v=13">
+  <link rel="stylesheet" href="/dash/dash.css?v=15">
 </head>
 <body>
 
@@ -133,7 +133,13 @@
         </div>
       </section>
 
-      <section class="kpis kpis--trafego" id="t-kpis"></section>
+      <section class="cartao funil-cartao">
+        <div class="cartao__topo"><h2>Funil dos anúncios</h2><span class="t-nota">com os filtros escolhidos</span></div>
+        <div class="funil-corpo">
+          <div class="funil" id="t-funil" role="img" aria-label="Funil: impressões, cliques, page views e leads de anúncios"></div>
+          <div class="funil-lado" id="t-kpis"></div>
+        </div>
+      </section>
       <p class="aviso-traf" id="t-aviso" hidden></p>
 
       <section class="cartao">
@@ -259,6 +265,6 @@
   <script src="/dash/dash.js?v=12"></script>
   <script src="/dash/alunos.js?v=2"></script>
   <script src="/dash/criativos.js?v=1"></script>
-  <script src="/dash/trafego.js?v=8"></script>
+  <script src="/dash/trafego.js?v=10"></script>
 </body>
 </html>

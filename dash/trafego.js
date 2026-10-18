@@ -188,16 +188,28 @@ function renderTrafego() {
   $("#t-sync").textContent = !TRAF.ultimaOk ? "Ainda sem dados da Meta" :
     `Dados da Meta de ${horaSP.format(new Date(TRAF.ultimaOk))} · atualiza de hora em hora` + (s && !s.ok ? ` · ⚠ última tentativa falhou: ${s.mensagem}` : "");
 
-  // KPIs
-  const kpis = [
-    ["Investimento", brl(total.investimento)], ["Impressões", fmt(total.impressoes)], ["Cliques", fmt(total.cliques)],
-    ["Page views", fmt(total.page_views)], ["Leads de anúncios", num1(total.leads)], ["Alcance", (total.alcanceAprox ? "≈ " : "") + fmt(total.alcance)],
-    ["Tx carregamento LP", fmtDerivada.tx_lp(total.tx_lp)], ["CPM", fmtDerivada.cpm(total.cpm)], ["CTR", fmtDerivada.ctr(total.ctr)],
-    ["CPC", fmtDerivada.cpc(total.cpc)], ["Conv. cliques → leads", fmtDerivada.conv_cliques(total.conv_cliques)],
-    ["Conv. LP", fmtDerivada.conv_lp(total.conv_lp)], ["CPL", fmtDerivada.cpl(total.cpl)],
-    ["CPL hoje", (() => { const h = hojeSP(); const t = agregar({ ...f, de: h, ate: h }, null).get("total"); return t && t.leads ? brl(t.investimento / t.leads) : "—"; })()]
+  // Funil: impressões → cliques → page views → leads de anúncios, com a taxa de cada passagem
+  const etapas = [
+    { nome: "Impressões", valor: total.impressoes, cor: "#1d4f91" },
+    { nome: "Cliques", valor: total.cliques, cor: "#2a78d6", taxa: total.ctr, taxaNome: "CTR", taxaDica: "cliques ÷ impressões" },
+    { nome: "Page views", valor: total.page_views, cor: "#4f95e6", taxa: total.tx_lp, taxaNome: "carregamento da página", taxaDica: "page views ÷ cliques" },
+    { nome: "Leads de anúncios", valor: total.leads, cor: "#2fa84f", taxa: total.conv_lp, taxaNome: "conversão da página", taxaDica: "leads ÷ page views" }
   ];
-  $("#t-kpis").innerHTML = kpis.map(([r, v]) => `<div class="kpi${r === "Investimento" || r === "CPL" ? " kpi--destaque" : r === "CPL hoje" ? " kpi--cinza" : ""}"><p class="rotulo">${r}</p><p class="kpi__num">${v}</p></div>`).join("");
+  const larguras = [100, 82, 66, 50];
+  $("#t-funil").innerHTML = etapas.map((e, k) => `<div class="funil__etapa">
+      <div class="funil__barra" style="width:${larguras[k]}%;background:${e.cor}"><b>${k === 3 ? num1(e.valor) : fmt(e.valor)}</b><span>${e.nome}</span></div>
+      <div class="funil__taxa">${e.taxa == null && k === 0 ? `<b>${(total.alcanceAprox ? "≈ " : "") + fmt(total.alcance)}</b><span>alcance (pessoas)</span>` : `<b title="${e.taxaDica}">${e.taxa == null ? "—" : taxa(e.taxa, 1)}</b><span title="${e.taxaDica}">${e.taxaNome}</span>`}</div>
+    </div>`).join("")
+    + `<p class="funil__total"><span>Clique → lead: <b>${fmtDerivada.conv_cliques(total.conv_cliques)}</b></span><span>Impressão → lead: <b>${total.impressoes ? taxa(total.leads, total.impressoes) : "—"}</b></span></p>`;
+
+  // ao lado do funil: custos
+  const cplHoje = (() => { const h = hojeSP(); const t = agregar({ ...f, de: h, ate: h }, null).get("total"); return t && t.leads ? brl(t.investimento / t.leads) : "—"; })();
+  const kpis = [
+    ["Investimento", brl(total.investimento), "kpi--destaque"], ["CPL", fmtDerivada.cpl(total.cpl), "kpi--destaque"],
+    ["CPL hoje", cplHoje, "kpi--cinza"], ["CPM", fmtDerivada.cpm(total.cpm), ""],
+    ["CPC", fmtDerivada.cpc(total.cpc), ""], ["Leads (Meta)", fmt(total.leads_meta), ""]
+  ];
+  $("#t-kpis").innerHTML = kpis.map(([r, v, c]) => `<div class="kpi ${c}"><p class="rotulo">${r}</p><p class="kpi__num">${v}</p></div>`).join("");
 
   // leads de tráfego sem anúncio identificado
   const semAnuncio = UNICOS.filter((l) => l.tipo === "Tráfego" && !ATRIB.has(l.id) && diaPassa(l.dia, f)).length;

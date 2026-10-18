@@ -256,3 +256,20 @@ body { min-height: 100dvh; }
 /* miniatura sempre no mesmo tamanho (vídeo vem 9:16 e esticava o cartão) */
 .top5__img { overflow: hidden; }
 .top5__img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+/* ---------- Funil da aba Tráfego ---------- */
+.funil-corpo { display: grid; gap: 16px; }
+.funil { display: grid; gap: 6px; }
+.funil__etapa { display: grid; grid-template-columns: minmax(0, 1fr) 132px; gap: 10px; align-items: center; }
+.funil__barra { justify-self: center; height: 58px; border-radius: 10px; color: #fff; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 0 10px; transition: width .4s ease; min-width: 130px; }
+.funil__barra b { font-size: 1.35rem; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.funil__barra span { font-size: .72rem; font-weight: 600; opacity: .9; text-transform: uppercase; letter-spacing: .05em; }
+.funil__taxa { border-left: 2px solid var(--linha); padding-left: 10px; }
+.funil__taxa b { display: block; font-size: 1.05rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.funil__taxa span { font-size: .7rem; color: var(--texto-3); font-weight: 600; }
+.funil__total { display: flex; flex-wrap: wrap; gap: 6px 16px; justify-content: center; margin-top: 8px; font-size: .8rem; color: var(--texto-2); }
+.funil__total b { color: var(--texto); }
+.funil-lado { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; align-content: start; }
+.funil-lado .kpi { padding: 12px; }
+.funil-lado .kpi__num { font-size: 1.35rem; }
+@media (min-width: 900px) { .funil-corpo { grid-template-columns: minmax(0, 1.5fr) minmax(260px, 1fr); align-items: start; } }
