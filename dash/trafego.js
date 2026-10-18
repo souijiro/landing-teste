@@ -37,7 +37,14 @@ function desempate(a, b) {
 let gInv = null, gCpl = null, gHora = null, diaHora = null;
 try { const o = JSON.parse(localStorage.getItem("dash_traf_ordem2") || "null"); if (o) ordem = o; } catch (e) {}
 
-const norm = (v) => String(v ?? "").trim().toLowerCase();
+// Normaliza para comparar UTMs com os nomes da Meta. Ignora o sufixo de cópia que o Gerenciador põe ao duplicar
+// ("geral — Cópia", "alunos - Copy 2"): a UTM grava o nome do momento do clique e o conjunto pode ser renomeado depois.
+const SUFIXO_COPIA = /\s*[—–-]\s*(c[óo]pia|copy)(\s*\d+)?\s*$/i;
+const norm = (v) => {
+  let t = String(v ?? "").trim();
+  while (SUFIXO_COPIA.test(t)) t = t.replace(SUFIXO_COPIA, "").trim();
+  return t.toLowerCase();
+};
 
 function prepararTrafego(d) {
   TRAF.ads = (d.ads || []).map((a) => ({
