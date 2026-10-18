@@ -259,18 +259,21 @@ body { min-height: 100dvh; }
 
 /* ---------- Funil da aba Tráfego ---------- */
 .funil-corpo { display: grid; gap: 16px; }
-.funil { display: grid; grid-template-columns: minmax(0, 1fr) 118px; column-gap: 4px; }
-.funil__etapa { grid-column: 1; display: flex; justify-content: center; }
-.funil__barra { height: 58px; border-radius: 10px; color: #fff; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 0 10px; transition: width .4s ease; min-width: 130px; }
-.funil__barra b { font-size: 1.35rem; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
-.funil__barra span { font-size: .72rem; font-weight: 600; opacity: .9; text-transform: uppercase; letter-spacing: .05em; }
-.funil__conector { grid-column: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 4px 0; font-size: .78rem; color: var(--texto-3); font-weight: 600; }
-.funil__conector b { font-size: 1rem; font-weight: 800; color: var(--texto); font-variant-numeric: tabular-nums; }
-.funil__seta { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #eef4fc; color: #2a78d6; font-weight: 800; font-size: .9rem; }
-.funil__chave { grid-column: 2; position: relative; margin: 29px 40px 29px 0; border: 2px solid #2fa84f; border-left: 0; border-radius: 0 12px 12px 0; display: flex; align-items: center; }
+.funil { display: grid; grid-template-columns: 86px minmax(0, 1fr) 86px; column-gap: 4px; }
+.funil__etapa { grid-column: 2; display: flex; justify-content: center; }
+.funil__barra { height: 58px; border-radius: 10px; color: #fff; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 0 8px; transition: width .4s ease; min-width: 104px; }
+.funil__barra b { font-size: 1.3rem; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.funil__barra span { font-size: .66rem; font-weight: 600; opacity: .9; text-transform: uppercase; letter-spacing: .05em; }
+.funil__vao { grid-column: 2; height: 34px; }
+/* setas em colchete: ligam o meio de uma etapa ao meio da outra, com a taxa no meio da linha */
+.funil__chave { grid-column: 3; position: relative; margin: 29px 36px 29px 0; border: 2px solid #2fa84f; border-left: 0; border-radius: 0 12px 12px 0; }
 .funil__chave::after { content: ""; position: absolute; left: -2px; bottom: -7px; border: 6px solid transparent; border-right: 9px solid #2fa84f; transform: translateX(-100%); }
-.funil__chave span { position: absolute; left: 100%; transform: translateX(-50%); background: var(--cartao); padding: 6px 4px; text-align: center; font-size: .66rem; font-weight: 700; color: var(--texto-3); text-transform: uppercase; letter-spacing: .03em; line-height: 1.2; width: 74px; }
-.funil__chave b { display: block; font-size: 1.05rem; color: #1a8f4c; letter-spacing: 0; }
+.funil__chave span { position: absolute; top: 50%; left: 100%; transform: translate(-50%, -50%); background: var(--cartao); padding: 5px 2px; text-align: center; font-size: .6rem; font-weight: 700; color: var(--texto-3); text-transform: uppercase; letter-spacing: .02em; line-height: 1.2; width: 70px; }
+.funil__chave b { display: block; font-size: 1rem; color: #1a8f4c; letter-spacing: 0; }
+.funil__chave--esq { grid-column: 1; margin: 35px 0 23px 36px; border: 2px solid #2a78d6; border-right: 0; border-radius: 12px 0 0 12px; }
+.funil__chave--esq::after { left: auto; right: -2px; border-right: 6px solid transparent; border-left: 9px solid #2a78d6; transform: translateX(100%); }
+.funil__chave--esq span { left: 0; }
+.funil__chave--esq b { color: #1d4f91; }
 .funil-lado { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; align-content: start; }
 .funil-lado .kpi { padding: 12px; }
 .funil-lado .kpi__num { font-size: 1.35rem; }

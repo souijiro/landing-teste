@@ -197,14 +197,14 @@ function renderTrafego() {
   ];
   const conectores = [
     { nome: "CTR", v: total.ctr, dica: "cliques ÷ impressões" },
-    { nome: "carregamento da página", v: total.tx_lp, dica: "page views ÷ cliques" },
-    { nome: "conversão da página", v: total.conv_lp, dica: "leads ÷ page views" }
+    { nome: "carreg. da página", v: total.tx_lp, dica: "page views ÷ cliques" },
+    { nome: "conv. da página", v: total.conv_lp, dica: "leads ÷ page views" }
   ];
   const pct2 = (v) => (v == null ? "—" : taxa(v, 1));
   let html = "";
   etapas.forEach((e, k) => {
     html += `<div class="funil__etapa" style="grid-row:${k * 2 + 1}"><div class="funil__barra" style="width:${e.w}%;background:${e.cor}"><b>${e.valor}</b><span>${e.nome}</span></div></div>`;
-    if (conectores[k]) html += `<div class="funil__conector" style="grid-row:${k * 2 + 2}" title="${conectores[k].dica}"><span class="funil__seta" aria-hidden="true">↓</span><b>${pct2(conectores[k].v)}</b><span>${conectores[k].nome}</span></div>`;
+    if (conectores[k]) html += `<div class="funil__vao" style="grid-row:${k * 2 + 2}"></div><div class="funil__chave funil__chave--esq" style="grid-row:${k * 2 + 1} / ${k * 2 + 4}" title="${conectores[k].dica}"><span><b>${pct2(conectores[k].v)}</b>${conectores[k].nome}</span></div>`;
   });
   html += `<div class="funil__chave" style="grid-row:3 / 8" title="leads ÷ cliques"><span><b>${pct2(total.conv_cliques)}</b>clique → lead</span></div>`;
   $("#t-funil").innerHTML = html;
