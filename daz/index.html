@@ -67,9 +67,13 @@
         <script type="text/javascript"> var s=document.createElement("script"); s.src="https://scripts.converteai.net/d67a34bd-879a-4c0b-b5e8-24d75e809e47/players/6ad4c5816d43e9e7d5f52dd9/v4/player.js", s.async=!0,document.head.appendChild(s); </script>
       </div>
       <p class="som">🔊 Assista com o som ligado</p>
+    </section>
 
-      <!-- Oculto: o vturb exibe o #botao_cta no momento configurado no player -->
-      <a class="cta js-cta" id="botao_cta" href="#" data-local="abaixo_video" style="display: none;">Quero entrar no Delivery de A a Z</a>
+    <!-- ===== Tudo abaixo do vídeo fica oculto: o vturb exibe o #botao_cta na hora do pitch ===== -->
+    <div id="botao_cta" style="display: none;">
+
+    <section class="pitch">
+      <a class="cta js-cta cta-pitch" href="#" data-local="abaixo_video">Quero entrar no Delivery de A a Z</a>
     </section>
 
     <!-- ===== NÚMEROS REAIS ===== -->
@@ -173,9 +177,10 @@
       <a class="cta js-cta" href="#" data-local="final">Quero entrar no Delivery de A a Z</a>
       <p class="mini">7 dias de garantia · acesso assim que a inscrição é confirmada</p>
     </section>
-  </main>
 
-  <footer class="rodape">Docis · Delivery de A a Z · São Paulo</footer>
+    <footer class="rodape">Docis · Delivery de A a Z · São Paulo</footer>
+    </div><!-- /#botao_cta -->
+  </main>
 
   <a class="barra js-cta" href="#" data-local="barra_fixa">Quero entrar no Delivery de A a Z</a>
 
@@ -232,9 +237,11 @@
       modal.addEventListener("click", function (e) { if (e.target === modal) fechar(); });
       document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !modal.hidden) fechar(); });
       // barra fixa no celular: aparece depois que o botão de cima sai da tela
-      var bar = document.querySelector(".barra"), top = document.querySelector(".dobra .cta");
-      if ("IntersectionObserver" in window && bar && top) {
-        new IntersectionObserver(function (e) { bar.classList.toggle("on", !e[0].isIntersecting && e[0].boundingClientRect.top < 0); }).observe(top);
+      var bar = document.querySelector(".barra"), top = document.querySelector(".cta-pitch");
+      // (scroll em vez de IntersectionObserver: o botão começa oculto e só aparece quando o vturb exibe o #botao_cta)
+      if (bar && top) {
+        var checa = function () { bar.classList.toggle("on", top.offsetParent !== null && top.getBoundingClientRect().bottom < 0); };
+        addEventListener("scroll", checa, { passive: true }); addEventListener("resize", checa); checa();
       }
     })();
   </script>

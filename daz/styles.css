@@ -30,7 +30,7 @@ section{padding-left:max(18px,env(safe-area-inset-left));padding-right:max(18px,
 .vsl vturb-smartplayer{display:block;width:100%;max-width:none !important}
 .vsl-placeholder{aspect-ratio:9/16;display:grid;place-items:center;color:#f7f1e6;font:700 16px "Poppins";
   background:repeating-linear-gradient(45deg,#1e1a14 0 14px,#25201a 14px 28px)}
-#botao_cta{margin-top:22px}
+.pitch{max-width:640px;margin:0 auto;padding-top:4px;padding-bottom:28px;text-align:center}
 .som{margin:14px 0 0;font:600 14px "Poppins";color:var(--mut)}
 
 /* números */
