@@ -102,12 +102,13 @@ async function carregar() {
   if (!token) return mostrarLogin();
   $("#recarregar").disabled = true;
   try {
-    const [linhas, traf] = await Promise.all([
+    const [linhas, traf, horas] = await Promise.all([
       rpc("dash_leads_black2026", { p_token: token }),
-      rpc("dash_trafego_black2026", { p_token: token }).catch((e) => { if (e.code === "28000") throw e; return null; })
+      rpc("dash_trafego_black2026", { p_token: token }).catch((e) => { if (e.code === "28000") throw e; return null; }),
+      rpc("dash_trafego_horas_black2026", { p_token: token }).catch(() => null)
     ]);
     preparar(linhas || []);
-    if (traf) prepararTrafego(traf);
+    if (traf) { prepararTrafego(traf); TRAF.horas = horas || []; }
     renderPainel();
     montarFiltros();
     renderLeads();

@@ -259,17 +259,33 @@ body { min-height: 100dvh; }
 
 /* ---------- Funil da aba Tráfego ---------- */
 .funil-corpo { display: grid; gap: 16px; }
-.funil { display: grid; gap: 6px; }
-.funil__etapa { display: grid; grid-template-columns: minmax(0, 1fr) 132px; gap: 10px; align-items: center; }
-.funil__barra { justify-self: center; height: 58px; border-radius: 10px; color: #fff; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 0 10px; transition: width .4s ease; min-width: 130px; }
+.funil { display: grid; grid-template-columns: minmax(0, 1fr) 118px; column-gap: 4px; }
+.funil__etapa { grid-column: 1; display: flex; justify-content: center; }
+.funil__barra { height: 58px; border-radius: 10px; color: #fff; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 0 10px; transition: width .4s ease; min-width: 130px; }
 .funil__barra b { font-size: 1.35rem; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
 .funil__barra span { font-size: .72rem; font-weight: 600; opacity: .9; text-transform: uppercase; letter-spacing: .05em; }
-.funil__taxa { border-left: 2px solid var(--linha); padding-left: 10px; }
-.funil__taxa b { display: block; font-size: 1.05rem; font-weight: 800; font-variant-numeric: tabular-nums; }
-.funil__taxa span { font-size: .7rem; color: var(--texto-3); font-weight: 600; }
-.funil__total { display: flex; flex-wrap: wrap; gap: 6px 16px; justify-content: center; margin-top: 8px; font-size: .8rem; color: var(--texto-2); }
-.funil__total b { color: var(--texto); }
+.funil__conector { grid-column: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 4px 0; font-size: .78rem; color: var(--texto-3); font-weight: 600; }
+.funil__conector b { font-size: 1rem; font-weight: 800; color: var(--texto); font-variant-numeric: tabular-nums; }
+.funil__seta { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #eef4fc; color: #2a78d6; font-weight: 800; font-size: .9rem; }
+.funil__chave { grid-column: 2; position: relative; margin: 29px 40px 29px 0; border: 2px solid #2fa84f; border-left: 0; border-radius: 0 12px 12px 0; display: flex; align-items: center; }
+.funil__chave::after { content: ""; position: absolute; left: -2px; bottom: -7px; border: 6px solid transparent; border-right: 9px solid #2fa84f; transform: translateX(-100%); }
+.funil__chave span { position: absolute; left: 100%; transform: translateX(-50%); background: var(--cartao); padding: 6px 4px; text-align: center; font-size: .66rem; font-weight: 700; color: var(--texto-3); text-transform: uppercase; letter-spacing: .03em; line-height: 1.2; width: 74px; }
+.funil__chave b { display: block; font-size: 1.05rem; color: #1a8f4c; letter-spacing: 0; }
 .funil-lado { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; align-content: start; }
 .funil-lado .kpi { padding: 12px; }
 .funil-lado .kpi__num { font-size: 1.35rem; }
+.funil-lado .kpi--largo { grid-column: 1 / -1; }
+.funil-lado .kpi--grande { padding: 18px; }
+.funil-lado .kpi--grande .kpi__num { font-size: 2rem; }
+.funil-lado .kpi--pequeno { padding: 8px 12px; display: flex; justify-content: space-between; align-items: baseline; }
+.funil-lado .kpi--pequeno .rotulo { margin: 0; }
+.funil-lado .kpi--pequeno .kpi__num { font-size: 1rem; margin: 0; }
+.kpi__comp { font-weight: 700; }
+.kpi__comp--bom { color: #1a8f4c; }
+.kpi__comp--ruim { color: #d13b3f; }
+.kpi__comp--igual { color: var(--texto-3); }
+.tabela td.cel--bom { background: #e3f4e9; color: #146c3a; font-weight: 700; }
+.tabela td.cel--ruim { background: #fbe4e4; color: #b3262b; font-weight: 700; }
+.tabela tr.linha-media td { background: #1a1a1a; color: #fff; font-weight: 700; font-style: italic; border-bottom: 3px solid #eda100; }
+.tabela tr.linha-media td span { font-weight: 500; color: #c9c4bd; font-size: .72rem; }
 @media (min-width: 900px) { .funil-corpo { grid-template-columns: minmax(0, 1.5fr) minmax(260px, 1fr); align-items: start; } }

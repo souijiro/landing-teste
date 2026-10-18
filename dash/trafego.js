@@ -188,28 +188,44 @@ function renderTrafego() {
   $("#t-sync").textContent = !TRAF.ultimaOk ? "Ainda sem dados da Meta" :
     `Dados da Meta de ${horaSP.format(new Date(TRAF.ultimaOk))} · atualiza de hora em hora` + (s && !s.ok ? ` · ⚠ última tentativa falhou: ${s.mensagem}` : "");
 
-  // Funil: impressões → cliques → page views → leads de anúncios, com a taxa de cada passagem
+  // Funil: impressões → cliques → page views → leads, com a taxa entre cada etapa (setas) e o clique → lead ao lado
   const etapas = [
-    { nome: "Impressões", valor: total.impressoes, cor: "#1d4f91" },
-    { nome: "Cliques", valor: total.cliques, cor: "#2a78d6", taxa: total.ctr, taxaNome: "CTR", taxaDica: "cliques ÷ impressões" },
-    { nome: "Page views", valor: total.page_views, cor: "#4f95e6", taxa: total.tx_lp, taxaNome: "carregamento da página", taxaDica: "page views ÷ cliques" },
-    { nome: "Leads de anúncios", valor: total.leads, cor: "#2fa84f", taxa: total.conv_lp, taxaNome: "conversão da página", taxaDica: "leads ÷ page views" }
+    { nome: "Impressões", valor: fmt(total.impressoes), cor: "#1d4f91", w: 100 },
+    { nome: "Cliques", valor: fmt(total.cliques), cor: "#2a78d6", w: 80 },
+    { nome: "Page views", valor: fmt(total.page_views), cor: "#4f95e6", w: 62 },
+    { nome: "Leads de anúncios", valor: num1(total.leads), cor: "#2fa84f", w: 46 }
   ];
-  const larguras = [100, 82, 66, 50];
-  $("#t-funil").innerHTML = etapas.map((e, k) => `<div class="funil__etapa">
-      <div class="funil__barra" style="width:${larguras[k]}%;background:${e.cor}"><b>${k === 3 ? num1(e.valor) : fmt(e.valor)}</b><span>${e.nome}</span></div>
-      <div class="funil__taxa">${e.taxa == null && k === 0 ? `<b>${(total.alcanceAprox ? "≈ " : "") + fmt(total.alcance)}</b><span>alcance (pessoas)</span>` : `<b title="${e.taxaDica}">${e.taxa == null ? "—" : taxa(e.taxa, 1)}</b><span title="${e.taxaDica}">${e.taxaNome}</span>`}</div>
-    </div>`).join("")
-    + `<p class="funil__total"><span>Clique → lead: <b>${fmtDerivada.conv_cliques(total.conv_cliques)}</b></span><span>Impressão → lead: <b>${total.impressoes ? taxa(total.leads, total.impressoes) : "—"}</b></span></p>`;
+  const conectores = [
+    { nome: "CTR", v: total.ctr, dica: "cliques ÷ impressões" },
+    { nome: "carregamento da página", v: total.tx_lp, dica: "page views ÷ cliques" },
+    { nome: "conversão da página", v: total.conv_lp, dica: "leads ÷ page views" }
+  ];
+  const pct2 = (v) => (v == null ? "—" : taxa(v, 1));
+  let html = "";
+  etapas.forEach((e, k) => {
+    html += `<div class="funil__etapa" style="grid-row:${k * 2 + 1}"><div class="funil__barra" style="width:${e.w}%;background:${e.cor}"><b>${e.valor}</b><span>${e.nome}</span></div></div>`;
+    if (conectores[k]) html += `<div class="funil__conector" style="grid-row:${k * 2 + 2}" title="${conectores[k].dica}"><span class="funil__seta" aria-hidden="true">↓</span><b>${pct2(conectores[k].v)}</b><span>${conectores[k].nome}</span></div>`;
+  });
+  html += `<div class="funil__chave" style="grid-row:3 / 8" title="leads ÷ cliques"><span><b>${pct2(total.conv_cliques)}</b>clique → lead</span></div>`;
+  $("#t-funil").innerHTML = html;
 
-  // ao lado do funil: custos
-  const cplHoje = (() => { const h = hojeSP(); const t = agregar({ ...f, de: h, ate: h }, null).get("total"); return t && t.leads ? brl(t.investimento / t.leads) : "—"; })();
-  const kpis = [
-    ["Investimento", brl(total.investimento), "kpi--destaque"], ["CPL", fmtDerivada.cpl(total.cpl), "kpi--destaque"],
-    ["CPL hoje", cplHoje, "kpi--cinza"], ["CPM", fmtDerivada.cpm(total.cpm), ""],
-    ["CPC", fmtDerivada.cpc(total.cpc), ""], ["Leads (Meta)", fmt(total.leads_meta), ""]
-  ];
-  $("#t-kpis").innerHTML = kpis.map(([r, v, c]) => `<div class="kpi ${c}"><p class="rotulo">${r}</p><p class="kpi__num">${v}</p></div>`).join("");
+  // ao lado do funil: investimento grande; CPL geral x hoje; CPM x CPC; alcance pequeno
+  const h0 = hojeSP(); const tHoje = agregar({ ...f, de: h0, ate: h0 }, null).get("total");
+  const cplHojeV = tHoje && tHoje.leads ? tHoje.investimento / tHoje.leads : null;
+  let compara = "";
+  if (cplHojeV != null && total.cpl) {
+    const dif = cplHojeV / total.cpl - 1;
+    compara = Math.abs(dif) <= 0.10 ? `<p class="kpi__sub kpi__comp kpi__comp--igual">≈ igual à média geral</p>`
+      : dif < 0 ? `<p class="kpi__sub kpi__comp kpi__comp--bom">▼ ${taxa(-dif, 1)} abaixo da média</p>`
+      : `<p class="kpi__sub kpi__comp kpi__comp--ruim">▲ ${taxa(dif, 1)} acima da média</p>`;
+  }
+  $("#t-kpis").innerHTML = `
+    <div class="kpi kpi--destaque kpi--largo kpi--grande"><p class="rotulo">Investimento</p><p class="kpi__num">${brl(total.investimento)}</p></div>
+    <div class="kpi kpi--destaque"><p class="rotulo">CPL geral</p><p class="kpi__num">${fmtDerivada.cpl(total.cpl)}</p></div>
+    <div class="kpi kpi--cinza"><p class="rotulo">CPL hoje</p><p class="kpi__num">${cplHojeV == null ? "—" : brl(cplHojeV)}</p>${compara}</div>
+    <div class="kpi"><p class="rotulo">CPM</p><p class="kpi__num">${fmtDerivada.cpm(total.cpm)}</p></div>
+    <div class="kpi"><p class="rotulo">CPC</p><p class="kpi__num">${fmtDerivada.cpc(total.cpc)}</p></div>
+    <div class="kpi kpi--largo kpi--pequeno"><p class="rotulo">Alcance</p><p class="kpi__num">${(total.alcanceAprox ? "≈ " : "") + fmt(total.alcance)}</p></div>`;
 
   // leads de tráfego sem anúncio identificado
   const semAnuncio = UNICOS.filter((l) => l.tipo === "Tráfego" && !ATRIB.has(l.id) && diaPassa(l.dia, f)).length;
@@ -246,10 +262,63 @@ function renderDiaTrafego(f) {
   });
   const dias = [...porDia.keys()].sort().reverse();
   const cols = ["investimento", "impressoes", "cliques", "page_views", "leads", "alcance", "tx_lp", "cpm", "ctr", "cpc", "conv_cliques", "conv_lp", "cpl"];
-  $("#tr-dia tbody").innerHTML = dias.map((d) => {
+  // cores x média geral (dias completos): verde = melhor, vermelho = pior, ±10% = sem cor
+  const SOBE_BOM = ["org", "traf", "impressoes", "cliques", "page_views", "leads", "alcance", "tx_lp", "ctr", "conv_cliques", "conv_lp"];
+  const SOBE_RUIM = ["cpm", "cpc", "cpl"];
+  const CONTAGENS = ["org", "traf", "impressoes", "cliques", "page_views", "leads", "alcance"];
+  const hoje = hojeSP();
+  const completos = dias.filter((d) => d < hoje && d >= INICIO_CAPTACAO);
+  const soma = (lista) => { const t = vazio(); t.org = 0; t.traf = 0; lista.forEach((r) => { ["investimento", "impressoes", "cliques", "page_views", "leads", "leads_meta", "alcance", "org", "traf"].forEach((c) => { t[c] += r[c] || 0; }); }); return derivar(t); };
+  const tot = soma(completos.map((d) => porDia.get(d)));
+  const media = Object.assign({}, tot);
+  CONTAGENS.concat(["investimento"]).forEach((c) => { media[c] = completos.length ? tot[c] / completos.length : null; });
+
+  // hoje é parcial: contagens comparadas com a média dos dias completos ATÉ A MESMA HORA (horas fechadas)
+  const horaAtual = Math.floor(minutoSP(new Date()) / 60);
+  const ateHora = new Map(); // dia -> contagens até horaAtual
+  const gh = (d) => { if (!ateHora.has(d)) ateHora.set(d, { impressoes: 0, cliques: 0, page_views: 0, leads: 0, org: 0, traf: 0 }); return ateHora.get(d); };
+  (TRAF.horas || []).forEach(([d, hora, ad_id, , imp, cl, lpv]) => {
+    if (hora >= horaAtual || !adPassa(ADS.get(ad_id), f)) return;
+    const r = gh(d); r.impressoes += +imp || 0; r.cliques += +cl || 0; r.page_views += +lpv || 0;
+  });
+  UNICOS.forEach((l) => {
+    if (l.minuto >= horaAtual * 60) return;
+    const r = gh(l.dia);
+    if (l.tipo === "Orgânico") r.org++;
+    if (l.tipo === "Tráfego") r.traf++;
+    const at = ATRIB.get(l.id);
+    if (at) at.forEach(({ ad_id, peso }) => { if (adPassa(ADS.get(ad_id), f)) r.leads += peso; });
+  });
+  const mediaAteHora = {};
+  ["impressoes", "cliques", "page_views", "leads", "org", "traf"].forEach((c) => {
+    mediaAteHora[c] = completos.length ? completos.reduce((s2, d) => s2 + (ateHora.get(d)?.[c] || 0), 0) / completos.length : null;
+  });
+
+  const corDe = (col, valor, ref) => {
+    if (valor == null || ref == null || !ref || col === "investimento") return "";
+    const r = valor / ref;
+    if (Math.abs(r - 1) <= FAIXA_IGUAL) return "";
+    const sobe = r > 1;
+    const bom = SOBE_RUIM.includes(col) ? !sobe : sobe;
+    return ` class="n ${bom ? "cel--bom" : "cel--ruim"}" title="${sobe ? "acima" : "abaixo"} da média geral em ${taxa(Math.abs(r - 1), 1)}"`;
+  };
+  const celCor = (col, r, d) => {
+    const parcial = d === hoje;
+    let valor = r[col], ref = media[col];
+    if (parcial && CONTAGENS.includes(col)) {
+      if (col === "alcance") return `<td class="n">${celula(col, r)}</td>`; // sem alcance por hora
+      valor = ateHora.get(d)?.[col] || 0; ref = mediaAteHora[col];
+    }
+    if (d < INICIO_CAPTACAO || !completos.length || (!parcial && completos.length < 1)) return `<td class="n">${celula(col, r)}</td>`;
+    const attr = corDe(col, valor, ref);
+    return attr ? `<td${attr}>${col === "org" || col === "traf" ? fmt(r[col]) : celula(col, r)}</td>` : `<td class="n">${col === "org" || col === "traf" ? fmt(r[col]) : celula(col, r)}</td>`;
+  };
+  const linhaMedia = completos.length ? `<tr class="linha-media"><td>Média geral <span>(${completos.length} dia${completos.length > 1 ? "s" : ""} completo${completos.length > 1 ? "s" : ""})</span></td>
+      <td class="n">${num1(media.org)}</td><td class="n">${num1(media.traf)}</td>${cols.map((c) => `<td class="n">${c === "alcance" ? fmt(media.alcance) : CONTAGENS.includes(c) || c === "investimento" ? (c === "investimento" ? brl(media.investimento) : num1(media[c])) : celula(c, media)}</td>`).join("")}</tr>` : "";
+  $("#tr-dia tbody").innerHTML = linhaMedia + (dias.map((d) => {
     const r = porDia.get(d);
-    return `<tr><td>${dataBR(d)}</td><td class="n">${fmt(r.org)}</td><td class="n">${fmt(r.traf)}</td>${cols.map((c) => `<td class="n">${celula(c, r)}</td>`).join("")}</tr>`;
-  }).join("") || `<tr><td colspan="16" class="vazio">Sem dados no período.</td></tr>`;
+    return `<tr><td>${dataBR(d)}${d === hoje ? ` · hoje <span class="t-nota">(até ${String(horaAtual).padStart(2, "0")}h)</span>` : ""}</td>${celCor("org", r, d)}${celCor("traf", r, d)}${cols.map((c) => celCor(c, r, d)).join("")}</tr>`;
+  }).join("") || `<tr><td colspan="16" class="vazio">Sem dados no período.</td></tr>`);
 
   // gráfico de investimento por dia
   const asc = [...dias].reverse();
