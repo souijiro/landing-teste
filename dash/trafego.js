@@ -15,7 +15,7 @@ const COLUNAS = [
   ["investimento", "Investimento", brl], ["impressoes", "Impressões", fmt], ["cliques", "Cliques", fmt],
   ["page_views", "Page views", fmt], ["leads", "Leads", num1], ["leads_meta", "Leads (Meta)", fmt], ["alcance", "Alcance", (v, r) => (r.alcanceAprox ? "≈ " : "") + fmt(v)],
   ["tx_lp", "Tx carreg. LP", null], ["cpm", "CPM", null], ["ctr", "CTR", null], ["cpc", "CPC", null],
-  ["conv_cliques", "Conv. cliques→leads", null], ["conv_lp", "Conv. LP", null], ["cpl", "CPL", null],
+  ["conv_cliques", "Conv. cliques→leads", null], ["conv_lp", "Conv. LP", null], ["cpl", "CPL", null], ["cpl_hoje", "CPL hoje", null],
   ["ci", "Alunos Ci", num1], ["felipe", "Alunos Felipe", num1], ["ambos", "Alunos dos dois", num1], ["nao", "Não alunos", num1]
 ];
 // perfil do lead -> grupo (Ci = Docis)
@@ -128,7 +128,15 @@ function derivar(r) {
   r.cpl_nao = r.nao ? r.investimento / r.nao : null;
   return r;
 }
-const fmtDerivada = { tx_lp: (v) => (v == null ? "—" : taxa(v, 1)), ctr: (v) => (v == null ? "—" : taxa(v, 1)), conv_cliques: (v) => (v == null ? "—" : taxa(v, 1)), conv_lp: (v) => (v == null ? "—" : taxa(v, 1)), cpm: (v) => (v == null ? "—" : brl(v)), cpc: (v) => (v == null ? "—" : brl(v)), cpl: (v) => (v == null ? "—" : brl(v)) };
+const fmtDerivada = { tx_lp: (v) => (v == null ? "—" : taxa(v, 1)), ctr: (v) => (v == null ? "—" : taxa(v, 1)), conv_cliques: (v) => (v == null ? "—" : taxa(v, 1)), conv_lp: (v) => (v == null ? "—" : taxa(v, 1)), cpm: (v) => (v == null ? "—" : brl(v)), cpc: (v) => (v == null ? "—" : brl(v)), cpl: (v) => (v == null ? "—" : brl(v)), cpl_hoje: (v) => (v == null ? "—" : brl(v)) };
+// CPL de hoje para cada grupo (mesmos filtros, só o dia de hoje)
+const hojeSP = () => diaSP.format(new Date());
+function comCplHoje(grupos, f, dim) {
+  const h = hojeSP();
+  const deHoje = agregar({ ...f, de: h, ate: h }, dim);
+  grupos.forEach(([k, r]) => { const x = deHoje.get(k); r.cpl_hoje = x && x.leads ? x.investimento / x.leads : null; });
+  return grupos;
+}
 function celula(col, r) {
   const def = COLUNAS.find((c) => c[0] === col);
   if (fmtDerivada[col]) return fmtDerivada[col](r[col]);
@@ -186,9 +194,10 @@ function renderTrafego() {
     ["Page views", fmt(total.page_views)], ["Leads de anúncios", num1(total.leads)], ["Alcance", (total.alcanceAprox ? "≈ " : "") + fmt(total.alcance)],
     ["Tx carregamento LP", fmtDerivada.tx_lp(total.tx_lp)], ["CPM", fmtDerivada.cpm(total.cpm)], ["CTR", fmtDerivada.ctr(total.ctr)],
     ["CPC", fmtDerivada.cpc(total.cpc)], ["Conv. cliques → leads", fmtDerivada.conv_cliques(total.conv_cliques)],
-    ["Conv. LP", fmtDerivada.conv_lp(total.conv_lp)], ["CPL", fmtDerivada.cpl(total.cpl)]
+    ["Conv. LP", fmtDerivada.conv_lp(total.conv_lp)], ["CPL", fmtDerivada.cpl(total.cpl)],
+    ["CPL hoje", (() => { const h = hojeSP(); const t = agregar({ ...f, de: h, ate: h }, null).get("total"); return t && t.leads ? brl(t.investimento / t.leads) : "—"; })()]
   ];
-  $("#t-kpis").innerHTML = kpis.map(([r, v], i) => `<div class="kpi${i === 0 || i === 12 ? " kpi--destaque" : ""}"><p class="rotulo">${r}</p><p class="kpi__num">${v}</p></div>`).join("");
+  $("#t-kpis").innerHTML = kpis.map(([r, v]) => `<div class="kpi${r === "Investimento" || r === "CPL" ? " kpi--destaque" : r === "CPL hoje" ? " kpi--cinza" : ""}"><p class="rotulo">${r}</p><p class="kpi__num">${v}</p></div>`).join("");
 
   // leads de tráfego sem anúncio identificado
   const semAnuncio = UNICOS.filter((l) => l.tipo === "Tráfego" && !ATRIB.has(l.id) && diaPassa(l.dia, f)).length;
@@ -246,7 +255,7 @@ function renderDiaTrafego(f) {
 function renderRanking() {
   const f = estadoFiltros();
   const dim = $("#t-dim").value || "anuncio";
-  const grupos = [...agregar(f, dim).entries()];
+  const grupos = comCplHoje([...agregar(f, dim).entries()], f, dim);
   const val = (r) => (ordem.col === "nome" ? null : r[ordem.col]);
   grupos.sort((a, b) => {
     if (ordem.col === "nome") return ordem.dir * a[0].localeCompare(b[0], "pt-BR", { numeric: true });
@@ -413,8 +422,9 @@ function renderHora(dia, linhas) {
 
 // ---------- Top 5 ----------
 function renderTop5(f) {
-  const todos = [...agregar(f, "anuncio").entries()].filter(([, r]) => r.leads > 0).sort((a, b) => desempate(a[1], b[1]));
+  const todos = comCplHoje([...agregar(f, "anuncio").entries()], f, "anuncio").filter(([, r]) => r.leads > 0).sort((a, b) => desempate(a[1], b[1]));
   desenharTop($("#t-top5"), todos.slice(0, 5), "Ainda sem leads ligados a anúncios.");
+  desenharTop($("#t-top5-imagem"), todos.filter(([, r]) => r.formato === "Imagem").slice(0, 5), "Nenhuma imagem com leads no período.");
   const videos = todos.filter(([, r]) => r.formato === "Vídeo").slice(0, 5);
   const temVideo = TRAF.ads.some((a) => a.formato === "Vídeo" && adPassa(a, f));
   desenharTop($("#t-top5-video"), videos, temVideo ? "Os vídeos ainda não trouxeram leads no período." : "Nenhum anúncio em vídeo rodando nas campanhas blf26 (com os filtros escolhidos).");
@@ -434,10 +444,52 @@ function desenharTop(el, ads, vazioMsg) {
         <span class="top5__nome">${esc(nome)}</span>
         <span class="top5__linha"><span>Leads</span><strong>${num1(r.leads)}</strong></span>
         <span class="top5__linha"><span>CPL</span><strong>${fmtDerivada.cpl(r.cpl)}</strong></span>
+        <span class="top5__linha top5__linha--hoje"><span>CPL hoje</span><strong>${fmtDerivada.cpl(r.cpl_hoje)}</strong></span>
         <span class="top5__linha"><span>Investimento</span><strong>${brl(r.investimento)}</strong></span>
         <div class="top5__perfis">
           <span><b>${num1(r.ci)}</b>Ci</span><span><b>${num1(r.felipe)}</b>Felipe</span><span><b>${num1(r.ambos)}</b>Ambos</span><span><b>${num1(r.nao)}</b>Não alunos</span>
         </div>
       </div></article>`;
   }).join("") || `<p class="t-nota">${vazioMsg}</p>`;
+}
+
+// ---------- Análise diária dos criativos ----------
+let ANALISES = [];
+async function carregarAnalise() {
+  try { ANALISES = (await rpc("dash_analise_criativos_black2026", { p_token: lerToken() })) || []; } catch (e) { ANALISES = []; }
+  const sel = $("#t-analise-dia"), atual = sel.value;
+  sel.innerHTML = ANALISES.map((a) => `<option value="${a.dia}">${dataBR(a.dia)}</option>`).join("");
+  if (atual && ANALISES.some((a) => a.dia === atual)) sel.value = atual;
+  renderAnalise();
+}
+$("#t-analise-dia").addEventListener("change", renderAnalise);
+
+function renderAnalise() {
+  const a = ANALISES.find((x) => x.dia === $("#t-analise-dia").value) || ANALISES[0];
+  if (!a) { $("#t-analise").innerHTML = '<p class="t-nota">Ainda não há análise.</p>'; return; }
+  const c = a.conteudo || {};
+  const miniatura = (nome) => { const n = String(nome).split(/\s*·\s*/)[0]; const cr = criativoDe(n); return cr ? `<img class="thumb" src="${thumbUrl(cr)}" alt="" loading="lazy" referrerpolicy="no-referrer" data-criativo="${esc(n)}">` : '<span class="thumb"></span>'; };
+  const lista = (arr) => `<ul>${(arr || []).map((t) => `<li>${esc(t)}</li>`).join("")}</ul>`;
+  $("#t-analise").innerHTML = `
+    <p class="t-nota analise__periodo">${esc(c.periodo || "")} · gerada em ${horaSP.format(new Date(a.gerado_em))}</p>
+    <p class="analise__resumo">${esc(c.resumo || "")}</p>
+    <h3>O que está funcionando</h3>
+    <div class="analise__grade">${(c.vencedores || []).map((v) => `<div class="analise__item">${miniatura(v.anuncio)}<div>
+      <strong>${esc(v.anuncio)} · ${esc(v.formato || "")}</strong>
+      <span class="analise__metricas">${esc(v.leads)} leads · CPL ${esc(v.cpl)} · ${esc(v.perfil || "")}</span>
+      <p>${esc(v.porque)}</p></div></div>`).join("")}</div>
+    <h3>O que evitar / pausar</h3>
+    <div class="analise__grade">${(c.evitar || []).map((v) => `<div class="analise__item analise__item--ruim">${miniatura(v.anuncio)}<div>
+      <strong>${esc(v.anuncio)}</strong><p>${esc(v.porque)}</p></div></div>`).join("")}</div>
+    <h3>Padrões</h3>${lista(c.padroes)}
+    <h3>Sugestões de copy</h3>
+    <div class="analise__grade">${(c.copys || []).map((k) => `<div class="analise__copy"><span class="para">${esc(k.para)}</span>
+      <strong>${esc(k.titulo)}</strong><p>${esc(k.texto)}</p><span class="cta">${esc(k.cta)}</span></div>`).join("")}</div>
+    <h3>Prompts para gerar imagens</h3>
+    <div class="analise__grade">${(c.prompts || []).map((p, i) => `<div class="analise__prompt"><strong>${esc(p.nome)}</strong>
+      <p id="prompt-${i}">${esc(p.prompt)}</p><button type="button" class="analise__copiar" data-copiar="prompt-${i}">Copiar</button></div>`).join("")}</div>
+    <h3>Próximos testes</h3>${lista(c.proximos_testes)}`;
+  document.querySelectorAll("[data-copiar]").forEach((b) => b.addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(document.getElementById(b.dataset.copiar).textContent); b.textContent = "Copiado ✓"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); } catch (e) {}
+  }));
 }

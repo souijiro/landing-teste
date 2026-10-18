@@ -224,3 +224,35 @@ body { min-height: 100dvh; }
 .seta--desce { color: #d13b3f; }
 .seta--igual { color: #a8a29e; }
 .tabela-legenda { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .74rem; color: var(--texto-3); margin: 10px 0 0; }
+
+/* CPL de hoje em cinza */
+.kpi--cinza { background: #ebe7e2; border-color: #ddd7cf; }
+.kpi--cinza .kpi__num { color: #3a3634; }
+
+/* Análise diária dos criativos */
+.analise h3 { font-size: .9rem; margin: 18px 0 8px; text-transform: uppercase; letter-spacing: .06em; color: var(--texto-2); }
+.analise__resumo { font-size: .95rem; line-height: 1.55; margin: 0; padding: 12px 14px; background: #faf8f5; border-radius: 10px; border-left: 4px solid var(--amarelo); }
+.analise__periodo { margin: 0 0 8px; }
+.analise__grade { display: grid; gap: 10px; }
+.analise__item { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 12px; padding: 10px; border: 1px solid var(--linha); border-radius: 12px; align-items: start; }
+.analise__item .thumb { width: 56px; height: 70px; }
+.analise__item strong { display: block; }
+.analise__item p { margin: 4px 0 0; font-size: .85rem; color: var(--texto-2); }
+.analise__metricas { font-size: .75rem; color: var(--texto-3); font-weight: 600; }
+.analise__item--ruim { border-color: #f3c9c9; background: #fff8f8; }
+.analise ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: .9rem; }
+.analise__copy { padding: 12px 14px; border: 1px solid var(--linha); border-radius: 12px; background: #fff; }
+.analise__copy .para { font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--texto-3); }
+.analise__copy strong { display: block; margin: 4px 0; }
+.analise__copy p { margin: 0 0 6px; font-size: .88rem; }
+.analise__copy .cta { display: inline-block; font-size: .78rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: #2fa84f; color: #fff; }
+.analise__prompt { position: relative; padding: 12px 14px; border-radius: 12px; background: #1c1b1b; color: #e7e4df; }
+.analise__prompt strong { color: #fff; display: block; margin-bottom: 6px; }
+.analise__prompt p { margin: 0; font: 500 .82rem/1.5 ui-monospace, Menlo, monospace; }
+.analise__copiar { position: absolute; top: 8px; right: 8px; border: 1px solid rgba(255,255,255,.25); background: transparent; color: #fff; border-radius: 6px; font-size: .72rem; padding: 3px 8px; }
+@media (min-width: 720px) { .analise__grade { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.top5__linha--hoje { color: var(--texto-3); }
+
+/* miniatura sempre no mesmo tamanho (vídeo vem 9:16 e esticava o cartão) */
+.top5__img { overflow: hidden; }
+.top5__img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }

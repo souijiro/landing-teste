@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/dash/dash.css?v=11">
+  <link rel="stylesheet" href="/dash/dash.css?v=13">
 </head>
 <body>
 
@@ -80,6 +80,7 @@
           <div class="kpi"><p class="rotulo">Projeção até 5/11</p><p class="kpi__num" id="k-proj">0</p><p class="kpi__sub" id="k-proj-sub"></p></div>
           <div class="kpi"><p class="rotulo">Investimento total (Meta)</p><p class="kpi__num" id="k-inv">—</p><p class="kpi__sub" id="k-inv-sub"></p></div>
           <div class="kpi"><p class="rotulo">CPL (tráfego)</p><p class="kpi__num" id="k-cpl">—</p><p class="kpi__sub" id="k-cpl-sub"></p></div>
+          <div class="kpi kpi--cinza"><p class="rotulo">CPL hoje</p><p class="kpi__num" id="k-cpl-hoje">—</p><p class="kpi__sub" id="k-cpl-hoje-sub"></p></div>
           <div class="kpi"><p class="rotulo">Cadastros (com repetidos)</p><p class="kpi__num" id="k-total">0</p><p class="kpi__sub" id="k-dup"></p></div>
         </div>
       </section>
@@ -177,6 +178,11 @@
       </section>
 
       <section class="cartao">
+        <div class="cartao__topo"><h2>Top 5 imagens</h2><span class="t-nota">mesmo critério, só anúncios em imagem</span></div>
+        <div class="top5" id="t-top5-imagem"></div>
+      </section>
+
+      <section class="cartao">
         <div class="cartao__topo"><h2>Top 5 vídeos</h2><span class="t-nota">mesmo critério, só anúncios em vídeo</span></div>
         <div class="top5" id="t-top5-video"></div>
       </section>
@@ -193,6 +199,14 @@
         <div class="tabela-wrap tabela-wrap--alta">
           <table class="tabela tabela--rank" id="t-rank"><thead></thead><tbody></tbody></table>
         </div>
+      </section>
+    
+      <section class="cartao analise" id="t-analise-cartao">
+        <div class="cartao__topo">
+          <h2>Análise diária dos criativos</h2>
+          <label class="t-nota">Dia <select id="t-analise-dia"></select></label>
+        </div>
+        <div id="t-analise"><p class="t-nota">Carregando…</p></div>
       </section>
     </main>
 
@@ -242,9 +256,9 @@
   <img class="previa-hover" id="previa-hover" alt="" hidden>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-  <script src="/dash/dash.js?v=11"></script>
+  <script src="/dash/dash.js?v=12"></script>
   <script src="/dash/alunos.js?v=2"></script>
   <script src="/dash/criativos.js?v=1"></script>
-  <script src="/dash/trafego.js?v=7"></script>
+  <script src="/dash/trafego.js?v=8"></script>
 </body>
 </html>

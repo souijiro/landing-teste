@@ -112,6 +112,7 @@ async function carregar() {
     montarFiltros();
     renderLeads();
     if (traf) { montarFiltrosTrafego(); renderTrafego(); }
+    if (typeof carregarAnalise === "function") carregarAnalise();
     $("#atualizado").textContent = "Atualizado " + horaSP.format(new Date()) + " · atualiza sozinho a cada 1 min";
   } catch (err) {
     if (err.code === "28000") { apagarToken(); return mostrarLogin(); }
@@ -192,6 +193,9 @@ function renderPainel() {
   $("#k-inv-sub").textContent = `hoje: ${brl(invDia.get(hoje) || 0)}`;
   $("#k-cpl").textContent = totAtrib ? brl(invTotal / totAtrib) : "—";
   $("#k-cpl-sub").textContent = `${fmt(totAtrib)} leads ligados aos anúncios`;
+  const atribHoje = leadsAtrib(hoje);
+  $("#k-cpl-hoje").textContent = invDia.get(hoje) && atribHoje ? brl(invDia.get(hoje) / atribHoje) : "—";
+  $("#k-cpl-hoje-sub").textContent = `${brl(invDia.get(hoje) || 0)} · ${fmt(atribHoje)} leads hoje`;
 
   $("#k-total").textContent = fmt(LEADS.length);
   $("#k-dup").textContent = `${fmt(LEADS.length - n)} cadastros repetidos (mesmo e-mail)`;
