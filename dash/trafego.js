@@ -215,7 +215,7 @@ function renderTrafego() {
   let compara = "";
   if (cplHojeV != null && total.cpl) {
     const dif = cplHojeV / total.cpl - 1;
-    compara = Math.abs(dif) <= 0.10 ? `<p class="kpi__sub kpi__comp kpi__comp--igual">≈ igual à média geral</p>`
+    compara = Math.abs(dif) < 0.05 ? `<p class="kpi__sub kpi__comp kpi__comp--igual">≈ igual à média geral (${dif < 0 ? "-" : "+"}${taxa(Math.abs(dif), 1)})</p>`
       : dif < 0 ? `<p class="kpi__sub kpi__comp kpi__comp--bom">▼ ${taxa(-dif, 1)} abaixo da média</p>`
       : `<p class="kpi__sub kpi__comp kpi__comp--ruim">▲ ${taxa(dif, 1)} acima da média</p>`;
   }
@@ -296,18 +296,21 @@ function renderDiaTrafego(f) {
 
   const corDe = (col, valor, ref) => {
     if (valor == null || ref == null || !ref || col === "investimento") return "";
-    const r = valor / ref;
-    if (Math.abs(r - 1) <= FAIXA_IGUAL) return "";
+    const r = valor / ref, dif = taxa(Math.abs(r - 1), 1);
+    // variação abaixo de 5% = amarelo; acima disso verde (melhor) ou vermelho (pior)
+    if (Math.abs(r - 1) < 0.05) return ` class="n cel--igual" title="${r >= 1 ? "acima" : "abaixo"} da média geral em ${dif} (menos de 5%)"`;
     const sobe = r > 1;
     const bom = SOBE_RUIM.includes(col) ? !sobe : sobe;
-    return ` class="n ${bom ? "cel--bom" : "cel--ruim"}" title="${sobe ? "acima" : "abaixo"} da média geral em ${taxa(Math.abs(r - 1), 1)}"`;
+    return ` class="n ${bom ? "cel--bom" : "cel--ruim"}" title="${sobe ? "acima" : "abaixo"} da média geral em ${dif}"`;
   };
   const celCor = (col, r, d) => {
     const parcial = d === hoje;
     let valor = r[col], ref = media[col];
     if (parcial && CONTAGENS.includes(col)) {
-      if (col === "alcance") return `<td class="n">${celula(col, r)}</td>`; // sem alcance por hora
-      valor = ateHora.get(d)?.[col] || 0; ref = mediaAteHora[col];
+      if (col === "alcance") {
+        // a Meta não dá alcance por hora: espera-se a média do dia proporcional às impressões que a média tem até esta hora
+        ref = media.impressoes ? media.alcance * (mediaAteHora.impressoes || 0) / media.impressoes : null;
+      } else { valor = ateHora.get(d)?.[col] || 0; ref = mediaAteHora[col]; }
     }
     if (d < INICIO_CAPTACAO || !completos.length || (!parcial && completos.length < 1)) return `<td class="n">${celula(col, r)}</td>`;
     const attr = corDe(col, valor, ref);

@@ -286,9 +286,10 @@ body { min-height: 100dvh; }
 .kpi__comp { font-weight: 700; }
 .kpi__comp--bom { color: #1a8f4c; }
 .kpi__comp--ruim { color: #d13b3f; }
-.kpi__comp--igual { color: var(--texto-3); }
+.kpi__comp--igual { color: #a07800; }
 .tabela td.cel--bom { background: #e3f4e9; color: #146c3a; font-weight: 700; }
 .tabela td.cel--ruim { background: #fbe4e4; color: #b3262b; font-weight: 700; }
+.tabela td.cel--igual { background: #fdf3cf; color: #8a6400; font-weight: 700; }
 .tabela tr.linha-media td { background: #1a1a1a; color: #fff; font-weight: 700; font-style: italic; border-bottom: 3px solid #eda100; }
 .tabela tr.linha-media td span { font-weight: 500; color: #c9c4bd; font-size: .72rem; }
 @media (min-width: 900px) { .funil-corpo { grid-template-columns: minmax(0, 1.5fr) minmax(260px, 1fr); align-items: start; } }
