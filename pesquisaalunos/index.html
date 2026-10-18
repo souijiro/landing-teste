@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Docis - Pesquisa</title>
+<meta name="description" content="Pesquisa Docis - conte sua história com a gente">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --background: 30 20% 97%;
+    --foreground: 15 15% 22%;
+    --primary: 15 12% 23%;
+    --primary-foreground: 30 20% 97%;
+    --accent: 32 85% 52%;
+    --accent-foreground: 0 0% 100%;
+    --muted: 30 10% 90%;
+    --muted-foreground: 15 10% 45%;
+    --border: 30 15% 88%;
+    --card: 0 0% 100%;
+    --card-foreground: 15 15% 22%;
+    --radius: .75rem;
+    --destructive: 0 72% 51%;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:hsl(var(--background));
+    color:hsl(var(--foreground));
+    font-family:"Inter",sans-serif;
+    min-height:100vh;
+  }
+  .font-display{font-family:"Playfair Display",serif;}
+  #app{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+  .main{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+  .wrap{width:100%;max-width:640px;}
+  .header{
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    gap:24px;
+    margin-bottom:32px;
+    flex-wrap:wrap;
+  }
+  .header img.logo{height:64px;width:auto;object-fit:contain;}
+  .avatar-box{position:relative;width:80px;height:80px;flex-shrink:0;}
+  .avatar-box img{
+    width:100%;height:100%;border-radius:9999px;object-fit:cover;
+    border:4px solid hsla(32,85%,52%,0.3);
+    box-shadow:0 4px 14px rgba(0,0,0,.12);
+  }
+  .avatar-check{
+    position:absolute;bottom:-2px;right:-2px;width:24px;height:24px;
+    background:hsl(var(--accent));border-radius:9999px;
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:12px;
+  }
+  h1.title{
+    font-size:28px;font-weight:700;line-height:1.25;margin:0 0 20px;
+  }
+  @media(min-width:640px){ h1.title{font-size:34px;} }
+  p.body-text{font-size:17px;line-height:1.7;color:hsl(var(--muted-foreground));margin:0 0 14px;}
+  .footer{padding:16px;text-align:center;font-size:13px;color:hsl(var(--muted-foreground));}
+
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:10px;
+    border:none;cursor:pointer;font-family:inherit;font-weight:600;font-size:16px;
+    border-radius:calc(var(--radius));padding:16px 32px;
+    transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+  }
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+  .btn-primary{
+    background:hsl(var(--accent));color:hsl(var(--accent-foreground));
+    width:100%;
+  }
+  .btn-primary:not(:disabled):hover{transform:scale(1.02);box-shadow:0 8px 20px rgba(0,0,0,.12);}
+  .btn-outline{
+    background:transparent;color:hsl(var(--foreground));
+    border:1px solid hsl(var(--border));padding:14px 24px;
+  }
+  .btn-outline:not(:disabled):hover{background:hsl(var(--muted));}
+  .btn-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:32px;}
+  .btn-row .btn-primary{width:auto;flex:1;max-width:220px;margin-left:auto;}
+
+  input[type="email"],input[type="tel"],textarea,select{
+    width:100%;font-family:inherit;font-size:16px;
+    padding:16px;border-radius:calc(var(--radius));
+    border:1px solid hsl(var(--border));
+    background:hsl(var(--card));color:hsl(var(--foreground));
+    outline:none;
+  }
+  input[type="email"]:focus,input[type="tel"]:focus,textarea:focus,select:focus{
+    border-color:hsl(var(--accent));
+    box-shadow:0 0 0 3px hsla(32,85%,52%,0.15);
+  }
+  textarea{min-height:150px;resize:vertical;}
+
+  .options{display:flex;flex-direction:column;gap:14px;margin-top:8px;}
+  .survey-option{
+    display:flex;align-items:center;gap:14px;
+    text-align:left;width:100%;
+    padding:18px 20px;border-radius:calc(var(--radius));
+    border:1px solid hsl(var(--border));background:hsl(var(--card));
+    cursor:pointer;font-size:16px;font-weight:500;color:hsl(var(--foreground));
+    font-family:inherit;transition:border-color .15s ease, background .15s ease;
+  }
+  .survey-option:hover{border-color:hsla(32,85%,52%,0.5);}
+  .survey-option.selected{
+    border-color:hsl(var(--accent));background:hsla(32,85%,52%,0.08);
+  }
+  .radio-indicator{
+    flex-shrink:0;width:20px;height:20px;border-radius:9999px;
+    border:2px solid hsl(var(--border));position:relative;
+  }
+  .survey-option.selected .radio-indicator{border-color:hsl(var(--accent));}
+  .survey-option.selected .radio-indicator::after{
+    content:"";position:absolute;inset:3px;border-radius:9999px;background:hsl(var(--accent));
+  }
+
+  .phone-field{display:flex;gap:10px;}
+  .phone-field select{max-width:130px;flex-shrink:0;}
+  .phone-field .phone-input-wrap{
+    position:relative;flex:1;
+  }
+  .phone-field .phone-input-wrap input{padding-left:44px;}
+  .whatsapp-icon{
+    position:absolute;left:14px;top:50%;transform:translateY(-50%);
+    width:20px;height:20px;color:#25D366;
+  }
+  .field-hint{font-size:13px;color:hsl(var(--muted-foreground));margin-top:8px;}
+
+  .toast{
+    position:fixed;top:20px;left:50%;transform:translateX(-50%);
+    background:hsl(var(--destructive));color:#fff;padding:14px 22px;
+    border-radius:calc(var(--radius));font-size:14px;font-weight:500;
+    box-shadow:0 8px 24px rgba(0,0,0,.2);z-index:50;
+    opacity:0;transition:opacity .2s ease;pointer-events:none;
+  }
+  .toast.show{opacity:1;}
+
+  .fade-in{animation:fadeIn .35s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  .whatsapp-cta{
+    display:inline-flex;align-items:center;justify-content:center;gap:10px;
+    background:#25D366;color:#fff;font-weight:700;font-size:17px;letter-spacing:.02em;
+    padding:16px 32px;border-radius:calc(var(--radius));text-decoration:none;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .whatsapp-cta:hover{transform:scale(1.04);box-shadow:0 10px 24px rgba(0,0,0,.15);}
+  .accent-text{color:hsl(var(--accent));font-weight:500;}
+  .spin{animation:spin 1s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  var WEBHOOK_URL = "https://n8n.docis.app/webhook/1e4e2b81-8ed1-4b39-b56e-6af5aeb956d0";
+  var WHATSAPP_GROUP_LINK = "https://chat.whatsapp.com/KQYWd7C3CMUKP8YAAAu0if?mode=gi_t";
+  var LOGO_SRC = "/pesquisaalunos/img/logo-docis.png";
+  var AVATAR_SRC = "/pesquisaalunos/img/expert.png";
+
+  var QUESTIONS = [
+    {id:1,type:"multiple_choice",key:"tempo_conhece",question:"Há quanto tempo você já me conhece?",options:["Acabei de conhecer!","Há mais ou menos 6 meses","Há mais de 1 ano","Não sei dizer"]},
+    {id:2,type:"multiple_choice",key:"genero",question:"Em qual classificação abaixo você se encaixa?",options:["Homem","Mulher","Prefiro não informar"]},
+    {id:3,type:"multiple_choice",key:"faixa_etaria",question:"Qual sua faixa etária?",options:["Menor que 18 anos","18 a 24 anos","25 a 34 anos","35 a 44 anos","45 a 54 anos","55 a 64 anos","65+ anos"]},
+    {id:4,type:"multiple_choice",key:"escolaridade",question:"Qual é a sua escolaridade?",options:["Ensino fundamental","Ensino médio","Ensino superior","Pós-graduação","Não tenho estudo"]},
+    {id:5,type:"multiple_choice",key:"renda_individual",question:"Qual é a sua renda individual mensal?",options:["Não tenho renda","Até mil reais por mês","Entre mil e 2 mil reais por mês","Entre 2 mil e 3 mil reais por mês","Entre 3 mil e 5 mil reais por mês","Entre 5 mil e 10 mil reais por mês","Mais do que 10 mil reais por mês"]},
+    {id:6,type:"multiple_choice",key:"renda_familiar",question:"Qual sua renda familiar mensal?",options:["Minha família não tem renda","Até mil reais por mês","Entre mil e 2 mil reais por mês","Entre 2 mil e 3 mil reais por mês","Entre 3 mil e 5 mil reais por mês","Entre 5 mil e 10 mil reais por mês","Mais do que 10 mil reais por mês"]},
+    {id:7,type:"multiple_choice",key:"origem_renda",question:"De onde vem a maior parte da sua renda?",options:["Eu não tenho nenhuma renda","Do meu companheiro ou companheira","Dos meus pais","De bicos ou trabalhos freelancer","Tenho um emprego com carteira assinada","Sou empresária / trabalho por conta própria","Sou funcionária pública","Sou aposentada","Sou pensionista","Sou beneficiária de programas sociais","Nenhuma das opções acima"]},
+    {id:8,type:"multiple_choice",key:"nivel_confeitaria",question:"Como você se qualifica no universo da confeitaria?",options:["Sem interesse em ganhar dinheiro com confeitaria","A confeitaria é um hobby","Estou iniciando na confeitaria","A confeitaria é uma renda extra","É minha principal fonte de renda, mas ainda não consigo viver só dela","Eu já vivo da confeitaria"]},
+    {id:9,type:"multiple_choice",key:"objetivo_confeitaria",question:"Qual o seu principal objetivo com a confeitaria hoje?",options:["Não tenho interesse em ganhar dinheiro com confeitaria","Quero fazer uma transição de carreira","Quero viver da confeitaria","Já vivo da confeitaria e quero escalar meu negócio"]},
+    {id:10,type:"multiple_choice",key:"situacao_vendas",question:"Hoje, em relação à confeitaria, você:",options:["Ainda não vendo","Vendo, mas não tanto quanto gostaria","Já vendo bem"]},
+    {id:11,type:"multiple_choice",key:"maior_dificuldade",question:"Qual é a sua maior dificuldade na confeitaria hoje?",options:["Acertar o ponto do brigadeiro","Adquirir mais técnicas","Precificar corretamente","Vender mais / divulgação / marketing","Organização financeira","Delivery / pronta-entrega","Outra dificuldade não listada"]},
+    {id:12,type:"multiple_choice",key:"local_trabalho",question:"Onde você trabalha atualmente?",options:["Em casa","Em ateliê","Em confeitaria / loja física"]},
+    {id:13,type:"multiple_choice",key:"trabalha_com",question:"Você trabalha com quem?",options:["Sozinha","Com ajuda eventual","Tenho uma equipe"]},
+    {id:14,type:"multiple_choice",key:"impedimento_ganhar_mais",question:"Hoje você acredita que o que mais te impede de ganhar mais é:",options:["Falta de técnica","Falta de divulgação","Falta de organização","Falta de tempo","Falta de clareza do próximo passo"]},
+    {id:15,type:"multiple_choice",key:"confeitaria_significa",question:"Hoje, a confeitaria é:",options:["Um passatempo","Um sonho","Um complemento de renda","Minha principal fonte de renda"]},
+    {id:16,type:"text",key:"significado_confeitaria",question:"Em poucas palavras, escreva o que a confeitaria significa na sua vida:"},
+    {id:17,type:"multiple_choice",key:"decisor_financeiro",question:"Quem toma as decisões financeiras da sua família?",options:["Eu","Meu companheiro ou companheira","Meus pais","Meus filhos","Outro membro da família","Nenhuma das opções acima"]},
+    {id:18,type:"text",key:"produto_curso_desejado",question:"Pensando no seu momento hoje, qual produto ou curso você sente que mais precisa comprar de mim agora para destravar seus resultados?"}
+  ];
+
+  var COUNTRIES = [
+    {iso:"BR",name:"Brasil",dial:"55"},
+    {iso:"PT",name:"Portugal",dial:"351"},
+    {iso:"US",name:"Estados Unidos",dial:"1"},
+    {iso:"AR",name:"Argentina",dial:"54"},
+    {iso:"PY",name:"Paraguai",dial:"595"},
+    {iso:"UY",name:"Uruguai",dial:"598"},
+    {iso:"CL",name:"Chile",dial:"56"},
+    {iso:"MX",name:"México",dial:"52"},
+    {iso:"CO",name:"Colômbia",dial:"57"},
+    {iso:"PE",name:"Peru",dial:"51"},
+    {iso:"BO",name:"Bolívia",dial:"591"},
+    {iso:"EC",name:"Equador",dial:"593"},
+    {iso:"VE",name:"Venezuela",dial:"58"},
+    {iso:"AO",name:"Angola",dial:"244"},
+    {iso:"MZ",name:"Moçambique",dial:"258"},
+    {iso:"ES",name:"Espanha",dial:"34"},
+    {iso:"FR",name:"França",dial:"33"},
+    {iso:"IT",name:"Itália",dial:"39"},
+    {iso:"DE",name:"Alemanha",dial:"49"},
+    {iso:"GB",name:"Reino Unido",dial:"44"},
+    {iso:"CA",name:"Canadá",dial:"1"},
+    {iso:"JP",name:"Japão",dial:"81"},
+    {iso:"AU",name:"Austrália",dial:"61"},
+    {iso:"CH",name:"Suíça",dial:"41"},
+    {iso:"NL",name:"Holanda",dial:"31"},
+    {iso:"IE",name:"Irlanda",dial:"353"}
+  ];
+
+  function flagEmoji(iso){
+    return iso.replace(/./g, function(c){
+      return String.fromCodePoint(127397 + c.charCodeAt(0));
+    });
+  }
+
+  var params = new URLSearchParams(window.location.search);
+  var state = {
+    email: params.get("email") || "",
+    lancamento: params.get("lancamento") || "",
+    aluno: params.get("aluno") || "",
+    countryIso: "BR",
+    phoneDigits: "",
+    answers: {},
+    step: 0,
+    submitting: false
+  };
+
+  var STEP_WELCOME = 0;
+  var STEP_EMAIL = 1;
+  var STEP_PHONE = 2;
+  var STEP_QUESTIONS_START = 3;
+  var STEP_THANKYOU = STEP_QUESTIONS_START + QUESTIONS.length;
+
+  var app = document.getElementById("app");
+
+  function el(tag, attrs, children){
+    var node = document.createElement(tag);
+    attrs = attrs || {};
+    Object.keys(attrs).forEach(function(k){
+      if(k === "class") node.className = attrs[k];
+      else if(k === "html") node.innerHTML = attrs[k];
+      else if(k.indexOf("on") === 0) node.addEventListener(k.slice(2), attrs[k]);
+      else node.setAttribute(k, attrs[k]);
+    });
+    (children || []).forEach(function(c){
+      if(c) node.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+    });
+    return node;
+  }
+
+  function showToast(msg){
+    var existing = document.querySelector(".toast");
+    if(existing) existing.remove();
+    var t = el("div", {class:"toast"}, [msg]);
+    document.body.appendChild(t);
+    requestAnimationFrame(function(){ t.classList.add("show"); });
+    setTimeout(function(){
+      t.classList.remove("show");
+      setTimeout(function(){ t.remove(); }, 250);
+    }, 2600);
+  }
+
+  function header(){
+    return el("div", {class:"header"}, [
+      el("img", {class:"logo", src:LOGO_SRC, alt:"Docis Logo"}),
+      el("div", {class:"avatar-box"}, [
+        el("img", {src:AVATAR_SRC, alt:"Expert"}),
+        el("div", {class:"avatar-check"}, ["✓"])
+      ])
+    ]);
+  }
+
+  function footer(){
+    return el("div", {class:"footer"}, ["Copyright © 2025 - Todos os direitos reservados"]);
+  }
+
+  function formatBRPhone(digits){
+    digits = digits.slice(0, 11);
+    if(digits.length <= 2) return digits.length ? "(" + digits : "";
+    if(digits.length <= 6) return "(" + digits.slice(0,2) + ") " + digits.slice(2);
+    if(digits.length <= 10) return "(" + digits.slice(0,2) + ") " + digits.slice(2,6) + "-" + digits.slice(6);
+    return "(" + digits.slice(0,2) + ") " + digits.slice(2,7) + "-" + digits.slice(7,11);
+  }
+
+  function formatGenericPhone(digits){
+    digits = digits.slice(0, 15);
+    return digits.replace(/(\d{3})(?=\d)/g, "$1 ");
+  }
+
+  function formatPhone(iso, digits){
+    return iso === "BR" ? formatBRPhone(digits) : formatGenericPhone(digits);
+  }
+
+  function isPhoneValid(){
+    var min = state.countryIso === "BR" ? 10 : 6;
+    return state.phoneDigits.length >= min;
+  }
+
+  function render(){
+    app.innerHTML = "";
+    var step = state.step;
+
+    if(step === STEP_WELCOME) return renderWelcome();
+    if(step === STEP_EMAIL) return renderEmail();
+    if(step === STEP_PHONE) return renderPhone();
+    if(step >= STEP_QUESTIONS_START && step < STEP_THANKYOU){
+      return renderQuestion(QUESTIONS[step - STEP_QUESTIONS_START]);
+    }
+    if(step === STEP_THANKYOU) return renderThankYou();
+  }
+
+  function renderWelcome(){
+    var main = el("div", {class:"main"}, [
+      el("div", {class:"wrap fade-in"}, [
+        header(),
+        el("h1", {class:"title font-display"}, ["Oioiiii!"]),
+        el("p", {class:"body-text"}, ["Cada confeiteira tem uma história, um momento e um desafio diferente."]),
+        el("p", {class:"body-text"}, ["Por isso, criei essa pesquisa simples e rápida: pra ouvir você de verdade e entender como está a sua jornada hoje na confeitaria."]),
+        el("p", {class:"body-text"}, ["Suas respostas nos ajudam a criar conteúdos, aulas e caminhos mais reais, feitos pra quem vive isso todos os dias."]),
+        el("p", {class:"body-text"}, ["Obrigada por compartilhar um pouquinho da sua história com a gente. 💕"]),
+        el("button", {class:"btn btn-primary", style:"margin-top:12px", onclick:function(){
+          state.step = STEP_EMAIL; render();
+        }}, ["INICIAR"])
+      ])
+    ]);
+    app.appendChild(el("div", {}, [main, footer()]));
+  }
+
+  function renderEmail(){
+    var isValid = state.email.trim() !== "" && state.email.includes("@");
+    var input = el("input", {type:"email", placeholder:"seu@email.com", value:state.email});
+    input.addEventListener("input", function(e){
+      state.email = e.target.value;
+      btn.disabled = !(state.email.trim() !== "" && state.email.includes("@"));
+    });
+    var btn = el("button", {class:"btn btn-primary", style:"margin-top:20px", onclick:function(){
+      if(!(state.email.trim() !== "" && state.email.includes("@"))){
+        showToast("Por favor, informe um e-mail válido.");
+        return;
+      }
+      state.step = STEP_PHONE; render();
+    }}, ["Continuar"]);
+    btn.disabled = !isValid;
+
+    var main = el("div", {class:"main"}, [
+      el("div", {class:"wrap fade-in"}, [
+        header(),
+        el("h2", {class:"title font-display", style:"font-size:26px;margin-top:8px;"}, ["Antes de começar, qual é o seu email?"]),
+        input,
+        btn
+      ])
+    ]);
+    app.appendChild(el("div", {}, [main, footer()]));
+    input.focus();
+  }
+
+  function whatsappIconSvg(){
+    var span = document.createElement("span");
+    span.className = "whatsapp-icon";
+    span.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.002-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884M20.463 3.488A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>';
+    return span;
+  }
+
+  function renderPhone(){
+    var select = el("select", {}, COUNTRIES.map(function(c){
+      var opt = el("option", {value:c.iso}, [flagEmoji(c.iso) + " +" + c.dial]);
+      if(c.iso === state.countryIso) opt.selected = true;
+      return opt;
+    }));
+    select.addEventListener("change", function(e){
+      state.countryIso = e.target.value;
+      btn.disabled = !isPhoneValid();
+    });
+
+    var input = el("input", {
+      type:"tel",
+      placeholder: state.countryIso === "BR" ? "(11) 98765-4321" : "Seu número de WhatsApp",
+      value: formatPhone(state.countryIso, state.phoneDigits)
+    });
+    input.addEventListener("input", function(e){
+      var digits = e.target.value.replace(/\D/g, "");
+      state.phoneDigits = digits;
+      e.target.value = formatPhone(state.countryIso, digits);
+      btn.disabled = !isPhoneValid();
+    });
+
+    var btn = el("button", {class:"btn btn-primary", style:"margin-top:20px", onclick:function(){
+      if(!isPhoneValid()){
+        showToast("Por favor, informe um número de WhatsApp válido.");
+        return;
+      }
+      state.step = STEP_QUESTIONS_START; render();
+    }}, ["Continuar"]);
+    btn.disabled = !isPhoneValid();
+
+    var backBtn = el("button", {class:"btn btn-outline", onclick:function(){
+      state.step = STEP_EMAIL; render();
+    }}, ["← Anterior"]);
+
+    var main = el("div", {class:"main"}, [
+      el("div", {class:"wrap fade-in"}, [
+        header(),
+        el("h2", {class:"title font-display", style:"font-size:26px;margin-top:8px;"}, ["Qual é o seu telefone com WhatsApp?"]),
+        el("div", {class:"phone-field"}, [
+          select,
+          el("div", {class:"phone-input-wrap"}, [whatsappIconSvg(), input])
+        ]),
+        el("p", {class:"field-hint"}, ["Selecione o país e digite seu número de WhatsApp."]),
+        el("div", {class:"btn-row"}, [backBtn, btn])
+      ])
+    ]);
+    app.appendChild(el("div", {}, [main, footer()]));
+  }
+
+  function renderQuestion(q){
+    var idx = state.step - STEP_QUESTIONS_START;
+    var isFirst = idx === 0;
+    var isLast = idx === QUESTIONS.length - 1;
+    var currentValue = state.answers[q.key];
+    var hasValue = currentValue !== undefined && currentValue !== "";
+
+    function advance(){
+      if(isLast) submitSurvey();
+      else { state.step += 1; render(); }
+    }
+
+    var contentEl, nextBtn, showNextBtn;
+    if(q.type === "multiple_choice"){
+      showNextBtn = false;
+      contentEl = el("div", {class:"options"}, q.options.map(function(opt, i){
+        var selected = currentValue === opt;
+        var optBtn = el("button", {
+          type:"button",
+          class:"survey-option" + (selected ? " selected" : ""),
+          style:"animation-delay:" + (i*40) + "ms",
+          onclick:function(){
+            if(state.submitting) return;
+            state.answers[q.key] = opt;
+            render();
+            setTimeout(advance, 220);
+          }
+        }, [
+          el("div", {class:"radio-indicator"}),
+          el("span", {}, [opt])
+        ]);
+        return optBtn;
+      }));
+    } else {
+      showNextBtn = true;
+      var ta = el("textarea", {placeholder:"Digite sua resposta aqui..."}, []);
+      ta.value = currentValue || "";
+      ta.addEventListener("input", function(e){
+        state.answers[q.key] = e.target.value;
+        nextBtn.disabled = !(e.target.value.trim() !== "");
+      });
+      contentEl = ta;
+
+      nextBtn = el("button", {class:"btn btn-primary", onclick:function(){
+        var val = state.answers[q.key];
+        if(val === undefined || val === ""){
+          showToast("Por favor, escreva sua resposta.");
+          return;
+        }
+        advance();
+      }}, [isLast ? (state.submitting ? "Enviando..." : "Enviar") : "Próxima →"]);
+      nextBtn.disabled = !hasValue || state.submitting;
+    }
+
+    var backBtn = el("button", {class:"btn btn-outline", onclick:function(){
+      state.step -= 1; render();
+    }}, ["← Anterior"]);
+
+    var main = el("div", {class:"main"}, [
+      el("div", {class:"wrap fade-in"}, [
+        header(),
+        el("h2", {class:"title font-display", style:"font-size:26px;margin-top:8px;"}, [q.question]),
+        contentEl,
+        el("div", {class:"btn-row"}, showNextBtn ? [backBtn, nextBtn] : [backBtn])
+      ])
+    ]);
+    app.appendChild(el("div", {}, [main, footer()]));
+  }
+
+  function renderThankYou(){
+    var svgWrap = document.createElement("a");
+    svgWrap.href = WHATSAPP_GROUP_LINK;
+    svgWrap.target = "_blank";
+    svgWrap.rel = "noopener noreferrer";
+    svgWrap.className = "whatsapp-cta";
+    svgWrap.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.002-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884M20.463 3.488A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg><span>ENTRAR NO GRUPO</span>';
+
+    var main = el("div", {class:"main"}, [
+      el("div", {class:"wrap fade-in", style:"text-align:left;"}, [
+        header(),
+        el("div", {style:"width:56px;height:56px;border-radius:9999px;background:hsl(var(--accent));display:flex;align-items:center;justify-content:center;margin-bottom:20px;"}, [
+          el("span", {style:"color:#fff;font-size:24px;"}, ["✓"])
+        ]),
+        el("h1", {class:"title font-display"}, ["Obrigada por dedicar seu tempo e responder essa pesquisa 💛"]),
+        el("p", {class:"body-text"}, ["Cada resposta representa uma história, um momento e um desafio real — e é isso que nos guia na criação de tudo o que fazemos por aqui."]),
+        el("p", {class:"body-text accent-text"}, ["Toque no botão para entrar no grupo e seguirmos juntas nessa jornada ✨"]),
+        el("div", {style:"margin-top:16px;"}, [svgWrap])
+      ])
+    ]);
+    app.appendChild(el("div", {}, [main, footer()]));
+  }
+
+  function buildPayload(){
+    var payload = {
+      email: state.email,
+      lancamento: state.lancamento,
+      aluno: state.aluno,
+      telefone: "+" + COUNTRIES.filter(function(c){ return c.iso === state.countryIso; })[0].dial + state.phoneDigits
+    };
+    QUESTIONS.forEach(function(q){
+      payload[q.key] = state.answers[q.key] || "";
+    });
+    return payload;
+  }
+
+  function submitSurvey(){
+    state.submitting = true;
+    render();
+    var payload = buildPayload();
+    fetch(WEBHOOK_URL, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(payload)
+    }).catch(function(err){
+      console.error("Erro ao enviar pesquisa:", err);
+    }).finally(function(){
+      state.submitting = false;
+      state.step = STEP_THANKYOU;
+      render();
+    });
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>

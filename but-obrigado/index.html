@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Obrigado pela compra | Treinamento Bolo em Buttercream</title>
+<style>
+  :root{
+    --teal: #5fd4d4;
+    --teal-dark: #2fb8b8;
+    --whatsapp: #25D366;
+    --whatsapp-dark: #1ebe57;
+    --ink: #1f2b2b;
+  }
+
+  *{ box-sizing: border-box; }
+
+  body{
+    margin: 0;
+    min-height: 100vh;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+    background: radial-gradient(circle at 50% -10%, #8fe8e8 0%, var(--teal) 45%, var(--teal-dark) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+  }
+
+  .card{
+    width: 100%;
+    max-width: 480px;
+    background: #ffffff;
+    border-radius: 28px;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.18);
+    overflow: hidden;
+    text-align: center;
+  }
+
+  .photo-wrap{
+    position: relative;
+    padding: 22px 22px 0 22px;
+  }
+
+  .photo-wrap img{
+    width: 100%;
+    display: block;
+    border-radius: 20px;
+  }
+
+  .content{
+    padding: 28px 26px 32px 26px;
+  }
+
+  .badge{
+    display: inline-block;
+    background: #eafcf7;
+    color: var(--teal-dark);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 999px;
+    margin-bottom: 16px;
+  }
+
+  h1.parabens{
+    margin: 0 0 6px 0;
+    font-size: 34px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    line-height: 1.05;
+    background: linear-gradient(90deg, #12a3a3, #1fcf9e);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-transform: uppercase;
+  }
+
+  .subtitle{
+    margin: 0 0 22px 0;
+    font-size: 15px;
+    color: #4a5a5a;
+    font-weight: 500;
+  }
+
+  .produto-nome{
+    font-weight: 800;
+    color: var(--ink);
+  }
+
+  .treino-info{
+    margin: 0 0 24px 0;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+
+  .treino-info strong{
+    color: var(--teal-dark);
+  }
+
+  .whats-box{
+    border: 2px solid #d9f2ea;
+    background: #f6fffb;
+    border-radius: 18px;
+    padding: 18px 18px 22px 18px;
+    margin-bottom: 22px;
+  }
+
+  .whats-box p{
+    margin: 0 0 16px 0;
+    font-size: 14.5px;
+    color: #33433f;
+    line-height: 1.5;
+  }
+
+  .btn-whatsapp{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    background: var(--whatsapp);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-decoration: none;
+    padding: 15px 18px;
+    border-radius: 14px;
+    box-shadow: 0 10px 22px rgba(37, 211, 102, 0.4);
+    transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .btn-whatsapp:hover{
+    background: var(--whatsapp-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 14px 26px rgba(37, 211, 102, 0.5);
+  }
+
+  .btn-whatsapp svg{
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+  }
+
+  .footer-note{
+    font-size: 12px;
+    color: #8a9a97;
+    margin: 0;
+  }
+
+  @media (max-width: 380px){
+    h1.parabens{ font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="photo-wrap">
+      <img src="/but-obrigado/produto.png" alt="Bolo em Buttercream Docis">
+    </div>
+
+    <div class="content">
+      <span class="badge">Compra confirmada</span>
+      <h1 class="parabens">Parabéns pela compra!</h1>
+      <p class="subtitle">Seu <span class="produto-nome">treinamento do Bolo em Buttercream da Docis</span> já está garantido.</p>
+
+      <p class="treino-info">
+        O treinamento será <strong>ao vivo</strong> no dia <strong>27/09 (domingo)</strong> às <strong>14h</strong>.
+      </p>
+
+      <div class="whats-box">
+        <p>Clique no botão e entre no grupo do whatsapp para receber o link da aula e outros materiais.</p>
+
+        <a class="btn-whatsapp" href="https://chat.whatsapp.com/Iq9HMAZHiRQKWBOleYXEdL?mode=gi_t" target="_blank" rel="noopener">
+          <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+            <path d="M16.001 3C9.373 3 4 8.373 4 15c0 2.408.702 4.646 1.912 6.53L4 29l7.65-1.876A11.93 11.93 0 0 0 16.001 27C22.629 27 28 21.627 28 15S22.629 3 16.001 3zm0 21.75c-1.98 0-3.822-.58-5.372-1.578l-.385-.242-4.54 1.113 1.13-4.42-.25-.398A9.71 9.71 0 0 1 5.25 15c0-5.937 4.813-10.75 10.75-10.75S26.75 9.063 26.75 15 21.938 24.75 16.001 24.75z"/>
+            <path d="M21.53 17.66c-.297-.148-1.755-.867-2.028-.966-.272-.099-.47-.148-.668.149-.198.297-.767.965-.94 1.163-.173.198-.347.223-.643.075-.297-.149-1.253-.462-2.386-1.472-.882-.787-1.478-1.76-1.651-2.058-.173-.297-.018-.457.13-.605.134-.133.297-.347.446-.52.148-.174.198-.298.297-.496.099-.198.05-.372-.025-.52-.074-.149-.668-1.61-.915-2.204-.24-.578-.485-.5-.668-.51l-.569-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.017-1.04 2.478 0 1.462 1.065 2.874 1.213 3.072.148.198 2.096 3.2 5.078 4.488.71.307 1.263.49 1.694.626.712.227 1.36.195 1.873.118.571-.085 1.755-.717 2.003-1.41.247-.693.247-1.287.173-1.41-.074-.124-.272-.198-.569-.347z"/>
+          </svg>
+          Entrar no Grupo
+        </a>
+      </div>
+
+      <p class="footer-note">Nos vemos na aula ao vivo! 🎉</p>
+    </div>
+  </div>
+
+</body>
+</html>

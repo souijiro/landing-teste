@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" width="960" height="540">
+  <rect width="960" height="540" fill="#111"/>
+  <text x="480" y="230" font-family="Georgia, serif" font-size="32" letter-spacing="6" fill="white" text-anchor="middle" dominant-baseline="middle" text-transform="uppercase">ANGELICA, APERTE O PLAY</text>
+  <circle cx="480" cy="320" r="44" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
+  <polygon points="468,304 468,336 500,320" fill="white"/>
+</svg>

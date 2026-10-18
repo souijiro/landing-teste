@@ -25,6 +25,8 @@
     { "src": "/pesquisaalunos/img/(.*)", "dest": "/pesquisaalunos/img/$1" },
     { "src": "/pesquisaalunos/?", "dest": "/pesquisaalunos/index.html" },
     { "src": "/canaga/?", "dest": "/canaga/index.html" },
+    { "src": "/daz/?", "dest": "/daz/index.html" },
+    { "src": "/daz2/?", "dest": "/daz/index.html" },
     { "src": "/leadscanaga/?", "dest": "/leadscanaga/index.html", "headers": { "X-Robots-Tag": "noindex, nofollow", "Cache-Control": "no-store" } }
   ]
 }

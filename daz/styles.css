@@ -1,0 +1,174 @@
+/* Delivery de A a Z — VSL page. Look of the course: cream paper, ink outlines, yellow + tomato red, Anton + Poppins */
+:root{--cream:#f7f1e6;--paper:#fffaf0;--ink:#17130e;--y:#ffc928;--r:#ef3b24;--mut:#6f6556;--line:#e4d9c5}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--cream);color:var(--ink);font:500 17px/1.55 "Poppins",system-ui,sans-serif;
+  background-image:radial-gradient(rgba(23,19,14,.09) 1.4px,transparent 1.5px);background-size:28px 28px}
+img{max-width:100%;height:auto;display:block}
+h1,h2,h3{font-family:"Anton","Impact","Arial Narrow",sans-serif;font-weight:400;text-transform:uppercase;line-height:1.04;letter-spacing:.005em;margin:0;text-wrap:balance}
+h1{font-size:clamp(34px,8.6vw,58px);line-height:1.14}
+h2{font-size:clamp(30px,7vw,46px);line-height:1.12}
+h3{font-size:28px}
+.mk{background:var(--y);padding:0 .12em;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.mk.r{background:var(--r);color:#fff}
+.eyebrow{margin:0 0 12px;font:800 13px/1.2 "Poppins";letter-spacing:.2em;text-transform:uppercase;color:var(--r)}
+main{padding-bottom:84px}
+section{padding-left:max(18px,env(safe-area-inset-left));padding-right:max(18px,env(safe-area-inset-right))}
+
+/* topo */
+.topo{display:flex;justify-content:center;padding:14px 18px 0}
+.topo-logo{width:min(220px,56vw);height:auto}
+
+/* dobra */
+.dobra{max-width:640px;margin:0 auto;padding-top:6px;padding-bottom:28px;text-align:center}
+.dobra .sub{margin:14px auto 22px;max-width:30em;font-size:18px;color:#3b342a}
+.cta{display:block;width:100%;max-width:440px;margin:0 auto;padding:20px 22px;border-radius:16px;background:var(--r);color:#fff;
+  font:800 19px/1.2 "Poppins";text-transform:uppercase;letter-spacing:.02em;text-decoration:none;text-align:center;
+  border:3px solid var(--ink);box-shadow:6px 6px 0 var(--ink);transition:transform .12s,box-shadow .12s}
+.cta:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 var(--ink)}
+.cta:active{transform:translate(3px,3px);box-shadow:3px 3px 0 var(--ink)}
+.cta:focus-visible{outline:4px solid var(--y);outline-offset:3px}
+.vsl{width:100%;max-width:400px;margin:22px auto 0;border:4px solid var(--ink);border-radius:20px;overflow:hidden;box-shadow:8px 8px 0 var(--ink);background:#000}
+.vsl vturb-smartplayer{display:block;width:100%;max-width:none !important}
+.vsl-placeholder{aspect-ratio:9/16;display:grid;place-items:center;color:#f7f1e6;font:700 16px "Poppins";
+  background:repeating-linear-gradient(45deg,#1e1a14 0 14px,#25201a 14px 28px)}
+.som{margin:14px 0 0;font:600 14px "Poppins";color:var(--mut)}
+
+/* números */
+.faixa{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:900px;margin:8px auto 0}
+.num{background:var(--paper);border:3px solid var(--ink);border-radius:16px;padding:16px 14px;text-align:center;box-shadow:5px 5px 0 var(--ink)}
+.num b{display:block;font:400 clamp(28px,7vw,40px)/1 "Anton"}
+.num span{display:block;margin-top:6px;font:600 13px/1.3 "Poppins";color:var(--mut)}
+
+/* blocos */
+.bloco{max-width:900px;margin:0 auto;padding-top:56px;padding-bottom:8px}
+.bloco > h2{margin-bottom:24px}
+.bloco.claro{max-width:none;background:var(--paper);border-top:3px solid var(--ink);border-bottom:3px solid var(--ink);margin-top:56px;padding-top:48px;padding-bottom:48px}
+.bloco.claro > *{max-width:900px;margin-left:auto;margin-right:auto}
+.bloco.claro > h2{margin-bottom:24px}
+.check{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.check li{position:relative;padding:14px 16px 14px 54px;background:var(--paper);border:3px solid var(--ink);border-radius:14px;font-weight:600}
+.check li::before{content:"✕";position:absolute;left:14px;top:12px;width:28px;height:28px;border-radius:50%;background:var(--r);color:#fff;display:grid;place-items:center;font:800 14px "Poppins"}
+.pilares{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.pilares article{background:#fff;border:3px solid var(--ink);border-radius:18px;padding:20px;box-shadow:6px 6px 0 var(--ink);min-width:0}
+.pilares .n{display:inline-grid;place-items:center;width:46px;height:46px;border-radius:50%;background:var(--y);border:3px solid var(--ink);font:400 26px/1 "Anton";margin-bottom:10px}
+.pilares p{margin:8px 0 0;font-size:15px;color:#3b342a}
+.conta{margin-top:22px !important;padding:16px 20px;border-radius:14px;background:var(--y);border:3px solid var(--ink);font-weight:600}
+.prints{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.prints figure{margin:0;background:#fff;border:3px solid var(--ink);border-radius:16px;padding:12px;box-shadow:5px 5px 0 var(--ink);min-width:0}
+.prints img{width:100%;height:220px;object-fit:contain}
+.prints figcaption{margin-top:8px;font:700 13px/1.3 "Poppins";color:var(--mut);text-align:center}
+.reviews{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:22px 0 30px}
+.reviews blockquote{margin:0;padding:18px 18px 16px;background:var(--paper);border:3px solid var(--ink);border-radius:16px;font-weight:700}
+.reviews blockquote::before{content:"★★★★★";display:block;color:var(--y);-webkit-text-stroke:1px var(--ink);letter-spacing:.08em;margin-bottom:6px}
+.recebe{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.recebe li{display:flex;flex-direction:column;gap:4px;padding:16px 18px;background:#fff;border:3px solid var(--ink);border-radius:14px}
+.recebe b{font:400 24px/1.1 "Anton";text-transform:uppercase}
+.recebe span{color:#3b342a;font-size:15px}
+.sobre{display:grid;grid-template-columns:minmax(0,1fr);gap:22px;align-items:center}
+.sobre img{width:min(420px,100%);margin:0 auto}
+.sobre p{color:#3b342a}
+.garantia{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.garantia > div:last-child{flex:1;min-width:240px}
+.selo{flex:none;width:150px;height:150px;border-radius:50%;background:var(--y);border:5px solid var(--ink);box-shadow:7px 7px 0 var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.selo b{font:400 72px/.9 "Anton"}
+.selo span{font:800 12px/1.1 "Poppins";text-transform:uppercase;letter-spacing:.06em}
+details{border:3px solid var(--ink);border-radius:14px;background:#fff;margin-top:12px}
+summary{cursor:pointer;padding:16px 18px;font-weight:800;list-style:none;position:relative;padding-right:46px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";position:absolute;right:16px;top:10px;font:400 28px "Anton"}
+details[open] summary::after{content:"−"}
+details p{margin:0;padding:0 18px 16px;color:#3b342a}
+.final{max-width:640px;margin:0 auto;padding-top:56px;padding-bottom:20px;text-align:center}
+.final h2{margin-bottom:22px}
+.mini{margin:14px 0 0;font:600 13px "Poppins";color:var(--mut)}
+.rodape{text-align:center;padding:24px 18px 110px;font:600 12px "Poppins";color:var(--mut)}
+
+/* barra fixa (celular) */
+.barra{position:fixed;left:0;right:0;bottom:0;z-index:20;transform:translateY(110%);transition:transform .25s;
+  padding:14px max(18px,env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left));
+  background:var(--r);color:#fff;text-align:center;text-decoration:none;font:800 16px/1.2 "Poppins";text-transform:uppercase;border-top:3px solid var(--ink)}
+.barra.on{transform:none}
+
+@media (min-width:760px){
+  .sobre{grid-template-columns:420px minmax(0,1fr)}
+  .barra{display:none}
+  .rodape{padding-bottom:30px}
+}
+@media (max-width:420px){
+  .faixa{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){.cta,.barra{transition:none}}
+
+/* ===== TEMA ESCURO (/daz2) — mesmo conteúdo, só a pele muda ===== */
+html[data-theme="escuro"]{--dk:#14110d;--dk2:#1f1a14;--dk3:#2a241c;--fg:#f7f1e6;--fg2:#cfc5b4;--edge:#f7f1e6}
+html[data-theme="escuro"] body{background-color:var(--dk);color:var(--fg);background-image:radial-gradient(rgba(247,241,230,.07) 1.4px,transparent 1.5px)}
+html[data-theme="escuro"] .dobra .sub,html[data-theme="escuro"] .sobre p,html[data-theme="escuro"] .pilares p,
+html[data-theme="escuro"] .recebe span,html[data-theme="escuro"] details p{color:var(--fg2)}
+html[data-theme="escuro"] .eyebrow{color:var(--y)}
+html[data-theme="escuro"] .mk{color:var(--ink)}
+html[data-theme="escuro"] .mk.r{color:#fff}
+html[data-theme="escuro"] .cta{border-color:var(--edge);box-shadow:6px 6px 0 var(--y)}
+html[data-theme="escuro"] .cta:hover{box-shadow:8px 8px 0 var(--y)}
+html[data-theme="escuro"] .cta:active{box-shadow:3px 3px 0 var(--y)}
+html[data-theme="escuro"] .vsl{border-color:var(--edge);box-shadow:8px 8px 0 var(--r)}
+html[data-theme="escuro"] .som,html[data-theme="escuro"] .mini,html[data-theme="escuro"] .rodape{color:#9c917f}
+html[data-theme="escuro"] .num,html[data-theme="escuro"] .check li,html[data-theme="escuro"] .pilares article,
+html[data-theme="escuro"] .reviews blockquote,html[data-theme="escuro"] .recebe li,html[data-theme="escuro"] details{
+  background:var(--dk2);border-color:#3a3127;color:var(--fg);box-shadow:none}
+html[data-theme="escuro"] .num{border-color:var(--y)}
+html[data-theme="escuro"] .num span,html[data-theme="escuro"] .prints figcaption{color:var(--fg2)}
+html[data-theme="escuro"] .pilares article{border-top:5px solid var(--y)}
+html[data-theme="escuro"] .pilares .n{border-color:var(--y);color:var(--ink)}
+html[data-theme="escuro"] .bloco.claro{background:var(--dk2);border-color:#3a3127}
+html[data-theme="escuro"] .bloco.claro .pilares article,html[data-theme="escuro"] .bloco.claro .recebe li,html[data-theme="escuro"] .bloco.claro details{background:var(--dk3)}
+html[data-theme="escuro"] .conta{color:var(--ink)}
+html[data-theme="escuro"] .prints figure{background:var(--dk2);border-color:#3a3127;box-shadow:none}
+html[data-theme="escuro"] .prints img{background:#fff;border-radius:10px;padding:6px}
+html[data-theme="escuro"] .reviews blockquote::before{-webkit-text-stroke:0}
+html[data-theme="escuro"] .selo{color:var(--ink);border-color:var(--edge);box-shadow:7px 7px 0 var(--r)}
+html[data-theme="escuro"] summary::after{color:var(--y)}
+html[data-theme="escuro"] .barra{border-top-color:var(--y)}
+
+/* ===== POPUP DE PLANOS ===== */
+body.trava{overflow:hidden}
+.planos{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
+  padding:max(14px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));
+  background:rgba(20,17,13,.72)}
+.planos[hidden]{display:none}
+.planos-caixa{position:relative;width:100%;max-width:720px;max-height:100%;overflow:auto;background:var(--cream);border:4px solid var(--ink);border-radius:22px;
+  box-shadow:10px 10px 0 var(--ink);padding:26px 22px 20px;text-align:center}
+.planos-caixa h2{margin-bottom:18px}
+.planos-fechar{position:absolute;right:10px;top:8px;width:44px;height:44px;border:0;background:none;font:400 34px/1 "Anton";color:var(--ink);cursor:pointer}
+.planos-fechar:focus-visible{outline:3px solid var(--r);border-radius:10px}
+.planos-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:stretch}
+.plano{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;padding:24px 16px 18px;border:3px solid var(--ink);border-radius:18px;
+  background:#fff;color:var(--ink);text-decoration:none;box-shadow:6px 6px 0 var(--ink);transition:transform .12s,box-shadow .12s}
+.plano:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 var(--ink)}
+.plano:focus-visible{outline:4px solid var(--r);outline-offset:3px}
+.plano b{font:400 32px/1.05 "Anton";text-transform:uppercase}
+.plano .item{font:700 16px/1.3 "Poppins"}
+.plano-btn{margin-top:auto;width:100%;padding:14px 10px;border-radius:12px;border:3px solid var(--ink);background:var(--paper);font:800 15px/1.1 "Poppins";text-transform:uppercase}
+.plano.destaque{background:var(--y);border-width:4px;transform:scale(1.03)}
+.plano.destaque:hover{transform:scale(1.03) translate(-2px,-2px)}
+.plano.destaque .plano-btn{background:var(--r);color:#fff}
+.selo-melhor{position:absolute;top:-16px;left:50%;transform:translateX(-50%);white-space:nowrap;background:var(--r);color:#fff;border:3px solid var(--ink);border-radius:999px;
+  padding:5px 14px;font:800 12px/1 "Poppins";letter-spacing:.1em;text-transform:uppercase}
+.planos .mini{margin-top:16px}
+@media (max-width:560px){
+  .planos-cards{grid-template-columns:1fr;gap:18px}
+  .planos-caixa{padding:22px 16px 16px}
+  .planos-caixa h2{font-size:30px;margin-bottom:20px}
+  .plano{padding:20px 14px 14px;gap:6px}
+  .plano b{font-size:28px}
+  .plano.destaque{transform:none}
+  .plano.destaque:hover{transform:translate(-2px,-2px)}
+}
+@media (prefers-reduced-motion:reduce){.plano{transition:none}}
+/* escuro */
+html[data-theme="escuro"] .planos-caixa{background:var(--dk2);border-color:var(--edge);box-shadow:10px 10px 0 var(--y)}
+html[data-theme="escuro"] .planos-fechar{color:var(--fg)}
+html[data-theme="escuro"] .plano{background:var(--dk3);color:var(--fg);border-color:#4a4034;box-shadow:none}
+html[data-theme="escuro"] .plano .plano-btn{background:transparent;border-color:var(--fg2)}
+html[data-theme="escuro"] .plano.destaque{background:var(--y);color:var(--ink);border-color:var(--edge);box-shadow:6px 6px 0 var(--r)}
+html[data-theme="escuro"] .plano.destaque .plano-btn{background:var(--r);color:#fff;border-color:var(--ink)}

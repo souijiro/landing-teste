@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Sites — c.docis.com.br</title>
+<style>
+  :root {
+    --bg: #f6f5f3;
+    --card: #ffffff;
+    --border: #e6e3de;
+    --text: #1f1c19;
+    --muted: #7a736a;
+    --accent: #b8622f;
+    --accent-bg: #fbeee5;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: 40px 20px 80px;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  .sub { color: var(--muted); font-size: 0.9rem; margin: 0 0 28px; }
+  .list { display: flex; flex-direction: column; gap: 10px; }
+  .site {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .site:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .site-main { min-width: 0; }
+  .site-title { font-weight: 600; font-size: 0.98rem; }
+  .site-path { color: var(--accent); font-size: 0.85rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .site-meta { color: var(--muted); font-size: 0.78rem; margin-top: 2px; }
+  .badge {
+    font-size: 0.72rem;
+    color: var(--accent);
+    background: var(--accent-bg);
+    border-radius: 6px;
+    padding: 3px 8px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .empty, .error { color: var(--muted); font-size: 0.9rem; padding: 20px 0; }
+  footer { text-align: center; color: var(--muted); font-size: 0.78rem; margin-top: 36px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Sites em c.docis.com.br</h1>
+    <p class="sub" id="subtitle">Carregando…</p>
+    <div class="list" id="list"></div>
+    <footer id="footer"></footer>
+  </div>
+
+<script>
+  async function load() {
+    const listEl = document.getElementById('list');
+    const subEl = document.getElementById('subtitle');
+    const footEl = document.getElementById('footer');
+    try {
+      const res = await fetch('/api/sites', { cache: 'no-store' });
+      const data = await res.json();
+      const sites = data.sites || [];
+
+      subEl.textContent = sites.length
+        ? sites.length + ' site' + (sites.length === 1 ? '' : 's') + ' encontrado' + (sites.length === 1 ? '' : 's')
+        : 'Nenhum site encontrado.';
+
+      listEl.innerHTML = '';
+      sites.forEach(function (site) {
+        const a = document.createElement('a');
+        a.className = 'site';
+        a.href = site.path + '/';
+        a.target = '_blank';
+        a.rel = 'noopener';
+
+        const main = document.createElement('div');
+        main.className = 'site-main';
+
+        const title = document.createElement('div');
+        title.className = 'site-title';
+        title.textContent = site.title;
+
+        const path = document.createElement('div');
+        path.className = 'site-path';
+        path.textContent = site.path;
+
+        main.appendChild(title);
+        main.appendChild(path);
+        a.appendChild(main);
+
+        if (site.redirectsTo) {
+          const badge = document.createElement('span');
+          badge.className = 'badge';
+          badge.textContent = '→ ' + site.redirectsTo;
+          a.appendChild(badge);
+        }
+
+        listEl.appendChild(a);
+      });
+
+      footEl.textContent = 'Atualizado automaticamente • gerado em ' + new Date(data.generatedAt).toLocaleString('pt-BR');
+    } catch (e) {
+      subEl.textContent = '';
+      listEl.innerHTML = '<div class="error">Não foi possível carregar a lista de sites.</div>';
+    }
+  }
+  load();
+</script>
+</body>
+</html>

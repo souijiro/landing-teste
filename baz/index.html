@@ -1,0 +1,1816 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <base href="/baz/">
+  <title>Brigadeiro de A a Z 5.0 — Docis</title>
+  <link rel="icon" href="https://pages.greatpages.com.br/vivendodebrigadeiro.docis.com.br-carta/1758157695/imagens/desktop/21719-ce252217bb9207c263c9dc4add60bac6.png">
+  <link rel="canonical" href="https://c.docis.com.br/baz">
+  <meta name="description" content="Aprenda a fazer brigadeiros perfeitos e transforme isso em renda. Mais de 15 mil alunas. 200+ aulas. 40+ receitas. Inscreva-se agora.">
+  <meta property="og:title" content="Brigadeiro de A a Z 5.0 — Docis">
+  <meta property="og:site_name" content="Docis">
+  <meta property="og:url" content="https://c.docis.com.br/carta">
+  <meta property="og:image" content="https://pages.greatpages.com.br/vivendodebrigadeiro.docis.com.br-carta/1758157695/imagens/desktop/336405_1_169710740597621544.png">
+  <!-- Meta Pixel Code -->
+  <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1164376950613372');
+    fbq('track', 'PageView');
+  </script>
+  <noscript>
+    <img height="1" width="1" style="display:none"
+      src="https://www.facebook.com/tr?id=1164376950613372&ev=PageView&noscript=1"/>
+  </noscript>
+  <!-- End Meta Pixel Code -->
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    /* ── Top Banner ── */
+    #top-banner {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+      background: #27ae60;
+      color: #fff;
+      text-align: center;
+      padding: 8px 16px 6px;
+      line-height: 1.3;
+    }
+    #top-banner .banner-title {
+      font-size: .9rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase;
+    }
+    #top-banner .banner-sub {
+      font-size: .72rem; font-weight: 500; opacity: .9; letter-spacing: .02em;
+    }
+    body { padding-top: 52px; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      color: #3e3637;
+      background: #fff;
+      -webkit-font-smoothing: antialiased;
+    }
+    img { max-width: 100%; display: block; }
+    a { text-decoration: none; color: inherit; }
+
+    /* ── Tokens ── */
+    :root {
+      --charcoal: #3e3637;
+      --purple:   #341280;
+      --orange:   #e69122;
+      --yellow:   #f6ef38;
+      --white:    #ffffff;
+      --gray:     #f7f7f7;
+      --gray2:    #f0eff5;
+      --text-light: rgba(255,255,255,0.87);
+    }
+
+    /* ── Utility ── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+    .btn {
+      display: inline-block;
+      background: var(--orange);
+      color: var(--white);
+      font-weight: 800;
+      font-size: 1.1rem;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      padding: 18px 40px;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: filter .2s, transform .15s;
+    }
+    .btn:hover { filter: brightness(1.08); transform: translateY(-2px); }
+    .btn-full { width: 100%; text-align: center; }
+    .badge {
+      display: inline-block;
+      background: var(--yellow);
+      color: var(--charcoal);
+      font-weight: 800;
+      font-size: .75rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 4px 14px;
+      border-radius: 50px;
+    }
+    .badge-purple {
+      background: var(--purple);
+      color: var(--white);
+    }
+    .section-label { text-align: center; margin-bottom: 12px; }
+    .section-title {
+      font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+      font-weight: 900;
+      line-height: 1.15;
+      text-align: center;
+    }
+    .section-sub {
+      text-align: center;
+      font-size: 1.05rem;
+      color: #666;
+      margin-top: 10px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+    }
+    .section-sub-white {
+      color: rgba(255,255,255,.7);
+    }
+
+    /* ═══════════════════════════════════════
+       1. HERO
+    ═══════════════════════════════════════ */
+    #hero {
+      background: var(--charcoal);
+      min-height: 600px;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    #hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 80% at 80% 50%, rgba(230,145,34,.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-inner {
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 48px;
+      align-items: center;
+      padding: 80px 24px 60px;
+      max-width: 1100px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .hero-text .badge { margin-bottom: 20px; }
+    .hero-title {
+      font-size: clamp(2.2rem, 5vw, 3.6rem);
+      font-weight: 900;
+      color: var(--white);
+      line-height: 1.08;
+      margin-bottom: 20px;
+    }
+    .hero-title span { color: var(--orange); }
+    .hero-sub {
+      font-size: 1.15rem;
+      color: var(--text-light);
+      line-height: 1.6;
+      margin-bottom: 32px;
+      max-width: 520px;
+    }
+    .hero-cta { margin-bottom: 36px; }
+    .hero-cta .btn { font-size: 1.15rem; padding: 20px 48px; }
+
+    /* Countdown */
+    .countdown { display: flex; gap: 12px; align-items: center; }
+    .countdown-label {
+      font-size: .75rem;
+      font-weight: 700;
+      color: var(--orange);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .countdown-unit {
+      text-align: center;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 10px;
+      padding: 10px 16px;
+      min-width: 70px;
+    }
+    .countdown-num {
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--white);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    .countdown-unit-label {
+      font-size: .65rem;
+      color: rgba(255,255,255,.5);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-top: 4px;
+    }
+    .countdown-sep {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: rgba(255,255,255,.3);
+      margin-bottom: 20px;
+    }
+
+    /* Hero image */
+    .hero-img-wrap {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+    }
+    .hero-img-wrap img {
+      max-height: 540px;
+      object-fit: contain;
+      position: relative;
+      z-index: 1;
+      filter: drop-shadow(0 20px 60px rgba(0,0,0,.4));
+    }
+    .hero-img-wrap::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 340px;
+      height: 340px;
+      background: var(--orange);
+      border-radius: 50%;
+      opacity: .15;
+      filter: blur(60px);
+    }
+
+    /* ═══════════════════════════════════════
+       2. STATS BAR
+    ═══════════════════════════════════════ */
+    #stats {
+      background: var(--purple);
+      padding: 28px 24px;
+    }
+    .stats-inner {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .stat-item { text-align: center; }
+    .stat-num { font-size: 2.2rem; font-weight: 900; color: var(--yellow); line-height: 1; }
+    .stat-desc { font-size: .8rem; color: var(--text-light); text-transform: uppercase; letter-spacing: .08em; margin-top: 4px; }
+    .stat-divider { width: 1px; height: 48px; background: rgba(255,255,255,.15); }
+
+    /* ═══════════════════════════════════════
+       3. BENEFÍCIOS
+    ═══════════════════════════════════════ */
+    #beneficios { padding: 80px 24px; background: var(--gray); }
+    .beneficios-header { margin-bottom: 48px; }
+    .beneficios-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .ben-card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 36px 28px;
+      text-align: center;
+      border-bottom: 4px solid var(--orange);
+      box-shadow: 0 2px 20px rgba(0,0,0,.06);
+    }
+    .ben-icon {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: var(--charcoal);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 1.5rem;
+    }
+    .ben-title { font-size: 1.1rem; font-weight: 800; margin-bottom: 10px; color: var(--charcoal); }
+    .ben-text { font-size: .92rem; color: #666; line-height: 1.6; }
+
+    /* ═══════════════════════════════════════
+       4. DEPOIMENTOS
+    ═══════════════════════════════════════ */
+    #depoimentos { padding: 80px 24px; background: var(--white); }
+    .depoimentos-header { margin-bottom: 48px; }
+    .depoimentos-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      max-width: 1000px;
+      margin: 0 auto 48px;
+    }
+    .dep-card { border-radius: 14px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,.10); border: 2px solid #eee; }
+    .dep-card img { width: 100%; height: auto; }
+    .dep-highlight {
+      max-width: 700px; margin: 0 auto;
+      background: var(--purple);
+      border-radius: 16px; padding: 32px 40px; text-align: center;
+    }
+    .dep-highlight p { font-size: 1.15rem; color: var(--white); line-height: 1.7; font-style: italic; }
+    .dep-highlight strong {
+      display: block; margin-top: 12px;
+      color: var(--yellow);
+      font-style: normal; font-size: .85rem; letter-spacing: .06em; text-transform: uppercase;
+    }
+
+    /* ═══════════════════════════════════════
+       6. RECEITAS
+    ═══════════════════════════════════════ */
+    #receitas {
+      padding: 90px 24px;
+      background: var(--white);
+    }
+    .receitas-header { margin-bottom: 48px; }
+
+    /* Category filter */
+    .cat-filter-wrap {
+      max-width: 1060px;
+      margin: 0 auto 36px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-bottom: 4px;
+    }
+    .cat-filter-wrap::-webkit-scrollbar { display: none; }
+    .cat-filter {
+      display: flex;
+      gap: 8px;
+      min-width: max-content;
+      padding: 0 4px;
+    }
+    .cat-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      border-radius: 50px;
+      border: 2px solid #e5e5e5;
+      background: var(--white);
+      color: #555;
+      font-size: .85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .2s;
+      white-space: nowrap;
+      font-family: 'Inter', sans-serif;
+    }
+    .cat-btn:hover { border-color: var(--purple); color: var(--purple); }
+    .cat-btn.active { background: var(--purple); border-color: var(--purple); color: var(--white); }
+    .cat-btn .cat-emoji { font-size: 1rem; }
+
+    /* Category colors */
+    .cat-base        { --cat-color: #3e3637; }
+    .cat-citricos    { --cat-color: #e69122; }
+    .cat-oleaginosas { --cat-color: #7a5230; }
+    .cat-sobremesas  { --cat-color: #341280; }
+    .cat-pastas      { --cat-color: #c97a10; }
+    .cat-geleias     { --cat-color: #b83030; }
+    .cat-alcoolicos  { --cat-color: #7b1128; }
+    .cat-cremes      { --cat-color: #8a5a0a; }
+    .cat-frutas      { --cat-color: #1e8a40; }
+    .cat-leite       { --cat-color: #1f6db0; }
+    .cat-po          { --cat-color: #4a5568; }
+    .cat-queijo      { --cat-color: #c68a00; }
+    .cat-especiais   { --cat-color: #6b2fa0; }
+    .cat-explosivos  { --cat-color: #9b1010; }
+
+    /* Photo recipe grid */
+    .recipe-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      max-width: 1060px;
+      margin: 0 auto;
+    }
+    .recipe-card {
+      position: relative;
+      border-radius: 14px;
+      overflow: hidden;
+      aspect-ratio: 1;
+      cursor: default;
+      box-shadow: 0 2px 12px rgba(0,0,0,.12);
+    }
+    .recipe-card img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform .4s ease;
+    }
+    .recipe-card:hover img { transform: scale(1.07); }
+    .recipe-card-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,.75) 0%, rgba(0,0,0,.08) 50%, transparent 72%);
+      pointer-events: none;
+    }
+    .recipe-card-info {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 12px;
+    }
+    .recipe-cat-pill {
+      display: inline-block;
+      font-size: .58rem; font-weight: 800;
+      letter-spacing: .05em; text-transform: uppercase;
+      padding: 2px 7px; border-radius: 50px;
+      margin-bottom: 4px;
+      background: var(--cat-color, #3e3637);
+      color: #fff;
+      opacity: .92;
+    }
+    .recipe-card-name {
+      font-size: .88rem; font-weight: 800;
+      color: #fff; line-height: 1.2;
+      text-shadow: 0 1px 4px rgba(0,0,0,.6);
+      display: block;
+    }
+
+    /* ═══════════════════════════════════════
+       7. PRECIFICAÇÃO
+    ═══════════════════════════════════════ */
+    #precificacao {
+      padding: 90px 24px;
+      background: var(--gray2);
+    }
+    .prec-header { margin-bottom: 56px; }
+    .prec-inner {
+      max-width: 1060px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+    }
+    .prec-text .badge { margin-bottom: 16px; }
+    .prec-title {
+      font-size: clamp(1.8rem, 3vw, 2.4rem);
+      font-weight: 900;
+      color: var(--charcoal);
+      line-height: 1.15;
+      margin-bottom: 20px;
+    }
+    .prec-title span { color: var(--purple); }
+    .prec-desc {
+      font-size: 1rem;
+      color: #555;
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+    .prec-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .prec-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: .95rem;
+      color: #444;
+      line-height: 1.5;
+    }
+    .prec-list li::before {
+      content: '→';
+      flex-shrink: 0;
+      color: var(--orange);
+      font-weight: 900;
+      font-size: 1rem;
+    }
+    .prec-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .prec-card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 24px 20px;
+      box-shadow: 0 2px 20px rgba(0,0,0,.07);
+      border-top: 4px solid var(--purple);
+    }
+    .prec-card-icon { font-size: 1.8rem; margin-bottom: 10px; }
+    .prec-card-title {
+      font-size: .95rem;
+      font-weight: 800;
+      color: var(--charcoal);
+      margin-bottom: 6px;
+    }
+    .prec-card-text { font-size: .82rem; color: #666; line-height: 1.5; }
+
+    .planilha-mockup {
+      margin-top: 56px;
+      text-align: center;
+    }
+    .planilha-label {
+      margin-bottom: 24px;
+    }
+    .planilha-label p {
+      margin-top: 10px;
+      font-size: .95rem;
+      color: #666;
+    }
+    .planilha-frame {
+      max-width: 860px;
+      margin: 0 auto;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 48px rgba(0,0,0,.15);
+      border: 1px solid rgba(0,0,0,.08);
+    }
+    .planilha-frame img {
+      width: 100%;
+      display: block;
+      filter: blur(3px);
+      transform: scale(1.02);
+    }
+
+    /* ═══════════════════════════════════════
+       8. COMUNIDADE
+    ═══════════════════════════════════════ */
+    #comunidade {
+      padding: 90px 24px;
+      background: var(--purple);
+      position: relative;
+      overflow: hidden;
+    }
+    #comunidade::after {
+      content: '';
+      position: absolute;
+      bottom: -100px; left: -100px;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: rgba(230,145,34,.12);
+      pointer-events: none;
+    }
+    .comunidade-header { margin-bottom: 56px; }
+    .comunidade-header .section-title { color: var(--white); }
+    .comunidade-grid {
+      max-width: 1060px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .com-card {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 20px;
+      padding: 32px 24px;
+      text-align: center;
+      transition: background .2s;
+    }
+    .com-card:hover { background: rgba(255,255,255,.13); }
+    .com-icon { font-size: 2.4rem; margin-bottom: 14px; }
+    .com-title { font-size: 1rem; font-weight: 800; color: var(--white); margin-bottom: 8px; }
+    .com-text { font-size: .875rem; color: rgba(255,255,255,.65); line-height: 1.55; }
+
+    /* ═══════════════════════════════════════
+       9. SOBRE O CURSO (split layout)
+    ═══════════════════════════════════════ */
+    #curso {
+      padding: 80px 24px;
+      background: var(--charcoal);
+    }
+    .curso-inner {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+    .curso-img { border-radius: 20px; overflow: hidden; }
+    .curso-img img { width: 100%; }
+    .curso-text .badge { margin-bottom: 16px; }
+    .curso-title {
+      font-size: clamp(1.8rem, 3vw, 2.4rem);
+      font-weight: 900;
+      color: var(--white);
+      margin-bottom: 20px;
+      line-height: 1.15;
+    }
+    .curso-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .curso-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      color: rgba(255,255,255,.85);
+      font-size: .98rem;
+      line-height: 1.5;
+    }
+    .curso-list li::before {
+      content: '✓';
+      flex-shrink: 0;
+      width: 22px; height: 22px;
+      background: var(--orange);
+      color: var(--white);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .75rem;
+      font-weight: 900;
+      margin-top: 1px;
+    }
+
+    /* ═══════════════════════════════════════
+       10. BÔNUS VIP
+    ═══════════════════════════════════════ */
+    #bonus { padding: 80px 24px; background: var(--gray); }
+    .bonus-header { margin-bottom: 48px; }
+    .bonus-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+      max-width: 1060px;
+      margin: 0 auto 40px;
+    }
+    .bonus-card {
+      background: var(--white);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,.08);
+    }
+    .bonus-card-header {
+      background: var(--purple);
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .bonus-card-num {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: var(--yellow);
+      color: var(--charcoal);
+      font-weight: 900;
+      font-size: .9rem;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .bonus-card-title { font-size: .95rem; font-weight: 800; color: var(--white); line-height: 1.2; }
+    .bonus-card-body { padding: 20px 24px; }
+    .bonus-card-body p { font-size: .875rem; color: #555; line-height: 1.6; margin-bottom: 10px; }
+    .bonus-tag {
+      display: inline-block;
+      background: rgba(52,18,128,.10);
+      color: var(--purple);
+      font-size: .72rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 50px;
+    }
+    .bonus-highlight {
+      max-width: 1060px;
+      margin: 0 auto;
+      background: var(--charcoal);
+      border-radius: 20px;
+      padding: 32px 40px;
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+    .bonus-highlight-icon { font-size: 3rem; flex-shrink: 0; }
+    .bonus-highlight-text h3 { font-size: 1.15rem; font-weight: 800; color: var(--white); margin-bottom: 6px; }
+    .bonus-highlight-text p { font-size: .9rem; color: rgba(255,255,255,.65); line-height: 1.6; }
+
+    /* ═══════════════════════════════════════
+       11. PREÇO
+    ═══════════════════════════════════════ */
+    #preco { padding: 80px 24px; background: var(--white); }
+    .preco-header { margin-bottom: 48px; }
+    .preco-box {
+      max-width: 580px;
+      margin: 0 auto;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 8px 48px rgba(52,18,128,.15);
+      border: 2px solid var(--purple);
+    }
+    .preco-top { background: var(--purple); padding: 28px 36px; text-align: center; }
+    .preco-name { color: var(--yellow); font-size: .85rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 4px; }
+    .preco-title-box { color: var(--white); font-size: 1.6rem; font-weight: 900; }
+    .preco-body { padding: 36px; text-align: center; }
+    .preco-option {
+      border: 2px solid #eee;
+      border-radius: 14px;
+      padding: 20px 24px;
+      margin-bottom: 16px;
+      cursor: pointer;
+      transition: border-color .2s;
+      text-align: center;
+    }
+    .preco-option.featured { border-color: var(--orange); background: rgba(230,145,34,.05); }
+    .preco-option-label { font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--orange); margin-bottom: 4px; }
+    .preco-installments { font-size: 1rem; color: #888; }
+    .preco-installments strong { font-size: 2rem; font-weight: 900; color: var(--charcoal); }
+    .preco-total { font-size: .82rem; color: #999; margin-top: 2px; }
+    .preco-cta { margin-top: 24px; }
+    .preco-garantia-selo {
+      display: flex; align-items: center; gap: 14px;
+      background: #f9f6ff; border: 1.5px solid var(--purple);
+      border-radius: 14px; padding: 14px 18px; margin-top: 20px;
+    }
+    .garantia-badge {
+      flex-shrink: 0;
+      width: 56px; height: 56px; border-radius: 50%;
+      background: var(--purple); color: #fff;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      line-height: 1.1;
+    }
+    .garantia-num { font-size: 1.3rem; font-weight: 900; }
+    .garantia-txt { font-size: .48rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; text-align: center; }
+    .garantia-desc { font-size: .8rem; color: #555; line-height: 1.5; text-align: left; }
+    .preco-guarantee {
+      text-align: center; margin-top: 16px;
+      font-size: .82rem; color: #888;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+
+    /* ═══════════════════════════════════════
+       12. CTA FINAL
+    ═══════════════════════════════════════ */
+    #cta-final { position: relative; overflow: hidden; padding: 0; }
+    .cta-final-img {
+      position: absolute; inset: 0;
+      object-fit: cover; width: 100%; height: 100%;
+      filter: brightness(.28) saturate(1.2);
+    }
+    .cta-final-inner {
+      position: relative; z-index: 1;
+      padding: 80px 24px; text-align: center;
+      max-width: 700px; margin: 0 auto;
+    }
+    .cta-final-title {
+      font-size: clamp(2rem, 4.5vw, 3.2rem);
+      font-weight: 900; color: var(--white);
+      line-height: 1.1; margin-bottom: 16px;
+    }
+    .cta-final-title span { color: var(--yellow); }
+    .cta-final-sub { font-size: 1.05rem; color: var(--text-light); margin-bottom: 36px; line-height: 1.6; }
+    .cta-final-btn { font-size: 1.3rem; padding: 22px 56px; box-shadow: 0 8px 40px rgba(230,145,34,.4); }
+    .cta-urgency { margin-top: 20px; font-size: .85rem; color: rgba(255,255,255,.55); }
+
+    /* ═══════════════════════════════════════
+       STICKY CTA (mobile)
+    ═══════════════════════════════════════ */
+    .sticky-cta {
+      display: none;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--orange);
+      padding: 14px 24px;
+      z-index: 999; text-align: center;
+    }
+    .sticky-cta a { color: var(--white); font-weight: 800; font-size: 1rem; letter-spacing: .04em; text-transform: uppercase; }
+
+    /* ═══════════════════════════════════════
+       TUDO DE BRIGADEIRO
+    ═══════════════════════════════════════ */
+    #tudo { padding: 90px 24px; background: var(--charcoal); }
+    .tudo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      max-width: 940px;
+      margin: 0 auto;
+    }
+    .tudo-card { position: relative; border-radius: 16px; overflow: hidden; aspect-ratio: 4/3; box-shadow: 0 4px 20px rgba(0,0,0,.3); }
+    .tudo-card img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .4s; }
+    .tudo-card:hover img { transform: scale(1.06); }
+    .tudo-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.78) 0%, transparent 55%); pointer-events: none; }
+    .tudo-name { position: absolute; bottom: 0; left: 0; right: 0; padding: 12px 14px; font-size: .88rem; font-weight: 800; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,.5); }
+
+    /* ═══════════════════════════════════════
+       MODULE SECTIONS (Panela, Gestão, Confeito)
+    ═══════════════════════════════════════ */
+    .modulo-sec { padding: 80px 24px; }
+    .modulo-inner {
+      max-width: 1060px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 60px; align-items: center;
+    }
+    .modulo-value-badge {
+      display: inline-block;
+      background: var(--yellow); color: var(--charcoal);
+      font-weight: 900; font-size: .78rem;
+      letter-spacing: .08em; text-transform: uppercase;
+      padding: 5px 14px; border-radius: 50px; margin-bottom: 16px;
+    }
+    .modulo-title { font-size: clamp(1.5rem, 2.8vw, 2.1rem); font-weight: 900; line-height: 1.15; margin-bottom: 14px; }
+    .modulo-desc { font-size: .95rem; color: #555; line-height: 1.65; margin-bottom: 20px; }
+    .modulo-list { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+    .modulo-list li { display: flex; align-items: flex-start; gap: 10px; font-size: .9rem; color: #444; line-height: 1.45; }
+    .modulo-list li::before { content: '✓'; flex-shrink: 0; width: 20px; height: 20px; background: var(--orange); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .68rem; font-weight: 900; margin-top: 1px; }
+    .modulo-list.white li { color: rgba(255,255,255,.8); }
+    .modulo-visual-box {
+      border-radius: 20px; aspect-ratio: 1;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 14px; padding: 40px; text-align: center;
+      overflow: hidden;
+    }
+    .modulo-visual-box img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      border-radius: 20px;
+    }
+    .modulo-visual-box.img-box { padding: 0; }
+    .modulo-visual-icon { font-size: 5rem; }
+    .modulo-visual-text { font-size: 1rem; font-weight: 800; }
+
+    /* ═══════════════════════════════════════
+       BONUS V2
+    ═══════════════════════════════════════ */
+    .bonus-tier { margin-bottom: 40px; }
+    .tier-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-weight: 900; font-size: .78rem;
+      letter-spacing: .08em; text-transform: uppercase;
+      padding: 7px 18px; border-radius: 50px; margin-bottom: 20px; color: #fff;
+    }
+    .tier-badge.orange { background: var(--orange); }
+    .tier-badge.purple { background: var(--purple); }
+    .bonus-row { display: grid; grid-template-columns: repeat(2,1fr); gap: 18px; }
+    .bonus-v2 { background: var(--white); border-radius: 20px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,.08); }
+    .bonus-v2-header { padding: 20px 22px 14px; }
+    .bonus-v2-header.orange { border-top: 4px solid var(--orange); }
+    .bonus-v2-header.purple { border-top: 4px solid var(--purple); }
+    .bonus-v2-num { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: .82rem; color: #fff; margin-bottom: 10px; }
+    .bonus-v2-num.orange { background: var(--orange); }
+    .bonus-v2-num.purple { background: var(--purple); }
+    .bonus-v2-title { font-size: .95rem; font-weight: 800; color: var(--charcoal); }
+    .bonus-v2-body { padding: 0 22px 20px; font-size: .85rem; color: #666; line-height: 1.55; }
+    .bonus-v2-img { width: 100%; aspect-ratio: 4/3; overflow: hidden; }
+    .bonus-v2-img img { width: 100%; height: 100%; object-fit: cover; display: block; object-position: center top; }
+    .bonus-v2-img.tall { aspect-ratio: 3/4; }
+    .bonus-v2-img.square { aspect-ratio: 1/1; }
+    .bonus-v2-tag { display: inline-block; background: rgba(230,145,34,.1); color: var(--orange); font-size: .7rem; font-weight: 800; padding: 3px 10px; border-radius: 50px; margin-top: 8px; }
+    .bonus-v2-tag.purple { background: rgba(52,18,128,.08); color: var(--purple); }
+
+    /* ═══════════════════════════════════════
+       ANCHOR PRICING
+    ═══════════════════════════════════════ */
+    .anchor-wrap {
+      max-width: 560px; margin: 0 auto 40px;
+      background: var(--white); border-radius: 20px;
+      padding: 28px 32px;
+      box-shadow: 0 4px 32px rgba(0,0,0,.07); border: 1px solid #eee;
+    }
+    .anchor-head { text-align: center; font-size: .72rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; color: #999; margin-bottom: 18px; }
+    .anchor-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid #f2f2f2; font-size: .88rem; color: #555; }
+    .anchor-val { font-weight: 700; color: #bbb; font-size: .85rem; }
+    .anchor-sep { height: 2px; background: #eee; margin: 12px 0; }
+    .anchor-total { display: flex; justify-content: space-between; align-items: flex-end; }
+    .anchor-total-label { font-size: .88rem; color: #555; font-weight: 600; }
+    .anchor-total-prices { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+    .anchor-struck { font-size: .95rem; font-weight: 700; color: #bbb; text-decoration: line-through; }
+    .anchor-final { font-size: 1.5rem; font-weight: 900; color: var(--purple); }
+
+    /* ═══════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════ */
+    @media (max-width: 1060px) {
+      .recipe-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+    @media (max-width: 1000px) {
+      .recipe-grid { grid-template-columns: repeat(3, 1fr); }
+      .bonus-grid { grid-template-columns: 1fr 1fr; }
+      .modulo-inner { gap: 36px; }
+    }
+    @media (max-width: 800px) {
+      .tudo-grid { grid-template-columns: repeat(2, 1fr); }
+      .modulo-inner { grid-template-columns: 1fr; }
+      .modulo-visual-box { aspect-ratio: auto; padding: 32px; }
+      .bonus-row { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; }
+      .hero-inner { grid-template-columns: 1fr; padding: 60px 24px 0; text-align: center; }
+      .hero-sub { margin-left: auto; margin-right: auto; }
+      .hero-img-wrap { max-height: 320px; overflow: hidden; }
+      .hero-img-wrap img { max-height: 320px; }
+      .countdown { justify-content: center; }
+      .stat-divider { display: none; }
+      .stats-inner { gap: 28px 16px; }
+      .beneficios-grid { grid-template-columns: 1fr; max-width: 420px; }
+      .depoimentos-grid { grid-template-columns: 1fr; max-width: 380px; }
+      .curso-inner { grid-template-columns: 1fr; }
+      .curso-img { max-width: 300px; margin: 0 auto; }
+      .recipe-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+      .prec-inner { grid-template-columns: 1fr; }
+      .prec-cards { grid-template-columns: 1fr 1fr; }
+      .comunidade-grid { grid-template-columns: 1fr; max-width: 420px; }
+      .bonus-grid { grid-template-columns: 1fr; max-width: 420px; }
+      .bonus-highlight { flex-direction: column; text-align: center; padding: 28px 24px; }
+      .sticky-cta { display: block; }
+      body { padding-bottom: 56px; }
+    }
+    @media (max-width: 520px) {
+      .countdown-unit { min-width: 58px; padding: 8px 12px; }
+      .countdown-num { font-size: 1.7rem; }
+      .recipe-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+      .prec-cards { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="top-banner">
+  <div class="banner-title">✅ Vagas abertas</div>
+  <div class="banner-sub">Matricule-se para garantir os seus bônus</div>
+</div>
+
+<!-- ══════════════════════════════════════
+     1. HERO
+══════════════════════════════════════ -->
+<section id="hero">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div class="badge">Brigadeiro de A a Z 5.0</div>
+      <h1 class="hero-title">
+        Faça brigadeiros<br>
+        <span>perfeitos e lucrativos</span><br>
+        do absoluto zero
+      </h1>
+      <p class="hero-sub">
+        Mais de 15 mil alunas já transformaram o brigadeiro em renda real. 40+ receitas, 200+ aulas. Agora é a sua vez.
+      </p>
+      <div class="hero-cta">
+        <a href="#matricular" class="btn">
+          Quero me matricular agora →
+        </a>
+      </div>
+    </div>
+    <div class="hero-img-wrap">
+      <img
+        src="https://pages.greatpages.com.br/vivendodebrigadeiro.docis.com.br-carta/1758157695/imagens/desktop/336405_1_16970717756527429f7dba3222425327.png"
+        alt="Ci — criadora do Brigadeiro de A a Z"
+        loading="eager"
+      >
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     2. STATS
+══════════════════════════════════════ -->
+<section id="stats">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <div class="stat-num">+15 mil</div>
+      <div class="stat-desc">alunas formadas</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <div class="stat-num">200+</div>
+      <div class="stat-desc">aulas em vídeo</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <div class="stat-num">40+</div>
+      <div class="stat-desc">receitas exclusivas</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <div class="stat-num">70h+</div>
+      <div class="stat-desc">de conteúdo em vídeo</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     3. BENEFÍCIOS
+══════════════════════════════════════ -->
+<section id="beneficios">
+  <div class="container">
+    <div class="beneficios-header">
+      <div class="section-label"><span class="badge">O que muda na sua vida</span></div>
+      <h2 class="section-title">Com o brigadeiro você conquista</h2>
+    </div>
+    <div class="beneficios-grid">
+      <div class="ben-card">
+        <div class="ben-icon">💰</div>
+        <div class="ben-title">Renda própria de verdade</div>
+        <p class="ben-text">Clientes fixos, encomendas recorrentes e uma receita que você controla — do seu jeito e no seu tempo.</p>
+      </div>
+      <div class="ben-card">
+        <div class="ben-icon">🏠</div>
+        <div class="ben-title">Trabalhe de casa</div>
+        <p class="ben-text">Produza da sua cozinha, esteja perto da família e nunca mais dependa de horário ou chefe.</p>
+      </div>
+      <div class="ben-card">
+        <div class="ben-icon">⭐</div>
+        <div class="ben-title">Confiança e técnica</div>
+        <p class="ben-text">Sem tentativa e erro. Você aprende o ponto perfeito, cria seus próprios sabores e nunca mais desperdiça brigadeiro.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     4. DEPOIMENTOS
+══════════════════════════════════════ -->
+<section id="depoimentos">
+  <div class="container">
+    <div class="depoimentos-header">
+      <div class="section-label"><span class="badge">Prova real</span></div>
+      <h2 class="section-title">O que as alunas dizem</h2>
+      <p class="section-sub">+15 mil mulheres que decidiram transformar o brigadeiro em negócio.</p>
+    </div>
+    <div class="depoimentos-grid">
+      <div class="dep-card">
+        <img src="https://pages.greatpages.com.br/vivendodebrigadeiro.docis.com.br-carta/1758157695/imagens/desktop/336405_1_16970717756527429f886c4114894082.jpg" alt="Depoimento aluna">
+      </div>
+      <div class="dep-card">
+        <img src="https://pages.greatpages.com.br/vivendodebrigadeiro.docis.com.br-carta/1758157695/imagens/desktop/336405_1_16970717756527429f8c80a618635321.jpeg" alt="Depoimento aluna">
+      </div>
+      <div class="dep-card">
+        <img src="https://pages.greatpages.com.br/vivendodebrigadeiro.docis.com.br-carta/1758157695/imagens/desktop/336405_1_16970717756527429f8d6fa327061824.jpeg" alt="Depoimento aluna">
+      </div>
+    </div>
+    <div class="dep-highlight">
+      <p>"Ontem entrei na minha primeira encomenda grande — 500 brigadeiros. A confiança que o curso nos passa é incrível!"</p>
+      <strong>— Eliane Martins, aluna Brigadeiro de A a Z</strong>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     6. AS 49 RECEITAS
+══════════════════════════════════════ -->
+<section id="receitas">
+  <div class="container">
+    <div class="receitas-header">
+      <div class="section-label"><span class="badge">Receitas Exclusivas</span></div>
+      <h2 class="section-title">49 receitas em 14 categorias</h2>
+      <p class="section-sub">Cada sabor tem vídeo-aula completo com técnica, do preparo ao confeito final.</p>
+    </div>
+
+    <div class="cat-filter-wrap">
+      <div class="cat-filter" id="catFilter">
+        <button class="cat-btn active" data-cat="all">Todos <span style="opacity:.55;font-size:.75rem">49</span></button>
+        <button class="cat-btn" data-cat="base"><span class="cat-emoji">🍫</span> Base</button>
+        <button class="cat-btn" data-cat="citricos"><span class="cat-emoji">🍋</span> Cítricas</button>
+        <button class="cat-btn" data-cat="oleaginosas"><span class="cat-emoji">🌰</span> Oleaginosas</button>
+        <button class="cat-btn" data-cat="sobremesas"><span class="cat-emoji">🎂</span> Sobremesas</button>
+        <button class="cat-btn" data-cat="pastas"><span class="cat-emoji">🫙</span> Com Pastas</button>
+        <button class="cat-btn" data-cat="geleias"><span class="cat-emoji">🍓</span> Com Geleias</button>
+        <button class="cat-btn" data-cat="alcoolicos"><span class="cat-emoji">🥂</span> Alcoólicos</button>
+        <button class="cat-btn" data-cat="cremes"><span class="cat-emoji">🍯</span> Com Cremes</button>
+        <button class="cat-btn" data-cat="frutas"><span class="cat-emoji">🍌</span> Com Frutas</button>
+        <button class="cat-btn" data-cat="leite"><span class="cat-emoji">🥛</span> Leite em Pó</button>
+        <button class="cat-btn" data-cat="po"><span class="cat-emoji">✨</span> Em Pó</button>
+        <button class="cat-btn" data-cat="queijo"><span class="cat-emoji">🧀</span> Com Queijo</button>
+        <button class="cat-btn" data-cat="especiais"><span class="cat-emoji">⭐</span> Especiais</button>
+        <button class="cat-btn" data-cat="explosivos"><span class="cat-emoji">💥</span> Explosivos</button>
+      </div>
+    </div>
+
+    <div class="recipe-grid" id="recipeGrid">
+
+      <!-- BASE (5) -->
+      <div class="recipe-card cat-base" data-cat="base">
+        <img src="img/receitas/1_7KsqLyZ36xCM-RYh5KEWKHqokqJLnY0.jpg" alt="Brigadeiro Ao Leite" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Base</span><span class="recipe-card-name">Ao Leite</span></div>
+      </div>
+      <div class="recipe-card cat-base" data-cat="base">
+        <img src="img/receitas/13ODMU184ANXggwhCK-iui0PM39HkZUYs.jpg" alt="Brigadeiro Dark" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Base</span><span class="recipe-card-name">Dark</span></div>
+      </div>
+      <div class="recipe-card cat-base" data-cat="base">
+        <img src="img/receitas/17U4Ixl_M7T9y3lWVO0e86--magrl-Y_m.jpg" alt="Brigadeiro Branco" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Base</span><span class="recipe-card-name">Branco</span></div>
+      </div>
+      <div class="recipe-card cat-base" data-cat="base">
+        <img src="img/receitas/1RzvyT8Z5I1YVje9DxepjEYLjuZ31o10b.jpg" alt="Brigadeiro Ruby" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Base</span><span class="recipe-card-name">Ruby</span></div>
+      </div>
+      <div class="recipe-card cat-base" data-cat="base">
+        <img src="img/receitas/1cKBgVQ565QoIe0MswVxvGYKRVePSg42P.jpg" alt="Brigadeiro Chocolate 70%" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Base</span><span class="recipe-card-name">Chocolate 70%</span></div>
+      </div>
+
+      <!-- FRUTAS CÍTRICAS (5) -->
+      <div class="recipe-card cat-citricos" data-cat="citricos">
+        <img src="img/receitas/1d6wF_voxHrMCp20vEp-O6R0kHfg0MSJv.jpg" alt="Brigadeiro Laranja" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Cítrico</span><span class="recipe-card-name">Laranja</span></div>
+      </div>
+      <div class="recipe-card cat-citricos" data-cat="citricos">
+        <img src="img/receitas/1-fcM97KhJAzWMyRfqGVosy7rW2bb8QcE.jpg" alt="Brigadeiro Maracujá" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Cítrico</span><span class="recipe-card-name">Maracujá</span></div>
+      </div>
+      <div class="recipe-card cat-citricos" data-cat="citricos">
+        <img src="img/receitas/1wZQAkuph0W1zNYZjI1Lx9E2KI00P3HHZ.jpg" alt="Brigadeiro Limão Siciliano" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Cítrico</span><span class="recipe-card-name">Limão Siciliano</span></div>
+      </div>
+      <div class="recipe-card cat-citricos" data-cat="citricos">
+        <img src="img/receitas/1APt0U9O5RDFj7l7SzvMdA5rW2zBPS50-.jpg" alt="Brigadeiro Abacaxi" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Cítrico</span><span class="recipe-card-name">Abacaxi com Coco</span></div>
+      </div>
+      <div class="recipe-card cat-citricos" data-cat="citricos">
+        <img src="img/receitas/1PsTGRS-NKrdo13SNZfWAMbmdz8zcNY0_.jpg" alt="Brigadeiro Manga com Maracujá" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Cítrico</span><span class="recipe-card-name">Manga com Maracujá</span></div>
+      </div>
+
+      <!-- OLEAGINOSAS (2) -->
+      <div class="recipe-card cat-oleaginosas" data-cat="oleaginosas">
+        <img src="img/receitas/1TMBST-t0FS8cMpTuhNe0qi9ItUWVzH0p.jpg" alt="Brigadeiro Pistache" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Oleaginosa</span><span class="recipe-card-name">Pistache</span></div>
+      </div>
+      <div class="recipe-card cat-oleaginosas" data-cat="oleaginosas">
+        <img src="img/receitas/1DHZ5yWVNTuab-KiPBbYY-S9wOf0jXy5e.jpg" alt="Brigadeiro Nozes" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Oleaginosa</span><span class="recipe-card-name">Nozes</span></div>
+      </div>
+
+      <!-- SOBREMESAS (7) -->
+      <div class="recipe-card cat-sobremesas" data-cat="sobremesas">
+        <img src="img/receitas/1m0sYXTksPOmzbwSb8lO-tKGgofmlniZ6.jpg" alt="Brigadeiro Crème Brûlée" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Sobremesa</span><span class="recipe-card-name">Crème Brûlée</span></div>
+      </div>
+      <div class="recipe-card cat-sobremesas" data-cat="sobremesas">
+        <img src="img/receitas/1q8rExGw80aoLqx7Q-zXtbXC0MnU5i7j9.jpg" alt="Brigadeiro Cheesecake" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Sobremesa</span><span class="recipe-card-name">Cheesecake</span></div>
+      </div>
+      <div class="recipe-card cat-sobremesas" data-cat="sobremesas">
+        <img src="img/receitas/1DPrffDqN3o_f2_JXjhLyAEbZdFAN70ym.jpg" alt="Brigadeiro Churros" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Sobremesa</span><span class="recipe-card-name">Churros</span></div>
+      </div>
+      <div class="recipe-card cat-sobremesas" data-cat="sobremesas">
+        <img src="img/receitas/17J3_JwVhZTbcIQQrGYjFkfbsXjLES9PX.jpg" alt="Brigadeiro Pão de Mel" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Sobremesa</span><span class="recipe-card-name">Pão de Mel</span></div>
+      </div>
+      <div class="recipe-card cat-sobremesas" data-cat="sobremesas">
+        <img src="img/receitas/1-8BRFUOziXafBDbP1U10xSMan12otyb5.jpg" alt="Brigadeiro Cookie" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Sobremesa</span><span class="recipe-card-name">Cookie</span></div>
+      </div>
+      <div class="recipe-card cat-sobremesas" data-cat="sobremesas">
+        <img src="img/receitas/1m4DnKhzYeZtp6tqQLGHIgjESdeZpslsr.jpg" alt="Brigadeiro Paçoca" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Sobremesa</span><span class="recipe-card-name">Paçoca</span></div>
+      </div>
+
+      <!-- COM PASTAS (5) -->
+      <div class="recipe-card cat-pastas" data-cat="pastas">
+        <img src="img/receitas/1Cvavbwatvim7NAxcoQbL6ZfbD56g8BHH.jpg" alt="Brigadeiro Maçã Verde" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Pasta</span><span class="recipe-card-name">Maçã Verde</span></div>
+      </div>
+      <div class="recipe-card cat-pastas" data-cat="pastas">
+        <img src="img/receitas/19hjHlE18G6Q-rH7GU2gu4Q1uFzihEnn4.jpg" alt="Brigadeiro Champagne" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Pasta</span><span class="recipe-card-name">Champagne</span></div>
+      </div>
+      <div class="recipe-card cat-pastas" data-cat="pastas">
+        <img src="img/receitas/1RzvyT8Z5I1YVje9DxepjEYLjuZ31o10b.jpg" alt="Brigadeiro Morango pasta" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Pasta</span><span class="recipe-card-name">Morango</span></div>
+      </div>
+      <div class="recipe-card cat-pastas" data-cat="pastas">
+        <img src="img/receitas/12XFa_XdIhK3DaPtppSPuNuLJ5FOIumiu.jpg" alt="Brigadeiro Amendoim" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Pasta</span><span class="recipe-card-name">Amendoim</span></div>
+      </div>
+      <div class="recipe-card cat-pastas" data-cat="pastas">
+        <img src="img/receitas/1m0sYXTksPOmzbwSb8lO-tKGgofmlniZ6.jpg" alt="Brigadeiro Crème Brûlée pasta" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Pasta</span><span class="recipe-card-name">Crème Brûlée</span></div>
+      </div>
+
+      <!-- COM GELEIAS (1) -->
+      <div class="recipe-card cat-geleias" data-cat="geleias">
+        <img src="img/receitas/1RzvyT8Z5I1YVje9DxepjEYLjuZ31o10b.jpg" alt="Brigadeiro Morango Geléia" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Geléia</span><span class="recipe-card-name">Morango com Geléia</span></div>
+      </div>
+
+      <!-- ALCOÓLICOS (3) -->
+      <div class="recipe-card cat-alcoolicos" data-cat="alcoolicos">
+        <img src="img/receitas/1FOqPX4VCtRL9AZ0W3erDRXRVo7YXj_aF.jpg" alt="Brigadeiro Caipirinha" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Alcoólico</span><span class="recipe-card-name">Caipirinha</span></div>
+      </div>
+      <div class="recipe-card cat-alcoolicos" data-cat="alcoolicos">
+        <img src="img/receitas/18iEB--d3p90mLhIAEVCeWQ4JQC4iic8x.jpg" alt="Brigadeiro Jack Daniels" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Alcoólico</span><span class="recipe-card-name">Jack Daniels</span></div>
+      </div>
+      <div class="recipe-card cat-alcoolicos" data-cat="alcoolicos">
+        <img src="img/receitas/1E6lkoXlcjNpc-6k5NGgHn8_uF8fUEkpR.jpg" alt="Brigadeiro Bailey's" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Alcoólico</span><span class="recipe-card-name">Bailey's</span></div>
+      </div>
+
+      <!-- COM CREMES (2) -->
+      <div class="recipe-card cat-cremes" data-cat="cremes">
+        <img src="img/receitas/1BgC9PQ7jsj06K2PQS2Jxt82A16XEPZUr.jpg" alt="Brigadeiro Creme de Avelã" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Creme</span><span class="recipe-card-name">Creme de Avelã</span></div>
+      </div>
+      <div class="recipe-card cat-cremes" data-cat="cremes">
+        <img src="img/receitas/1-atGjTlWi7D0th6NyapNiGgUffYPNRGs.jpg" alt="Brigadeiro Doce de Leite" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Creme</span><span class="recipe-card-name">Doce de Leite</span></div>
+      </div>
+
+      <!-- COM FRUTAS (4) -->
+      <div class="recipe-card cat-frutas" data-cat="frutas">
+        <img src="img/receitas/1fUKw6ik5BQdnrORc6FkSGAoziuZWDIhJ.jpg" alt="Brigadeiro Coco" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Fruta</span><span class="recipe-card-name">Coco</span></div>
+      </div>
+      <div class="recipe-card cat-frutas" data-cat="frutas">
+        <img src="img/receitas/1det6vthnn0E584fTOHkY2F-hCCmCb3Lq.jpg" alt="Brigadeiro Banana" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Fruta</span><span class="recipe-card-name">Banana</span></div>
+      </div>
+      <div class="recipe-card cat-frutas" data-cat="frutas">
+        <img src="img/receitas/1F9wn5e2VggQNYzngg-gST9E3myvkhjae.jpg" alt="Brigadeiro Damasco" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Fruta</span><span class="recipe-card-name">Damasco</span></div>
+      </div>
+
+      <!-- LEITE EM PÓ (2) -->
+      <div class="recipe-card cat-leite" data-cat="leite">
+        <img src="img/receitas/1YWwSRYutaesRv-WzmKjARS01ed8kmASq.jpg" alt="Brigadeiro Ninho com Nutella" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Leite em Pó</span><span class="recipe-card-name">Ninho com Creme de Avelã</span></div>
+      </div>
+      <div class="recipe-card cat-leite" data-cat="leite">
+        <img src="img/receitas/1cMQK0MaADx-UoXBFaq4iiCMeis90JtuX.jpg" alt="Brigadeiro 4 Leites" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Leite em Pó</span><span class="recipe-card-name">4 Leites</span></div>
+      </div>
+
+      <!-- EM PÓ (2) -->
+      <div class="recipe-card cat-po" data-cat="po">
+        <img src="img/receitas/1cKBgVQ565QoIe0MswVxvGYKRVePSg42P.jpg" alt="Brigadeiro Nesquick" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Em Pó</span><span class="recipe-card-name">Nesquick</span></div>
+      </div>
+      <div class="recipe-card cat-po" data-cat="po">
+        <img src="img/receitas/1cKBgVQ565QoIe0MswVxvGYKRVePSg42P.jpg" alt="Brigadeiro Cacau em Pó" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Em Pó</span><span class="recipe-card-name">Cacau em Pó</span></div>
+      </div>
+
+      <!-- COM QUEIJO (2) -->
+      <div class="recipe-card cat-queijo" data-cat="queijo">
+        <img src="img/receitas/1P4zaFGVlHa1V2a9HFEYkMolajA7JaGo7.jpg" alt="Brigadeiro Romeu e Julieta" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Queijo</span><span class="recipe-card-name">Romeu e Julieta</span></div>
+      </div>
+      <div class="recipe-card cat-queijo" data-cat="queijo">
+        <img src="img/receitas/1sCwe_HptaxD4CA0u6xAYX01CnpNHh_rD.jpg" alt="Brigadeiro Gorgonzola" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Queijo</span><span class="recipe-card-name">Gorgonzola</span></div>
+      </div>
+
+      <!-- ESPECIAIS (5) -->
+      <div class="recipe-card cat-especiais" data-cat="especiais">
+        <img src="img/receitas/1UYoBGDpieBHlQBbKBKtUHHSX5jC8i-yv.jpg" alt="Brigadeiro Caramelo" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Especial</span><span class="recipe-card-name">Caramelo</span></div>
+      </div>
+      <div class="recipe-card cat-especiais" data-cat="especiais">
+        <img src="img/receitas/1vSCiJq-viJtlI3EkpgL7Fo2G5QEtDgfj.jpg" alt="Brigadeiro Manjericão" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Especial</span><span class="recipe-card-name">Manjericão</span></div>
+      </div>
+      <div class="recipe-card cat-especiais" data-cat="especiais">
+        <img src="img/receitas/1zP9t2pxMX1rcscimoilGyTvo4B6aGaoL.jpg" alt="Brigadeiro Milho com Coco" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Especial</span><span class="recipe-card-name">Milho com Coco</span></div>
+      </div>
+      <div class="recipe-card cat-especiais" data-cat="especiais">
+        <img src="img/receitas/1GP17FnrMI0AMJatzCe_Oc_7sE3rWswGx.jpg" alt="Brigadeiro Bacon" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Especial</span><span class="recipe-card-name">Bacon</span></div>
+      </div>
+      <div class="recipe-card cat-especiais" data-cat="especiais">
+        <img src="img/receitas/1kGTRri0-LqlcdMkloJD2BsUv3K3_uAUM.jpg" alt="Brigadeiro Café" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Especial</span><span class="recipe-card-name">Café</span></div>
+      </div>
+
+      <!-- EXPLOSIVOS (2) -->
+      <div class="recipe-card cat-explosivos" data-cat="explosivos">
+        <img src="img/receitas/1tzMvCNF2oZcDnM3RpDXQtnyPqTlhrI2S.jpg" alt="Café com Caramelo" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Explosivo</span><span class="recipe-card-name">Café com Caramelo</span></div>
+      </div>
+      <div class="recipe-card cat-explosivos" data-cat="explosivos">
+        <img src="img/receitas/1oEQIg0Pv7pZHMhKTsL3fG-jliO7Q2dvh.jpg" alt="Dark com Ganache de Laranja" loading="lazy">
+        <div class="recipe-card-overlay"></div>
+        <div class="recipe-card-info"><span class="recipe-cat-pill">Explosivo</span><span class="recipe-card-name">Dark com Ganache de Laranja</span></div>
+      </div>
+
+    </div><!-- /recipe-grid -->
+
+    <div style="text-align:center;margin-top:44px;">
+      <a href="#matricular" class="btn">
+        Eu quero aprender todas essas receitas →
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     6b. TUDO DE BRIGADEIRO
+══════════════════════════════════════ -->
+<section id="tudo">
+  <div class="container">
+    <div style="margin-bottom:48px; text-align:center;">
+      <span class="badge" style="background:var(--yellow);color:var(--charcoal);margin-bottom:14px;display:inline-block;">Módulo Tudo de Brigadeiro</span>
+      <h2 class="section-title" style="color:var(--white)">Além do brigadeiro,<br>amplie seu cardápio e venda mais</h2>
+      <p class="section-sub" style="color:rgba(255,255,255,.6)">Com a mesma base de brigadeiro você aprende a fazer outros produtos que multiplicam o seu lucro sem precisar comprar um novo curso.</p>
+    </div>
+    <div class="tudo-grid">
+      <div class="tudo-card">
+        <img src="img/bombom-uva.jpg" alt="Bombom de Uva" loading="lazy">
+        <div class="tudo-overlay"></div>
+        <span class="tudo-name">Bombom de Uva</span>
+      </div>
+      <div class="tudo-card">
+        <img src="img/bombom-morango.jpg" alt="Bombom de Morango" loading="lazy">
+        <div class="tudo-overlay"></div>
+        <span class="tudo-name">Bombom de Morango</span>
+      </div>
+      <div class="tudo-card">
+        <img src="img/bolo-gelado.jpg" alt="Bolo Gelado de Coco" loading="lazy">
+        <div class="tudo-overlay"></div>
+        <span class="tudo-name">Bolo Gelado de Coco</span>
+      </div>
+      <div class="tudo-card">
+        <img src="img/coxinha.jpg" alt="Coxinha de Morango" loading="lazy">
+        <div class="tudo-overlay"></div>
+        <span class="tudo-name">Coxinha de Morango</span>
+      </div>
+      <div class="tudo-card">
+        <img src="img/palha-italiana.jpg" alt="Palha Italiana" loading="lazy">
+        <div class="tudo-overlay"></div>
+        <span class="tudo-name">Palha Italiana</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     6d. GESTÃO
+══════════════════════════════════════ -->
+<section id="gestao" class="modulo-sec" style="background:var(--charcoal);">
+  <div class="modulo-inner" style="direction:rtl;">
+    <div style="direction:ltr;">
+      <span class="modulo-value-badge">Módulo Gestão</span>
+      <h2 class="modulo-title" style="color:var(--white);">Transforme seu brigadeiro em negócio de verdade</h2>
+      <p class="modulo-desc" style="color:rgba(255,255,255,.6);">Do Instagram ao controle financeiro — você aprende a estruturar, divulgar e escalar sua confeitaria com método e sem achismo.</p>
+      <ul class="modulo-list white">
+        <li>Como criar e otimizar seu perfil no Instagram para confeiteiros</li>
+        <li>Conteúdo que vende: o que postar, quando e como</li>
+        <li>Cardápio digital e como apresentar seus produtos</li>
+        <li>Atendimento e fechamento de pedidos pelo WhatsApp</li>
+        <li>Organização da produção em escala sem perder qualidade</li>
+        <li>Controle de estoque e gestão de ingredientes</li>
+        <li>Finanças básicas: separar o pessoal do profissional</li>
+      </ul>
+    </div>
+    <div class="modulo-visual-box img-box" style="direction:ltr;">
+      <img src="img/gestao.jpg" alt="Módulo Gestão e Negócios" loading="lazy">
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     6e. FAÇA SEU CONFEITO
+══════════════════════════════════════ -->
+<section id="confeito" class="modulo-sec" style="background:var(--gray2);">
+  <div class="modulo-inner">
+    <div>
+      <span class="modulo-value-badge">Módulo Faça seu Confeito</span>
+      <h2 class="modulo-title">Faça seu próprio confeito e reduza custos</h2>
+      <p class="modulo-desc">Aprenda a produzir confeitos artesanais de chocolate com qualidade profissional — diferencial de produto e economia real no seu custo por brigadeiro.</p>
+      <ul class="modulo-list">
+        <li>Como fazer split de chocolate ao leite, dark e branco</li>
+        <li>Técnica de granulado artesanal crocante e uniforme</li>
+        <li>Temperagem correta do chocolate para cada confeito</li>
+        <li>Quanto rende e quanto custa comparado ao industrializado</li>
+        <li>Como embalar e armazenar seu confeito caseiro</li>
+        <li>Confeito personalizado como diferencial de marca</li>
+      </ul>
+    </div>
+    <div class="modulo-visual-box img-box">
+      <img src="img/confeito.png" alt="Brigadeiros com Confeitos Artesanais" loading="lazy">
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     7. PRECIFICAÇÃO
+══════════════════════════════════════ -->
+<section id="precificacao">
+  <div class="container">
+    <div class="prec-header">
+      <div class="section-label"><span class="badge">Módulo de Precificação</span></div>
+      <h2 class="section-title">Nunca mais venda no prejuízo</h2>
+      <p class="section-sub">O módulo de precificação do Brigadeiro de A a Z é o mais completo do mercado — com planilha automática feita pela equipe Docis.</p>
+    </div>
+    <div class="prec-inner">
+      <div class="prec-text">
+        <span class="badge badge-purple" style="margin-bottom:16px;display:inline-block;">Módulo de Precificação</span>
+        <h3 class="prec-title">Transforme seu brigadeiro em<br><span>negócio lucrativo</span></h3>
+        <p class="prec-desc">Você aprende a calcular o custo real de cada receita, definir sua margem de lucro, precificar por caixa, unidade ou quilograma — e ainda entender como posicionar seu produto no mercado.</p>
+        <ul class="prec-list">
+          <li>Cálculo completo de custos: ingredientes, embalagem, mão de obra e energia</li>
+          <li>Planilha automática Docis: insira os valores e obtenha o preço ideal</li>
+          <li>Como cobrar por diferentes formatos: caixa, kg, por unidade</li>
+          <li>Estratégias de posicionamento: brigadeiro premium vs. popular</li>
+          <li>Como aumentar preços sem perder clientes</li>
+          <li>Análise de concorrência e definição de nicho de mercado</li>
+        </ul>
+      </div>
+      <div class="prec-cards">
+        <div class="prec-card">
+          <div class="prec-card-icon">📊</div>
+          <div class="prec-card-title">Planilha Automática</div>
+          <p class="prec-card-text">Criado e desenvolvido por Docis. Insira ingredientes e custos — a planilha calcula tudo sozinha.</p>
+        </div>
+        <div class="prec-card">
+          <div class="prec-card-icon">💰</div>
+          <div class="prec-card-title">Margem de Lucro Real</div>
+          <p class="prec-card-text">Saiba exatamente quanto você ganha por brigadeiro, por caixa e por pedido.</p>
+        </div>
+        <div class="prec-card">
+          <div class="prec-card-icon">📦</div>
+          <div class="prec-card-title">Múltiplos Formatos</div>
+          <p class="prec-card-text">Precificação por unidade, caixinha de 9, caixinha de 16 e encomenda personalizada.</p>
+        </div>
+        <div class="prec-card">
+          <div class="prec-card-icon">🎯</div>
+          <div class="prec-card-title">Posicionamento</div>
+          <p class="prec-card-text">Entenda como posicionar seu produto e cobrar mais sem perder vendas.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Planilha mockup -->
+    <div class="planilha-mockup">
+      <div class="planilha-label">
+        <span class="badge badge-purple">Planilha Automática Docis</span>
+        <p>Insira seus ingredientes e a planilha calcula o preço ideal automaticamente.</p>
+      </div>
+      <div class="planilha-frame">
+        <img src="img/planilha.png" alt="Planilha de Precificação Docis" loading="lazy">
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     8. COMUNIDADE
+══════════════════════════════════════ -->
+<section id="comunidade">
+  <div class="container">
+    <div class="comunidade-header">
+      <div class="section-label"><span class="badge">Exclusivo para alunas</span></div>
+      <h2 class="section-title" style="color:var(--white)">Sociedade da<br>Mordida Perfeita</h2>
+      <p class="section-sub section-sub-white" style="margin-top:14px">Ao concluir o curso, você passa a fazer parte de uma comunidade de mais de 15 mil alunas que vendem, trocam experiências e crescem juntas.</p>
+    </div>
+    <div class="comunidade-grid">
+      <div class="com-card">
+        <div class="com-icon">🤝</div>
+        <div class="com-title">Rede de alunas</div>
+        <p class="com-text">Troque experiências com alunas de todo o Brasil, tire dúvidas e inspire-se com as histórias de quem já está faturando.</p>
+      </div>
+      <div class="com-card">
+        <div class="com-icon">🎓</div>
+        <div class="com-title">Suporte dentro da plataforma</div>
+        <p class="com-text">Comentou na aula, a gente responde em até 1 dia útil. Suporte técnico e de receitas direto com a equipe Docis.</p>
+      </div>
+      <div class="com-card">
+        <div class="com-icon">📜</div>
+        <div class="com-title">Certificado de Conclusão</div>
+        <p class="com-text">Ao finalizar todas as etapas, você recebe seu certificado digital Docis — um diferencial para apresentar aos seus clientes.</p>
+      </div>
+      <div class="com-card">
+        <div class="com-icon">📄</div>
+        <div class="com-title">Apostila em PDF</div>
+        <p class="com-text">Todas as receitas, pesos e técnicas reunidas em apostila digital completa — para consultar quando e onde quiser, sem precisar da internet.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     9. SOBRE O CURSO
+══════════════════════════════════════ -->
+<section id="curso">
+  <div class="curso-inner">
+    <div class="curso-img">
+      <img
+        src="https://pages.greatpages.com.br/vivendodebrigadeiro.docis.com.br-carta/1758157695/imagens/desktop/336405_1_169710740597621544.png"
+        alt="Ci — fundadora da Docis"
+      >
+    </div>
+    <div class="curso-text">
+      <div class="badge" style="background:var(--yellow);color:var(--charcoal);">Quem é a Ci?</div>
+      <h2 class="curso-title">A professora que já formou mais de 15 mil alunas</h2>
+      <ul class="curso-list">
+        <li>Cilaine Rodrigues, fundadora da Docis — referência em brigadeiro gourmet no Brasil</li>
+        <li>Criou uma metodologia exclusiva com o "Ponto Moisés" — técnica ensinada só aqui</li>
+        <li>O Brigadeiro de A a Z nasceu em 2020 e já está na 5ª edição</li>
+        <li>Mais de 200 aulas gravadas com qualidade profissional de estúdio</li>
+        <li>Suporte completo dentro da plataforma com resposta em até 1 dia útil</li>
+        <li>Apostila completa com todas as receitas, pesos e sugestões de confeito</li>
+        <li>Acesso por 1 ou 2 anos — aprenda no seu ritmo, sem pressa</li>
+      </ul>
+      <a href="#matricular" class="btn">
+        Entrar agora →
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     10. BÔNUS VIP
+══════════════════════════════════════ -->
+<section id="bonus">
+  <div class="container">
+    <div class="bonus-header">
+      <div class="section-label"><span class="badge">Só para quem entrar agora</span></div>
+      <h2 class="section-title">Bônus exclusivos das primeiras vagas</h2>
+      <p class="section-sub">Além do curso completo, as primeiras inscritas garantem bônus que valem mais do que a mensalidade.</p>
+    </div>
+    <!-- COMPRADORES 1º DIA -->
+    <div class="bonus-tier">
+      <div class="tier-badge orange">⚡ Compradores 1º Dia</div>
+      <div class="bonus-row">
+
+        <div class="bonus-v2">
+          <div class="bonus-v2-header orange">
+            <div class="bonus-v2-num orange">1</div>
+            <div class="bonus-v2-title">Minicurso Bônus — Panela Mexedora Avançada</div>
+          </div>
+          <div style="width:100%; overflow:hidden; border-radius:0;">
+            <img src="img/panela.png" alt="Minicurso Panela Mexedora Avançada" loading="lazy" style="width:100%; height:auto; display:block;">
+          </div>
+          <div class="bonus-v2-body">
+            <p>Aulas avançadas da panela mexedora automática: ponto de bolear perfeito e técnica completa de recheio com ganache.</p>
+            <span class="bonus-v2-tag">Acesso imediato após a compra</span>
+          </div>
+        </div>
+
+        <div class="bonus-v2">
+          <div class="bonus-v2-header orange">
+            <div class="bonus-v2-num orange">2</div>
+            <div class="bonus-v2-title">Sorteio — Panela Suzan Pro</div>
+          </div>
+          <div class="bonus-v2-img square" style="background:#fff;">
+            <img src="img/suzan-pro.png" alt="Panela Suzan Pro" loading="lazy" style="object-fit:contain; padding:16px;">
+          </div>
+          <div class="bonus-v2-body">
+            <p>Todos os compradores do 1º dia concorrem a uma Panela Mexedora Automática Suzan Pro — a panela preferida das alunas profissionais.</p>
+            <span class="bonus-v2-tag">Sorteio anunciado ao vivo</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 10 PRIMEIROS -->
+    <div class="bonus-tier">
+      <div class="tier-badge purple">🏆 10 Primeiras Inscritas</div>
+      <div class="bonus-row" style="max-width:520px;">
+
+        <div class="bonus-v2">
+          <div class="bonus-v2-header purple">
+            <div class="bonus-v2-num purple">3</div>
+            <div class="bonus-v2-title">Curso Completo — Naked Cakes</div>
+          </div>
+          <div class="bonus-v2-img tall">
+            <img src="img/naked-cake.jpg" alt="Curso Naked Cakes" loading="lazy" style="object-position: center center;">
+          </div>
+          <div class="bonus-v2-body">
+            <p>Curso completo de Naked Cakes: massas, recheios, montagens, embalagens, decoração e precificação. Do zero ao produto finalizado.</p>
+            <span class="bonus-v2-tag purple">Vagas extremamente limitadas</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="bonus-highlight">
+      <div class="bonus-highlight-icon">⏳</div>
+      <div class="bonus-highlight-text">
+        <h3>Os bônus somem conforme as vagas são preenchidas</h3>
+        <p>Compradores do 1º dia ganham o minicurso + concorrem à Suzan Pro. As 10 primeiras levam o Naked Cakes completo. Não espere.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     11. PREÇO
+══════════════════════════════════════ -->
+<section id="preco">
+  <div class="container">
+    <div class="preco-header">
+      <div class="section-label"><span class="badge">Investimento</span></div>
+      <h2 class="section-title">Acesso ao Brigadeiro de A a Z 5.0</h2>
+      <p class="section-sub">200+ aulas · 40+ receitas · Planilha de precificação · Apostila · Certificado · Comunidade</p>
+    </div>
+    <div class="anchor-wrap">
+      <div class="anchor-head">O que você recebe</div>
+      <div class="anchor-row"><span>Base do brigadeiro</span><span class="anchor-val">R$ 197</span></div>
+      <div class="anchor-row"><span>Receitas de brigadeiro (43 sabores)</span><span class="anchor-val">R$ 497</span></div>
+      <div class="anchor-row"><span>Pontos do brigadeiro</span><span class="anchor-val">R$ 97</span></div>
+      <div class="anchor-row"><span>Panela mexedora automática</span><span class="anchor-val">R$ 97</span></div>
+      <div class="anchor-row"><span>Faça seu confeito</span><span class="anchor-val">R$ 47</span></div>
+      <div class="anchor-row"><span>Gestão &amp; negócios</span><span class="anchor-val">R$ 297</span></div>
+      <div class="anchor-row"><span>Tudo de brigadeiro</span><span class="anchor-val">R$ 397</span></div>
+      <div class="anchor-sep"></div>
+      <div class="anchor-total">
+        <span class="anchor-total-label">Total</span>
+        <div class="anchor-total-prices">
+          <span class="anchor-struck">R$ 1.629</span>
+          <span class="anchor-final">por R$ 840</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="preco-box" id="matricular">
+      <div class="preco-top">
+        <div class="preco-name">Brigadeiro de A a Z 5.0</div>
+        <div class="preco-title-box">Acesso completo · 200+ aulas</div>
+      </div>
+      <div class="preco-body">
+        <div class="preco-cta">
+          <a href="https://pay.hotmart.com/E73211690B?off=p4bmvxey&checkoutMode=10" class="btn btn-full hotmart-link" target="_blank" rel="noopener" style="background:#27ae60; font-size: clamp(.85rem, 3.5vw, 1.1rem); padding: 18px 20px;">
+            Quero me matricular →
+          </a>
+          <a href="https://pay.tmb.com.br/DocisBrigade/DQV22415875" class="tmb-link" target="_blank" rel="noopener" style="display:block; margin-top:16px; text-align:center; font-size:1rem; font-weight:700; color:var(--purple); text-decoration:underline; text-underline-offset:3px; letter-spacing:.01em; padding: 4px 0;">
+            Ver opções de parcelamento no boleto ou pix →
+          </a>
+        </div>
+        <div class="preco-garantia-selo">
+          <div class="garantia-badge">
+            <div class="garantia-num">7</div>
+            <div class="garantia-txt">dias de<br>garantia</div>
+          </div>
+          <p class="garantia-desc">Não gostou? Devolvemos 100% do seu dinheiro em até 7 dias, sem perguntas.</p>
+        </div>
+        <div class="preco-guarantee">
+          <span>🔒</span>
+          <span>Acesso por 2 anos · Funciona em qualquer dispositivo</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     12. CTA FINAL
+══════════════════════════════════════ -->
+<section id="cta-final" style="min-height: 480px; display: flex; align-items: center;">
+  <img
+    class="cta-final-img"
+    src="https://pages.greatpages.com.br/vivendodebrigadeiro.docis.com.br-carta/1758157695/imagens/desktop/336405_1_91325.jpg"
+    alt="Alunas Brigadeiro de A a Z"
+  >
+  <div class="cta-final-inner">
+    <div class="section-label" style="margin-bottom:20px;"><span class="badge">Não perca</span></div>
+    <h2 class="cta-final-title">VAGAS<br><span>LIMITADAS</span></h2>
+    <p class="cta-final-sub">Seja uma das primeiras a entrar para a nova turma.</p>
+    <a href="#matricular" class="btn cta-final-btn">
+      Eu quero essa receita →
+    </a>
+    <p class="cta-urgency">Vagas limitadas · Bônus por ordem de matrícula</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     STICKY CTA (mobile)
+══════════════════════════════════════ -->
+<div class="sticky-cta">
+  <a href="#matricular">Quero me matricular →</a>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCRIPTS
+══════════════════════════════════════ -->
+<script>
+  /* Forward URL params to TMB link (src → utm_source) */
+  (function() {
+    var base = 'https://pay.tmb.com.br/DocisBrigade/DQV22415875';
+    var search = window.location.search;
+    var extra = '';
+    if (search) {
+      var params = new URLSearchParams(search);
+      params.forEach(function(val, key) {
+        var outKey = (key === 'src') ? 'utm_source' : key;
+        extra += '&' + encodeURIComponent(outKey) + '=' + encodeURIComponent(val);
+      });
+    }
+    var finalUrl = base + (extra ? '?' + extra.slice(1) : '');
+    document.querySelectorAll('.tmb-link').forEach(function(el) {
+      el.href = finalUrl;
+    });
+  })();
+
+  /* Forward URL params to Hotmart links */
+  (function() {
+    var base = 'https://pay.hotmart.com/E73211690B?off=p4bmvxey&checkoutMode=10';
+    var search = window.location.search;
+    var extra = '';
+    if (search) {
+      var params = new URLSearchParams(search);
+      params.forEach(function(val, key) {
+        extra += '&' + encodeURIComponent(key) + '=' + encodeURIComponent(val);
+      });
+    }
+    var finalUrl = base + extra;
+    document.querySelectorAll('.hotmart-link').forEach(function(el) {
+      el.href = finalUrl;
+    });
+  })();
+
+  /* Smooth scroll to #matricular — reliable even antes de a página carregar */
+  (function() {
+    function scrollToMatricular(e) {
+      var target = document.getElementById('matricular');
+      if (!target) return;
+      e.preventDefault();
+      // pequeno delay para garantir que imagens/layout terminaram de renderizar
+      setTimeout(function() {
+        var y = target.getBoundingClientRect().top + window.pageYOffset - 16;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      }, 50);
+    }
+    document.querySelectorAll('a[href="#matricular"]').forEach(function(el) {
+      el.addEventListener('click', scrollToMatricular);
+    });
+  })();
+
+  /* Oculta sticky CTA quando a seção #preco está visível */
+  (function() {
+    var sticky = document.querySelector('.sticky-cta');
+    var preco  = document.getElementById('preco');
+    if (!sticky || !preco) return;
+    var obs = new IntersectionObserver(function(entries) {
+      sticky.style.display = entries[0].isIntersecting ? 'none' : '';
+    }, { threshold: 0.05 });
+    obs.observe(preco);
+  })();
+
+  /* Recipe category filter */
+  (function() {
+    var btns = document.querySelectorAll('.cat-btn');
+    var cards = document.querySelectorAll('.recipe-card');
+
+    btns.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var cat = this.dataset.cat;
+
+        btns.forEach(function(b) { b.classList.remove('active'); });
+        this.classList.add('active');
+
+        cards.forEach(function(card) {
+          if (cat === 'all' || card.dataset.cat === cat) {
+            card.style.display = '';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>
