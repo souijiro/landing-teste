@@ -123,8 +123,8 @@ const adPassa = (a, f) => a && f.sel.every(([c, v]) => (a[c] || "") === v);
 const diaPassa = (d, f) => (!f.de || d >= f.de) && (!f.ate || d <= f.ate);
 
 // ---------- Teste A/B 1 (e-mail no formulário): visão do tráfego por versão ----------
-// As versões se alternam a cada 10 min desde AB.inicio (1º bloco = sem e-mail). A Meta dá gasto/impressões/cliques
-// por HORA (conta Docis): cada hora é dividida pelos minutos em que cada versão esteve no ar.
+// A versão muda a cada hora cheia desde AB.inicio (1ª hora sem e-mail; a ordem inverte a cada dia), na mesma janela
+// em que a Meta dá gasto/impressões/cliques (conta Docis): cada hora do teste pertence inteira a uma versão.
 let AB = null;          // dados de dash_ab_black2026
 let VIS = { insights: [], horas: [], unicos: [] };
 const AB_NOMES = { com_email: "Com e-mail", sem_email: "Sem e-mail" };
@@ -132,8 +132,8 @@ function abInicioDia() { return AB && AB.inicio ? diaSP.format(new Date(AB.inici
 const noTeste = (l) => !!(AB && AB.inicio && Date.parse(l.criado_em) >= Date.parse(AB.inicio));
 function versaoEm(ms) {
   if (!AB || !AB.inicio) return null;
-  const b = Math.floor((ms - Date.parse(AB.inicio)) / ((AB.bloco_min || 10) * 60000));
-  return b < 0 ? null : b % 2 === 0 ? "sem_email" : "com_email";
+  const h = Math.floor((ms - Date.parse(AB.inicio)) / 3600000);
+  return h < 0 ? null : (h + Math.floor(h / 24)) % 2 === 0 ? "sem_email" : "com_email";
 }
 // fração do gasto da hora (dia, hora em Brasília) que pertence à versão v
 const _frac = new Map();

@@ -17,9 +17,10 @@ function confiancaDiferenca(x1, n1, x2, n2) {
 
 function versaoAgora() {
   if (!AB || !AB.inicio) return null;
-  const bloco = (AB.bloco_min || 10) * 60000, ini = Date.parse(AB.inicio), b = Math.floor((Date.now() - ini) / bloco);
-  if (b < 0) return { v: "sem_email", ate: new Date(ini + bloco), antes: true };
-  return { v: b % 2 === 0 ? "sem_email" : "com_email", ate: new Date(ini + (b + 1) * bloco) };
+  const ini = Date.parse(AB.inicio), agora = Date.now();
+  if (agora < ini) return { v: "com_email", ate: new Date(ini), antes: true };
+  const h = Math.floor((agora - ini) / 3600000);
+  return { v: versaoEm(agora), ate: new Date(ini + (h + 1) * 3600000) };
 }
 
 // visitantes vindos dos anúncios da conta Docis (a que tem gasto por hora)
@@ -139,13 +140,13 @@ function renderAB() {
   alvo.innerHTML = `
     <div class="ab-cabeca">
       <div><p class="rotulo">Em andamento</p><h3>${AB_TESTE1.nome}</h3>
-        <p class="t-nota">Desde ${dataBR(ini)} às ${horaSP.format(new Date(AB.inicio)).split(", ").pop()} · as versões se alternam a cada ${AB.bloco_min || 10} minutos (começou pela sem e-mail)</p>
-        ${agora ? `<p class="ab-agora">${agora.antes ? "Começa com" : "No ar agora:"} <b class="ab-agora--${agora.v}">${agora.v === "sem_email" ? "B · Sem e-mail" : "A · Com e-mail"}</b> até ${horaSP.format(agora.ate).split(", ").pop()}</p>` : ""}</div>
+        <p class="t-nota">Desde ${dataBR(ini)} às ${horaSP.format(new Date(AB.inicio)).split(", ").pop()} · a versão muda a cada hora cheia, junto com a atualização do tráfego (1ª hora sem e-mail; a ordem inverte a cada dia)</p>
+        ${agora ? `<p class="ab-agora">${agora.antes ? "Antes do teste, no ar:" : "No ar agora:"} <b class="ab-agora--${agora.v}">${agora.v === "sem_email" ? "B · Sem e-mail" : "A · Com e-mail"}</b> até ${horaSP.format(agora.ate).split(", ").pop()}${agora.antes ? " (aí começa o teste, com B · Sem e-mail)" : ""}</p>` : ""}</div>
       <div class="ab-versoes"><span class="ab-tag ab-tag--a">A · Com e-mail<small>nome, e-mail e WhatsApp</small></span><span class="ab-tag ab-tag--b">B · Sem e-mail<small>só nome e WhatsApp</small></span></div>
     </div>
     <p class="ab-veredito ab-veredito--${veredito.cls}">${veredito.txt}</p>
     <div class="abc" role="img" aria-label="Funil de custo e conversão das duas versões">${g}</div>
-    <p class="t-nota ab-nota">Funil dos anúncios da conta Docis: a Meta manda gasto, impressões e cliques hora a hora, e cada hora é dividida pelos minutos em que cada versão ficou no ar. Visitantes, formulário e cadastros são contados pela própria página. O custo da última hora chega com até ~1 h de atraso.</p>
+    <p class="t-nota ab-nota">Funil dos anúncios da conta Docis: a Meta manda gasto, impressões e cliques hora a hora, e cada hora do teste pertence inteira a uma versão. Visitantes, formulário e cadastros são contados pela própria página. O custo da última hora chega com até ~1 h de atraso.</p>
     <h3 class="ab-sub">Custo de cada etapa</h3>
     <div class="ab-grafico"><canvas id="g-ab-custo" role="img" aria-label="Barras: CPM ÷ 10, CPC, custo por visitante e CPL das versões A e B"></canvas></div>
     <h3 class="ab-sub">Todos os visitantes (inclui orgânico e conta do Felipe)</h3>
