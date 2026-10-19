@@ -78,13 +78,37 @@ Deno.serve(async () => {
       });
     }
 
+    // hora a hora por CONJUNTO, em hora cheia de Brasília (a hora corrente vem parcial: o upsert substitui a cada leitura)
+    const linhasHora: any[] = Array.isArray(d?.linhas_hora) ? d.linhas_hora : [];
+    const porHora = new Map<string, any>();
+    for (const l of linhasHora) {
+      const adsetId = pega(l, "adset_id", "adset.id");
+      const dia = pega(l, "date_brt", "dia_brt");
+      const horaTxt = String(pega(l, "hora_brt") ?? (pega(l, "hora_brt_inicio") || "").slice(11, 13));
+      const hora = parseInt(horaTxt.slice(0, 2), 10);
+      if (!adsetId || !dia || isNaN(hora)) continue;
+      const k = `${dia}|${hora}|${adsetId}`;
+      const r = porHora.get(k) ?? {
+        dia, hora, adset_id: String(adsetId), adset_name: pega(l, "adset_name", "utm_content"),
+        campaign_id: pega(l, "campaign_id"), campaign_name: pega(l, "campaign_name"),
+        conta_id: contaId, conta_nome: CONTA_NOME, investimento: 0, investimento_usd: 0, cambio: null,
+        impressoes: 0, cliques: 0, page_views: 0, leads_meta: 0, atualizado_em: new Date().toISOString(),
+      };
+      r.investimento += num(pega(l, "spend_brl")); r.investimento_usd += num(pega(l, "spend_usd"));
+      r.cambio = pega(l, "fx_efetivo") != null ? num(pega(l, "fx_efetivo")) : r.cambio;
+      r.impressoes += Math.round(num(pega(l, "impressions"))); r.cliques += Math.round(num(pega(l, "link_clicks", "inline_link_clicks")));
+      r.page_views += Math.round(num(pega(l, "landing_page_views"))); r.leads_meta += Math.round(num(pega(l, "leads_meta")));
+      porHora.set(k, r);
+    }
+    if (porHora.size) await upsert("meta_insights_hora_conjunto_black2026", [...porHora.values()], "dia,hora,adset_id");
+
     // não sobrescreve campos que já existem com null (ex.: formato definido à mão)
     const listaAds = [...ads.values()].map((a) => Object.fromEntries(Object.entries(a).filter(([, v]) => v != null)));
     if (listaAds.length) await upsert("meta_ads_black2026", listaAds, "ad_id");
     if (insights.length) await upsert("meta_insights_black2026", insights, "dia,ad_id");
 
     const tot = pega(d, "totais.acumulado") || {};
-    let msg = `${insights.length} linhas, ${ads.size} anúncios · acumulado R$ ${num(tot.spend_brl).toFixed(2)} · Blessy atualizou ${d?.atualizado_em ?? "?"}`;
+    let msg = `${insights.length} linhas, ${ads.size} anúncios, ${porHora.size} conjunto×hora · acumulado R$ ${num(tot.spend_brl).toFixed(2)} · Blessy atualizou ${d?.atualizado_em ?? "?"}`;
     if (semId.length) msg += ` · ${semId.length} linhas sem ad_id/date (campos: ${semId[0].slice(0, 300)})`;
     await log(true, msg, insights.length);
     return new Response(JSON.stringify({ ok: true, mensagem: msg }), { headers: { "Content-Type": "application/json" } });

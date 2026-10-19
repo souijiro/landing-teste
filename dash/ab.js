@@ -23,24 +23,41 @@ function versaoAgora() {
   return { v: versaoEm(agora), ate: new Date(ini + (h + 1) * 3600000) };
 }
 
-// visitantes vindos dos anúncios da conta Docis (a que tem gasto por hora)
-const ehPagoDocis = (us, um, uc) => tipoOrigem({ utm_source: us, utm_medium: um, utm_campaign: uc }) === "Tráfego" && !/felipe/i.test(uc || "");
+// visitantes vindos dos anúncios (Docis e Felipe, as duas contas têm gasto por hora)
+const ehPagoDocis = (us, um, uc) => tipoOrigem({ utm_source: us, utm_medium: um, utm_campaign: uc }) === "Tráfego";
 
-function metricasVariante(v) {
+// fim da hora (dia, hora em Brasília) em ms
+const fimHora = (dia, hora) => Date.parse(`${dia}T${String(hora).padStart(2, "0")}:00:00-03:00`) + 3600000;
+// até onde o funil de custo vai: só horas fechadas que a Meta já entregou nas duas contas
+function corteFunil() {
+  const syncs = [TRAF.ultimaOk, TRAF.syncFelipe && TRAF.syncFelipe.ok ? TRAF.syncFelipe.em : null].filter(Boolean).map((x) => Date.parse(x));
+  if (!syncs.length) return 0;
+  const t = Math.min(...syncs);
+  return t - (t % 3600000); // hora cheia (UTC e Brasília alinham na hora)
+}
+
+function metricasVariante(v, corte) {
   const r = { visitantes: 0, popups: 0, cadastros: 0, vis_pago: 0, pop_pago: 0, cad_pago: 0,
     investimento: 0, impressoes: 0, cliques: 0 };
-  ((AB && AB.unicos) || []).forEach(([vv, us, um, uc, vis, pop]) => {
+  // totais ao vivo (todos os visitantes, inclui a hora em andamento)
+  ((AB && AB.unicos) || []).forEach(([vv, , , , vis, pop]) => {
     if (vv !== v) return;
     r.visitantes += +vis || 0; r.popups += +pop || 0;
-    if (ehPagoDocis(us, um, uc)) { r.vis_pago += +vis || 0; r.pop_pago += +pop || 0; }
   });
   UNICOS.forEach((l) => {
     if (l.ab !== v || !noTeste(l)) return;
     r.cadastros++;
+    // funil de custo: só cadastros de anúncios em horas fechadas
+    if (Date.parse(l.criado_em) >= corte) return;
     const at = ATRIB.get(l.id);
-    if (at) at.forEach(({ ad_id, peso }) => { if (ADS.get(ad_id)?.conta_id === CONTA_DOCIS) r.cad_pago += peso; });
+    if (at) at.forEach(({ peso }) => { r.cad_pago += peso; });
+  });
+  ((AB && AB.horas) || []).forEach(([dia, hora, vv, us, um, uc, vis, pop]) => {
+    if (vv !== v || fimHora(dia, hora) > corte || !ehPagoDocis(us, um, uc)) return;
+    r.vis_pago += +vis || 0; r.pop_pago += +pop || 0;
   });
   (TRAF.horas || []).forEach(([d, h, , inv, imp, cl]) => {
+    if (fimHora(d, h) > corte) return;
     const x = fracHora(d, h, v);
     if (!x) return;
     r.investimento += (+inv || 0) * x; r.impressoes += (+imp || 0) * x; r.cliques += (+cl || 0) * x;
@@ -64,7 +81,10 @@ function renderAB() {
     return;
   }
   const ini = abInicioDia();
-  const A = metricasVariante(AB_TESTE1.a), B = metricasVariante(AB_TESTE1.b);
+  const corte = corteFunil();
+  const A = metricasVariante(AB_TESTE1.a, corte), B = metricasVariante(AB_TESTE1.b, corte);
+  const horaTxt = (ms) => horaSP.format(new Date(ms)).split(", ").pop();
+  const funilVazio = corte <= Date.parse(AB.inicio);
   const pc = (v) => (v == null ? "—" : (v * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "%");
   const rs = (v) => (v == null ? "—" : brl(v));
   const n1 = (v) => (v < 10 && v % 1 ? v.toLocaleString("pt-BR", { maximumFractionDigits: 1 }) : fmt(v));
@@ -107,10 +127,10 @@ function renderAB() {
   g += `<div class="abc__chave abc__chave--longa-a" style="${longa};grid-column:4"><span><b class="${melhor("conv_pago", "a")}">${pc(A.conv_pago)}</b>visitante → cadastro</span></div>`;
   g += `<div class="abc__chave abc__chave--longa-b" style="${longa};grid-column:5"><span><b class="${melhor("conv_pago", "b")}">${pc(B.conv_pago)}</b>visitante → cadastro</span></div>`;
   // CPL em destaque
-  const difCpl = A.cpl && B.cpl ? B.cpl / A.cpl - 1 : null;
+  const pctMenor = A.cpl && B.cpl ? 1 - Math.min(A.cpl, B.cpl) / Math.max(A.cpl, B.cpl) : null;
   const pill = (x, R) => {
     const vence = melhor("cpl", x, true);
-    const txt = vence && difCpl != null ? ` · ${pc(Math.abs(difCpl))} menor` : "";
+    const txt = vence && pctMenor != null ? ` · ${pc(pctMenor)} menor` : "";
     return `<div class="abc__fim" style="grid-row:14;grid-column:${x === "a" ? "2 / 5" : "5 / 8"}"><span class="abc__cpl abc__cpl--${x}${vence}">CPL ${rs(R.cpl)}${txt}</span></div>`;
   };
   g += `<div class="abc__rot abc__fim" style="grid-row:14">Custo por lead</div>${pill("a", A)}${pill("b", B)}`;
@@ -145,11 +165,12 @@ function renderAB() {
       <div class="ab-versoes"><span class="ab-tag ab-tag--a">A · Com e-mail<small>nome, e-mail e WhatsApp</small></span><span class="ab-tag ab-tag--b">B · Sem e-mail<small>só nome e WhatsApp</small></span></div>
     </div>
     <p class="ab-veredito ab-veredito--${veredito.cls}">${veredito.txt}</p>
-    <div class="abc" role="img" aria-label="Funil de custo e conversão das duas versões">${g}</div>
-    <p class="t-nota ab-nota">Funil dos anúncios da conta Docis: a Meta manda gasto, impressões e cliques hora a hora, e cada hora do teste pertence inteira a uma versão. Visitantes, formulário e cadastros são contados pela própria página. O custo da última hora chega com até ~1 h de atraso.</p>
+    <h3 class="ab-sub">Funil de custo · ${funilVazio ? "aguardando a 1ª hora fechada" : `horas fechadas, das ${horaTxt(Date.parse(AB.inicio))} às ${horaTxt(corte)}`}</h3>
+    ${funilVazio ? `<p class="t-nota">A primeira hora do teste fecha e a Meta entrega o custo uns 10 minutos depois da hora cheia. Até lá, acompanhe a conversão abaixo.</p>` : `<div class="abc" role="img" aria-label="Funil de custo e conversão das duas versões">${g}</div>`}
+    <p class="t-nota ab-nota">Funil dos anúncios das contas Docis e Felipe Russo: a Meta manda gasto, impressões e cliques hora a hora, e cada hora do teste pertence inteira a uma versão. Visitantes, formulário e cadastros são contados pela própria página. A hora em andamento só entra no funil quando fecha e a Meta entrega o custo das duas contas (por volta de 10 min depois da hora cheia).</p>
     <h3 class="ab-sub">Custo de cada etapa</h3>
     <div class="ab-grafico"><canvas id="g-ab-custo" role="img" aria-label="Barras: CPM ÷ 10, CPC, custo por visitante e CPL das versões A e B"></canvas></div>
-    <h3 class="ab-sub">Todos os visitantes (inclui orgânico e conta do Felipe)</h3>
+    <h3 class="ab-sub">Todos os visitantes (inclui orgânico)</h3>
     <div class="tabela-wrap"><table class="tabela">
       <thead><tr><th>Versão</th><th class="n">Visitantes</th><th class="n">Abriram o formulário</th><th class="n">Cadastros</th><th class="n">Conversão</th></tr></thead>
       <tbody>

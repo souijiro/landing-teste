@@ -114,7 +114,7 @@ async function carregar() {
     ]);
     AB = ab;
     preparar(linhas || []);
-    if (traf) { prepararTrafego(traf); TRAF.horas = horas || []; }
+    if (traf) { prepararTrafego(traf); TRAF.horas = horas || []; registrarConjuntosHora(); }
     renderPainel();
     montarFiltros();
     renderLeads();

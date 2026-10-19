@@ -152,6 +152,17 @@ function fracHora(dia, hora, v) {
   if (ini + 3600000 < agora) _frac.set(k, f); // hora fechada não muda
   return f;
 }
+// A conta do Felipe manda hora a hora por CONJUNTO (id "conj:<adset_id>"): cria um "anúncio" representante
+// do conjunto só para os filtros funcionarem (conta, campanha, conjunto, UTMs); filtro por anúncio o exclui.
+function registrarConjuntosHora() {
+  (TRAF.horas || []).forEach(([, , id]) => {
+    if (!String(id).startsWith("conj:") || ADS.has(id)) return;
+    const adset = String(id).slice(5), base = TRAF.ads.find((a) => a.adset_id === adset);
+    ADS.set(id, base ? { ...base, ad_id: id, anuncio: "(conjunto inteiro)", utm_term: null, formato: "Não informado" }
+      : { ad_id: id, anuncio: "(conjunto inteiro)", conjunto: adset, conta: "Felipe Russo", conta_id: "act_766204412703705" });
+  });
+}
+
 function aplicarAB() {
   const v = $("#t-ab") ? $("#t-ab").value : "todos";
   if (!AB_NOMES[v] || !AB || !AB.inicio) { VIS = { insights: TRAF.insights, horas: TRAF.horas || [], unicos: UNICOS }; return; }
