@@ -114,6 +114,7 @@ async function carregar() {
     renderLeads();
     if (traf) { montarFiltrosTrafego(); renderTrafego(); }
     if (typeof carregarAnalise === "function") carregarAnalise();
+    carregarBases(token);
     $("#atualizado").textContent = "Atualizado " + horaSP.format(new Date()) + " · atualiza sozinho a cada 1 min";
   } catch (err) {
     if (err.code === "28000") { apagarToken(); return mostrarLogin(); }
@@ -461,3 +462,30 @@ $("#f-csv").addEventListener("click", () => {
 // ---------- Início ----------
 if (lerToken()) { mostrarApp(); carregar(); } else mostrarLogin();
 document.addEventListener("visibilitychange", () => { if (!document.hidden && lerToken()) carregar(); });
+
+// ---------- Aba Alunos: totais das bases e % que já se inscreveu ----------
+async function carregarBases(token) {
+  let d;
+  try { d = await rpc("dash_alunos_black2026", { p_token: token }); } catch (e) { return; }
+  if (!d) return;
+  const pctN = (a, b) => (b ? (a / b * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "%" : "—");
+  const barra = (a, b) => `<div class="base__barra"><i style="width:${b ? Math.max(0.6, Math.min(100, a / b * 100)) : 0}%"></i></div>`;
+  const card = (titulo, cor, icone, t, i, subs = [], nota = "") => `
+    <article class="base" style="--cor:${cor}">
+      <header class="base__topo"><span class="base__icone">${icone}</span><h3>${titulo}</h3></header>
+      <p class="base__pct">${pctN(i, t)}<small>já se inscreveu</small></p>
+      ${barra(i, t)}
+      <p class="base__nums"><b>${fmt(i)}</b> de ${fmt(t)} alunos</p>
+      ${subs.map(([n, si, st]) => `<p class="base__sub"><span>${n}</span><span><b>${fmt(si)}</b> de ${fmt(st)} · ${pctN(si, st)}</span></p>`).join("")}
+      ${nota ? `<p class="t-nota base__nota">${nota}</p>` : ""}
+    </article>`;
+  const ci = '<img src="/black2026/img/cabeca-cilaine.webp" alt="">', fe = '<img src="/black2026/img/cabeca-felipe.webp" alt="">';
+  const tot = d.docis.total + d.felipe.total - d.ambos.total, ins = d.docis.inscritos + d.felipe.inscritos - d.ambos.inscritos;
+  $("#bases").innerHTML =
+    card("Todas as bases", "#1a1a1a", ci + fe, tot, ins, [], "cada pessoa contada uma vez, mesmo estando nas duas listas")
+    + card("Alunos Docis", "#eda100", ci, d.docis.total, d.docis.inscritos,
+      [["Compraram a Black", d.docis.black_inscritos, d.docis.black], ["Low Ticket", d.docis.low_ticket_inscritos, d.docis.low_ticket]],
+      `${fmt(d.docis.sem_telefone)} sem telefone na lista (só pelo e-mail)`)
+    + card("Alunos Felipe Russo", "#4a3aa7", fe, d.felipe.total, d.felipe.inscritos, [], `${fmt(d.felipe.sem_telefone)} sem telefone na lista (só pelo e-mail)`)
+    + card("Alunos dos dois", "#e87ba4", ci + fe, d.ambos.total, d.ambos.inscritos, [], "estão na lista da Docis e na do Felipe");
+}
