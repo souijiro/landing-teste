@@ -23,6 +23,39 @@ function capturarUtms() {
 const UTMS = capturarUtms();
 const PAGINA_ORIGEM = location.href.slice(0, 1000);
 
+const uuid = () => (crypto.randomUUID ? crypto.randomUUID() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (c) => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)));
+
+// ---------- Teste A/B 1: formulário com e-mail x sem e-mail ----------
+// Cada visitante é sorteado uma vez (50/50) e continua na mesma versão nas próximas visitas.
+// ?ab=com_email ou ?ab=sem_email força a versão para conferência e NÃO conta visita.
+const AB_VARIANTES = ["com_email", "sem_email"];
+const AB_FORCADA = AB_VARIANTES.includes(new URLSearchParams(location.search).get("ab")) ? new URLSearchParams(location.search).get("ab") : null;
+function lerOuCriar(chave, criar) {
+  try { let v = localStorage.getItem(chave); if (!v) { v = criar(); localStorage.setItem(chave, v); } return v; } catch (e) { return criar(); }
+}
+const VISITANTE = lerOuCriar("black2026_visitante", uuid);
+let VARIANTE = AB_FORCADA || lerOuCriar("black2026_ab1", () => AB_VARIANTES[crypto.getRandomValues(new Uint8Array(1))[0] % 2]);
+if (!AB_VARIANTES.includes(VARIANTE)) VARIANTE = "com_email";
+const SEM_EMAIL = VARIANTE === "sem_email";
+if (SEM_EMAIL) {
+  const campoEmail = document.getElementById("email").closest(".campo");
+  campoEmail.hidden = true;
+  document.getElementById("email").required = false;
+}
+function registrar(evento) {
+  if (AB_FORCADA) return;
+  try {
+    fetch(`${SUPABASE_URL}/rest/v1/visitas_black2026`, {
+      method: "POST", keepalive: true,
+      headers: { apikey: SUPABASE_KEY, "Content-Type": "application/json", Prefer: "return=minimal" },
+      body: JSON.stringify({ visitante: VISITANTE, variante: VARIANTE, evento, host: location.hostname.slice(0, 100),
+        utm_source: UTMS.utm_source, utm_medium: UTMS.utm_medium, utm_campaign: UTMS.utm_campaign, utm_content: UTMS.utm_content, utm_term: UTMS.utm_term })
+    }).catch(() => {});
+  } catch (e) {}
+}
+registrar("visita");
+let popupRegistrado = false;
+
 // ---------- Telefone com DDI ----------
 const telInput = document.getElementById("telefone");
 const iti = window.intlTelInput(telInput, {
@@ -50,7 +83,8 @@ function abrir() {
   document.body.style.overflow = "hidden";
   setTimeout(() => document.getElementById("nome").focus(), 60);
   if (window.fbq) fbq("trackCustom", "AbriuPopupBlack2026");
-  if (window.dataLayer) window.dataLayer.push({ event: "abriu_popup_black2026" });
+  if (window.dataLayer) window.dataLayer.push({ event: "abriu_popup_black2026", variante_ab: VARIANTE });
+  if (!popupRegistrado) { popupRegistrado = true; registrar("popup"); }
 }
 function fechar() {
   modal.classList.remove("aberto");
@@ -87,7 +121,7 @@ form.addEventListener("submit", async (e) => {
   const nome = nomeEl.value.trim().replace(/\s+/g, " ");
   const email = emailEl.value.trim().toLowerCase();
   const okNome = marcar(nomeEl, nome.length >= 2);
-  const okEmail = marcar(emailEl, /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email));
+  const okEmail = SEM_EMAIL || marcar(emailEl, /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email));
   const okTel = marcar(telInput, iti.isValidNumber());
   if (!okNome || !okEmail || !okTel) {
     form.querySelector(".campo.erro input").focus();
@@ -96,13 +130,14 @@ form.addEventListener("submit", async (e) => {
 
   const lead = {
     nome,
-    email,
+    email: SEM_EMAIL ? null : email,
     telefone: iti.getNumber(), // E.164, ex: +5511999999999
     pais: iti.getSelectedCountryData().iso2 || null,
     ...UTMS,
     pagina_origem: PAGINA_ORIGEM,
     // mesmo ID no banco, no pixel e no GTM: a Meta descarta Leads repetidos com o mesmo event_id
-    event_id: (crypto.randomUUID ? crypto.randomUUID() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (c) => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)))
+    event_id: uuid(),
+    variante_ab: VARIANTE
   };
 
   btn.disabled = true;
@@ -147,7 +182,7 @@ form.addEventListener("submit", async (e) => {
   // GTM (c.docis.com.br): evento único do cadastro; redireciona quando as tags terminarem
   if (window.dataLayer && window.google_tag_manager) {
     window.dataLayer.push({
-      event: "lead_black2026", event_id: lead.event_id,
+      event: "lead_black2026", event_id: lead.event_id, variante_ab: VARIANTE,
       pais: lead.pais, utm_source: lead.utm_source, utm_campaign: lead.utm_campaign,
       eventCallback: irParaObrigado, eventTimeout: 2000
     });

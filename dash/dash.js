@@ -83,15 +83,19 @@ function preparar(linhas) {
   LEADS = linhas.map((r) => {
     const l = { id: r[0], criado_em: r[1], nome: r[2], email: (r[3] || "").toLowerCase(), telefone: r[4], pais: (r[5] || "").toUpperCase(),
       utm_source: r[6], utm_medium: r[7], utm_campaign: r[8], utm_content: r[9], utm_term: r[10], pagina_origem: r[11], perfil: r[12], low_ticket: r[13] === true };
+    // Teste A/B 1: versão do formulário (antes do teste todos tinham e-mail)
+    l.variante = r[14] || (l.email ? "com_email" : "sem_email");
+    l.ab = r[14] || null; // só cadastros feitos durante o teste
+    l.pessoa = l.email || "tel:" + (l.telefone || "").replace(/\D/g, "");
     l.dia = diaSP.format(new Date(l.criado_em));
     l.minuto = minutoSP(new Date(l.criado_em));
     l.tipo = tipoOrigem(l);
     return l;
   }).sort((a, b) => b.criado_em.localeCompare(a.criado_em));
-  // únicos por e-mail (vale o primeiro cadastro)
+  // únicos por e-mail (sem e-mail, pelo telefone); vale o primeiro cadastro
   const vistos = new Set();
   UNICOS = [...LEADS].sort((a, b) => a.criado_em.localeCompare(b.criado_em)).filter((l) => {
-    if (vistos.has(l.email)) return false; vistos.add(l.email); return true;
+    if (vistos.has(l.pessoa)) return false; vistos.add(l.pessoa); return true;
   });
   const idsUnicos = new Set(UNICOS.map((l) => l.id));
   LEADS.forEach((l) => { l.unico = idsUnicos.has(l.id); });
@@ -102,17 +106,20 @@ async function carregar() {
   if (!token) return mostrarLogin();
   $("#recarregar").disabled = true;
   try {
-    const [linhas, traf, horas] = await Promise.all([
+    const [linhas, traf, horas, ab] = await Promise.all([
       rpc("dash_leads_black2026", { p_token: token }),
       rpc("dash_trafego_black2026", { p_token: token }).catch((e) => { if (e.code === "28000") throw e; return null; }),
-      rpc("dash_trafego_horas_black2026", { p_token: token }).catch(() => null)
+      rpc("dash_trafego_horas_black2026", { p_token: token }).catch(() => null),
+      rpc("dash_ab_black2026", { p_token: token }).catch(() => null)
     ]);
+    AB = ab;
     preparar(linhas || []);
     if (traf) { prepararTrafego(traf); TRAF.horas = horas || []; }
     renderPainel();
     montarFiltros();
     renderLeads();
     if (traf) { montarFiltrosTrafego(); renderTrafego(); }
+    if (traf && typeof renderAB === "function") renderAB();
     if (typeof carregarAnalise === "function") carregarAnalise();
     carregarBases(token);
     $("#atualizado").textContent = "Atualizado " + horaSP.format(new Date()) + " · atualiza sozinho a cada 1 min";
@@ -200,7 +207,7 @@ function renderPainel() {
   $("#k-cpl-hoje-sub").textContent = `${brl(invDia.get(hoje) || 0)} · ${fmt(atribHoje)} leads hoje`;
 
   $("#k-total").textContent = fmt(LEADS.length);
-  $("#k-dup").textContent = `${fmt(LEADS.length - n)} cadastros repetidos (mesmo e-mail)`;
+  $("#k-dup").textContent = `${fmt(LEADS.length - n)} cadastros repetidos (mesmo e-mail ou telefone)`;
 
   // gráfico único: barras = leads por dia (eixo esquerdo) · linhas = acumulado, projeção e meta (eixo direito)
   const diasAte = [];

@@ -308,3 +308,35 @@ body { min-height: 100dvh; }
 .base__nums { margin: 8px 0 0; font-size: .85rem; color: var(--texto-2); }
 .base__sub { display: flex; justify-content: space-between; gap: 8px; margin: 6px 0 0; padding-top: 6px; border-top: 1px dashed var(--linha); font-size: .8rem; color: var(--texto-2); }
 .base__nota { margin: 10px 0 0; font-size: .72rem; }
+
+/* Teste A/B */
+.aviso-ab { margin: 4px 0 0; padding: 8px 10px; border-radius: 10px; background: #fdf3cf; color: #6b4e00; font-size: .78rem; }
+.ab-cabeca { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+.ab-cabeca h3 { margin: 2px 0 4px; font-size: 1.15rem; font-weight: 800; }
+.ab-cabeca .t-nota { margin: 0; }
+.ab-versoes { display: flex; gap: 8px; flex-wrap: wrap; }
+.ab-tag { display: inline-flex; flex-direction: column; padding: 8px 12px; border-radius: 10px; font-weight: 800; font-size: .85rem; color: #fff; }
+.ab-tag small { font-weight: 500; font-size: .7rem; opacity: .85; }
+.ab-tag--a { background: #2a78d6; }
+.ab-tag--b { background: #eb6834; }
+.ab-veredito { margin: 0 0 14px; padding: 12px 14px; border-radius: 12px; font-size: .9rem; line-height: 1.4; }
+.ab-veredito--espera { background: #f1eee9; color: var(--texto-2); }
+.ab-veredito--empate { background: #fdf3cf; color: #6b4e00; }
+.ab-veredito--vence { background: #e3f4e9; color: #146c3a; }
+.ab-tabela th:nth-child(2) { color: #2a78d6; }
+.ab-tabela th:nth-child(3) { color: #eb6834; }
+.ab-tabela td small { display: block; font-size: .68rem; color: var(--texto-3); font-weight: 500; }
+.tabela td.ab-melhor { background: #e3f4e9; color: #146c3a; font-weight: 800; }
+.tabela tr.ab-principal td { font-weight: 800; border-top: 2px solid var(--texto); border-bottom: 2px solid var(--texto); }
+.ab-dif { color: var(--texto-3); }
+.ab-sub { margin: 18px 0 8px; font-size: 1rem; font-weight: 800; }
+.ab-nota { margin-top: 12px; }
+.ab-tabela { min-width: 0; width: 100%; table-layout: fixed; }
+.ab-tabela th, .ab-tabela td { white-space: normal; padding-left: 6px; padding-right: 6px; }
+.ab-tabela th:first-child, .ab-tabela td:first-child { width: 40%; }
+@media (max-width: 600px) {
+  .ab-tabela { font-size: .78rem; }
+  .ab-tabela td small { display: none; }
+  .ab-tabela th:nth-child(4), .ab-tabela td:nth-child(4) { display: none; }
+  .ab-tabela th:first-child, .ab-tabela td:first-child { width: 46%; }
+}

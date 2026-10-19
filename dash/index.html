@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/dash/dash.css?v=19">
+  <link rel="stylesheet" href="/dash/dash.css?v=21">
 </head>
 <body>
 
@@ -45,6 +45,7 @@
         <button role="tab" class="aba ativa" data-aba="painel" aria-selected="true">Dashboard</button>
         <button role="tab" class="aba" data-aba="trafego" aria-selected="false">Tráfego</button>
         <button role="tab" class="aba" data-aba="alunos" aria-selected="false">Alunos</button>
+        <button role="tab" class="aba" data-aba="ab" aria-selected="false">Teste A/B</button>
         <button role="tab" class="aba" data-aba="leads" aria-selected="false">Leads</button>
       </nav>
       <div class="topo__acoes">
@@ -122,10 +123,12 @@
         <div class="filtros__linha">
           <label>De <input type="date" id="t-de"></label>
           <label>Até <input type="date" id="t-ate"></label>
+          <label>Teste A/B <select id="t-ab"><option value="todos">Com e sem e-mail</option><option value="com_email">Só COM e-mail</option><option value="sem_email">Só SEM e-mail</option></select></label>
           <span class="espaco"></span>
           <span class="t-sync" id="t-sync"></span>
         </div>
         <div class="filtros__linha" id="t-selects"></div>
+        <p class="aviso-ab" id="t-ab-nota" hidden>Filtro do teste A/B ligado: só a partir do início do teste e só leads da versão escolhida. Investimento, impressões, cliques e page views são estimados (≈) pela proporção de visitantes de tráfego pago que viu essa versão em cada dia.</p>
         <div class="filtros__linha filtros__rodape">
           <span class="t-nota">Leads = leads únicos ligados a um anúncio blf26 pelas UTMs (utm_source, utm_campaign, utm_content = conjunto, utm_term = anúncio).</span>
           <span class="espaco"></span>
@@ -222,6 +225,11 @@
     </main>
 
     <!-- ===== Aba Leads ===== -->
+    <!-- ===== Aba Teste A/B ===== -->
+    <main class="aba-conteudo" id="aba-ab" hidden>
+      <section class="cartao" id="ab-conteudo"><p class="t-nota">Carregando…</p></section>
+    </main>
+
     <!-- ===== Aba Alunos ===== -->
     <main class="aba-conteudo" id="aba-alunos" hidden>
       <section class="cartao">
@@ -275,9 +283,10 @@
   <img class="previa-hover" id="previa-hover" alt="" hidden>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-  <script src="/dash/dash.js?v=14"></script>
+  <script src="/dash/dash.js?v=15"></script>
   <script src="/dash/alunos.js?v=3"></script>
   <script src="/dash/criativos.js?v=1"></script>
-  <script src="/dash/trafego.js?v=14"></script>
+  <script src="/dash/trafego.js?v=16"></script>
+  <script src="/dash/ab.js?v=1"></script>
 </body>
 </html>

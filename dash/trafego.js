@@ -114,10 +114,48 @@ function montarFiltrosTrafego() {
 
 function estadoFiltros() {
   const sel = [...document.querySelectorAll("#t-selects select")].filter((s) => s.value !== "__todos").map((s) => [s.dataset.campo, s.value]);
-  return { de: $("#t-de").value, ate: $("#t-ate").value, sel };
+  // com o filtro do teste A/B ligado, compara só a partir do início do teste (antes todo mundo via o e-mail)
+  const iniAB = $("#t-ab") && AB_NOMES[$("#t-ab").value] ? abInicioDia() : null;
+  const de = $("#t-de").value;
+  return { de: iniAB && (!de || de < iniAB) ? iniAB : de, ate: $("#t-ate").value, sel };
 }
 const adPassa = (a, f) => a && f.sel.every(([c, v]) => (a[c] || "") === v);
 const diaPassa = (d, f) => (!f.de || d >= f.de) && (!f.ate || d <= f.ate);
+
+// ---------- Teste A/B 1 (e-mail no formulário): visão do tráfego por versão ----------
+// A Meta não sabe qual versão cada pessoa viu: investimento, impressões, cliques e page views de cada dia
+// são divididos pela proporção de visitantes de tráfego pago que caíram em cada versão naquele dia.
+let AB = null;          // dados de dash_ab_black2026
+let VIS = { insights: [], horas: [], unicos: [] };
+const AB_NOMES = { com_email: "Com e-mail", sem_email: "Sem e-mail" };
+function abInicioDia() { return AB && AB.inicio ? diaSP.format(new Date(AB.inicio)) : null; }
+function abPagosPorDia() {
+  if (AB && AB._pagos) return AB._pagos;
+  const m = new Map();
+  ((AB && AB.dias) || []).forEach(([dia, v, us, um, uc, visitantes]) => {
+    if (tipoOrigem({ utm_source: us, utm_medium: um, utm_campaign: uc }) !== "Tráfego") return;
+    if (!m.has(dia)) m.set(dia, { com_email: 0, sem_email: 0 });
+    m.get(dia)[v] += +visitantes || 0;
+  });
+  if (AB) AB._pagos = m;
+  return m;
+}
+function fatorAB(v, dia) {
+  const ini = abInicioDia();
+  if (!ini || dia < ini) return v === "com_email" ? 1 : 0; // antes do teste todo mundo via o e-mail
+  const p = abPagosPorDia().get(dia);
+  const t = p ? p.com_email + p.sem_email : 0;
+  return t ? p[v] / t : 0.5;
+}
+function aplicarAB() {
+  const v = $("#t-ab") ? $("#t-ab").value : "todos";
+  if (!AB_NOMES[v]) { VIS = { insights: TRAF.insights, horas: TRAF.horas || [], unicos: UNICOS }; return; }
+  VIS = {
+    insights: TRAF.insights.map((i) => { const x = fatorAB(v, i.dia); return { ...i, investimento: i.investimento * x, impressoes: i.impressoes * x, cliques: i.cliques * x, page_views: i.page_views * x, leads_meta: i.leads_meta * x, alcance: i.alcance * x }; }),
+    horas: (TRAF.horas || []).map(([d, h, ad, inv, imp, cl, lpv]) => { const x = fatorAB(v, d); return [d, h, ad, (+inv || 0) * x, (+imp || 0) * x, (+cl || 0) * x, (+lpv || 0) * x]; }),
+    unicos: UNICOS.filter((l) => l.variante === v)
+  };
+}
 
 // ---------- Agregação ----------
 function vazio() { return { investimento: 0, impressoes: 0, cliques: 0, page_views: 0, leads: 0, leads_meta: 0, alcance: 0, alcanceAprox: true, ci: 0, felipe: 0, ambos: 0, nao: 0 }; }
@@ -153,7 +191,7 @@ function agregar(f, dim) {
   const grupos = new Map();
   const g = (k) => { if (!grupos.has(k)) grupos.set(k, vazio()); return grupos.get(k); };
   const periodoTodo = !f.de && !f.ate;
-  TRAF.insights.forEach((i) => {
+  VIS.insights.forEach((i) => {
     const a = ADS.get(i.ad_id);
     if (!adPassa(a, f) || !diaPassa(i.dia, f)) return;
     const r = g(dim ? chaveDim(a, dim) : "total");
@@ -162,7 +200,7 @@ function agregar(f, dim) {
     if (dim === "anuncio") { r.campanha = a.campanha; r.conjunto = a.conjunto; r.formato = a.formato; }
     if (dim === "conjunto") r.campanha = a.campanha;
   });
-  UNICOS.forEach((l) => {
+  VIS.unicos.forEach((l) => {
     const at = ATRIB.get(l.id);
     if (!at || !diaPassa(l.dia, f)) return;
     const gl = grupoLead(l);
@@ -184,6 +222,9 @@ function agregar(f, dim) {
 // ---------- Render ----------
 function renderTrafego() {
   if (!$("#aba-trafego")) return;
+  aplicarAB();
+  const vAB = $("#t-ab").value;
+  $("#t-ab-nota").hidden = !AB_NOMES[vAB];
   const f = estadoFiltros();
   const total = agregar(f, null).get("total") || derivar(vazio());
 
@@ -233,7 +274,7 @@ function renderTrafego() {
     <div class="kpi kpi--largo kpi--pequeno"><p class="rotulo">Alcance</p><p class="kpi__num">${(total.alcanceAprox ? "≈ " : "") + fmt(total.alcance)}</p></div>`;
 
   // leads de tráfego sem anúncio identificado
-  const semAnuncio = UNICOS.filter((l) => l.tipo === "Tráfego" && !ATRIB.has(l.id) && diaPassa(l.dia, f)).length;
+  const semAnuncio = VIS.unicos.filter((l) => l.tipo === "Tráfego" && !ATRIB.has(l.id) && diaPassa(l.dia, f)).length;
   $("#t-aviso").hidden = !semAnuncio;
   $("#t-aviso").textContent = `${fmt(semAnuncio)} lead${semAnuncio === 1 ? "" : "s"} de tráfego no período não ${semAnuncio === 1 ? "bateu" : "bateram"} com nenhum anúncio blf26 (UTMs diferentes ou anúncio de outra campanha) e não ${semAnuncio === 1 ? "entra" : "entram"} no CPL.`;
 
@@ -248,13 +289,13 @@ function renderTrafego() {
 function renderDiaTrafego(f) {
   const porDia = new Map();
   const g = (d) => { if (!porDia.has(d)) porDia.set(d, Object.assign(vazio(), { org: 0, traf: 0, alcanceAprox: true })); return porDia.get(d); };
-  TRAF.insights.forEach((i) => {
+  VIS.insights.forEach((i) => {
     const a = ADS.get(i.ad_id);
     if (!adPassa(a, f) || !diaPassa(i.dia, f)) return;
     const r = g(i.dia);
     r.investimento += i.investimento; r.impressoes += i.impressoes; r.cliques += i.cliques; r.page_views += i.page_views; r.leads_meta += i.leads_meta; r.alcance += i.alcance;
   });
-  UNICOS.forEach((l) => {
+  VIS.unicos.forEach((l) => {
     if (!diaPassa(l.dia, f)) return;
     if (l.tipo === "Orgânico") g(l.dia).org++;
     if (l.tipo === "Tráfego") g(l.dia).traf++;
@@ -282,11 +323,11 @@ function renderDiaTrafego(f) {
   const horaAtual = Math.floor(minutoSP(new Date()) / 60);
   const ateHora = new Map(); // dia -> contagens até horaAtual
   const gh = (d) => { if (!ateHora.has(d)) ateHora.set(d, { impressoes: 0, cliques: 0, page_views: 0, leads: 0, org: 0, traf: 0 }); return ateHora.get(d); };
-  (TRAF.horas || []).forEach(([d, hora, ad_id, , imp, cl, lpv]) => {
+  VIS.horas.forEach(([d, hora, ad_id, , imp, cl, lpv]) => {
     if (hora >= horaAtual || !adPassa(ADS.get(ad_id), f)) return;
     const r = gh(d); r.impressoes += +imp || 0; r.cliques += +cl || 0; r.page_views += +lpv || 0;
   });
-  UNICOS.forEach((l) => {
+  VIS.unicos.forEach((l) => {
     if (l.minuto >= horaAtual * 60) return;
     const r = gh(l.dia);
     if (l.tipo === "Orgânico") r.org++;
@@ -370,9 +411,11 @@ function renderRanking() {
 }
 
 ["#t-de", "#t-ate"].forEach((s) => $(s).addEventListener("input", renderTrafego));
+$("#t-ab").addEventListener("change", () => renderTrafego());
 $("#t-limpar").addEventListener("click", () => {
   $("#t-de").value = ""; $("#t-ate").value = "";
   document.querySelectorAll("#t-selects select").forEach((s) => { s.value = "__todos"; });
+  $("#t-ab").value = "todos";
   renderTrafego();
 });
 $("#t-csv").addEventListener("click", () => {
@@ -450,8 +493,8 @@ function renderContas(f) {
 function renderCplDia(f) {
   const porDia = new Map();
   const g = (d) => { if (!porDia.has(d)) porDia.set(d, { inv: 0, leads: 0 }); return porDia.get(d); };
-  TRAF.insights.forEach((i) => { if (adPassa(ADS.get(i.ad_id), f) && diaPassa(i.dia, f)) g(i.dia).inv += i.investimento; });
-  UNICOS.forEach((l) => {
+  VIS.insights.forEach((i) => { if (adPassa(ADS.get(i.ad_id), f) && diaPassa(i.dia, f)) g(i.dia).inv += i.investimento; });
+  VIS.unicos.forEach((l) => {
     const at = ATRIB.get(l.id); if (!at || !diaPassa(l.dia, f)) return;
     at.forEach(({ ad_id, peso }) => { if (adPassa(ADS.get(ad_id), f)) g(l.dia).leads += peso; });
   });
@@ -485,7 +528,7 @@ function renderHora(dia, linhas) {
   const f = estadoFiltros();
   const inv = Array(24).fill(0), leads = Array(24).fill(0);
   linhas.forEach(([h, ad_id, v]) => { if (adPassa(ADS.get(ad_id), f)) inv[h] += +v || 0; });
-  UNICOS.forEach((l) => {
+  VIS.unicos.forEach((l) => {
     if (l.dia !== dia) return; const at = ATRIB.get(l.id); if (!at) return;
     const h = parseInt(horaLead.format(new Date(l.criado_em)), 10);
     at.forEach(({ ad_id, peso }) => { if (adPassa(ADS.get(ad_id), f)) leads[h] += peso; });
