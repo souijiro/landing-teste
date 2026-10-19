@@ -23,6 +23,9 @@ const PERFIL_GRUPO = { aluno_docis: "ci", aluno_docis_black: "ci", aluno_felipe:
 const grupoLead = (l) => PERFIL_GRUPO[l.perfil] || "nao";
 
 let TRAF = { ads: [], insights: [], alcance: {}, sync: null, ultimaOk: null };
+const CONTA_DOCIS = "act_259868608977585";
+// o alcance exato da "conta|total" é só da Docis: só vale quando nenhuma outra conta entregou no dia (ou no período)
+const soDocis = (dia) => !TRAF.insights.some((i) => i.impressoes > 0 && (!dia || i.dia === dia) && ADS.get(i.ad_id)?.conta_id !== CONTA_DOCIS);
 let ADS = new Map();          // ad_id -> anúncio
 let ATRIB = new Map();        // lead.id -> [{ad_id, peso}]
 let ordem = { col: "leads", dir: -1 };
@@ -50,14 +53,15 @@ function prepararTrafego(d) {
   TRAF.ads = (d.ads || []).map((a) => ({
     ad_id: a[0], anuncio: a[1] || a[0], adset_id: a[2], conjunto: a[3] || a[2], campaign_id: a[4], campanha: a[5] || a[4], status: a[6],
     utm_source: a[7], utm_medium: a[8], utm_campaign: a[9], utm_content: a[10], utm_term: a[11], url_tags: a[12], conta_id: a[13], conta: a[14] || "Docis",
-    // formato pela Meta; se não vier, pelo arquivo do Drive
-    formato: (a[15] || (criativoDe(a[1])?.tipo === "vid" ? "video" : "imagem")) === "video" ? "Vídeo" : "Imagem"
+    // formato pela Meta; se não vier, pelo arquivo do Drive (só Docis); conta do Felipe sem formato = "Não informado"
+    formato: a[15] ? (a[15] === "video" ? "Vídeo" : "Imagem") : criativoDe(a[1]) ? (criativoDe(a[1]).tipo === "vid" ? "Vídeo" : "Imagem")
+      : a[13] && a[13] !== CONTA_DOCIS ? "Não informado" : "Imagem"
   }));
   ADS = new Map(TRAF.ads.map((a) => [a.ad_id, a]));
   TRAF.insights = (d.insights || []).map((r) => ({ dia: r[0], ad_id: r[1], investimento: +r[2] || 0, impressoes: +r[3] || 0, cliques: +r[4] || 0, page_views: +r[5] || 0, leads_meta: +r[6] || 0, alcance: +r[7] || 0 }));
   TRAF.alcance = {};
   (d.alcance || []).forEach(([nivel, chave, periodo, v]) => { TRAF.alcance[`${nivel}|${chave}|${periodo}`] = +v || 0; });
-  TRAF.sync = d.sync; TRAF.ultimaOk = d.ultima_sync_ok;
+  TRAF.sync = d.sync; TRAF.ultimaOk = d.ultima_sync_ok; TRAF.syncFelipe = d.sync_felipe;
   atribuirLeads();
 }
 
@@ -166,7 +170,7 @@ function agregar(f, dim) {
   });
   // alcance deduplicado quando dá (período inteiro e nível da Meta, ou total sem filtro)
   grupos.forEach((r, k) => {
-    if (!dim && !f.sel.length && periodoTodo && TRAF.alcance["conta|total|total"] != null) { r.alcance = TRAF.alcance["conta|total|total"]; r.alcanceAprox = false; }
+    if (!dim && !f.sel.length && periodoTodo && soDocis() && TRAF.alcance["conta|total|total"] != null) { r.alcance = TRAF.alcance["conta|total|total"]; r.alcanceAprox = false; }
     else if (periodoTodo && ["campanha", "conjunto", "anuncio"].includes(dim) && !f.sel.length) {
       const nivelId = { campanha: "campaign_id", conjunto: "adset_id", anuncio: "ad_id" }[dim];
       const ids = [...new Set(TRAF.ads.filter((a) => chaveDim(a, dim) === k).map((a) => a[nivelId]))];
@@ -186,7 +190,8 @@ function renderTrafego() {
   // status da sincronização
   const s = TRAF.sync;
   $("#t-sync").textContent = !TRAF.ultimaOk ? "Ainda sem dados da Meta" :
-    `Dados da Meta de ${horaSP.format(new Date(TRAF.ultimaOk))} · atualiza de hora em hora` + (s && !s.ok ? ` · ⚠ última tentativa falhou: ${s.mensagem}` : "");
+    `Dados da Meta de ${horaSP.format(new Date(TRAF.ultimaOk))} · atualiza de hora em hora` + (s && !s.ok ? ` · ⚠ última tentativa falhou: ${s.mensagem}` : "")
+    + (TRAF.syncFelipe ? ` · conta Felipe Russo: ${TRAF.syncFelipe.ok ? horaSP.format(new Date(TRAF.syncFelipe.em)) : "⚠ falhou (" + TRAF.syncFelipe.mensagem + ")"}` : "");
 
   // Funil: impressões → cliques → page views → leads, com a taxa entre cada etapa (setas) e o clique → lead ao lado
   const etapas = [
@@ -257,7 +262,7 @@ function renderDiaTrafego(f) {
     if (at) at.forEach(({ ad_id, peso }) => { if (adPassa(ADS.get(ad_id), f)) g(l.dia).leads += peso; });
   });
   porDia.forEach((r, d) => {
-    if (!f.sel.length && TRAF.alcance[`conta|total|${d}`] != null) { r.alcance = TRAF.alcance[`conta|total|${d}`]; r.alcanceAprox = false; }
+    if (!f.sel.length && soDocis(d) && TRAF.alcance[`conta|total|${d}`] != null) { r.alcance = TRAF.alcance[`conta|total|${d}`]; r.alcanceAprox = false; }
     derivar(r);
   });
   const dias = [...porDia.keys()].sort().reverse();
