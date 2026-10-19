@@ -98,12 +98,37 @@ function renderAB() {
       <td class="n">${fmt(sb.vis)}</td><td class="n">${fmt(sb.cad)}</td><td class="n ${c1 != null && c2 != null && c2 > c1 ? "ab-melhor" : ""}">${pc(c2)}</td></tr>`;
   }).join("");
 
+  // funil lado a lado, nas mesmas colunas da tabela (rótulo | A | B | B × A)
+  const difPct = (a, b) => (a && b != null ? `${b / a - 1 > 0 ? "+" : ""}${((b / a - 1) * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%` : "");
+  const etapasF = [["Visitantes únicos", "visitantes", 100], ["Abriram o formulário", "popups", 74], ["Cadastros", "cadastros", 50]];
+  const conectF = [["abriram o formulário", "tx_popup"], ["cadastraram", "conv_popup"]];
+  const melhorF = (k, x) => (A[k] != null && B[k] != null && A[k] !== B[k] && (x === "a" ? A[k] > B[k] : B[k] > A[k]) ? " abf__taxa--melhor" : "");
+  let funil = `<div class="abf__cel abf__cab"></div><div class="abf__cel abf__cab abf__cab--a">A · Com e-mail</div><div class="abf__cel abf__cab abf__cab--b">B · Sem e-mail</div><div class="abf__cel abf__cab abf__dif">B × A</div>`;
+  etapasF.forEach(([nome, k, w], i) => {
+    funil += `<div class="abf__cel abf__rot">${nome}</div>
+      <div class="abf__cel"><div class="abf__barra abf__barra--a" style="width:${w}%;opacity:${1 - i * 0.18}"><b>${fmt(A[k])}</b></div></div>
+      <div class="abf__cel"><div class="abf__barra abf__barra--b" style="width:${w}%;opacity:${1 - i * 0.18}"><b>${fmt(B[k])}</b></div></div>
+      <div class="abf__cel abf__dif">${difPct(A[k], B[k])}</div>`;
+    if (conectF[i]) {
+      const [cn, ck] = conectF[i];
+      funil += `<div class="abf__cel abf__rot abf__rot--taxa">${cn}</div>
+        <div class="abf__cel abf__con"><span class="abf__seta abf__seta--a">↓</span><b class="abf__taxa${melhorF(ck, "a")}">${pc(A[ck])}</b></div>
+        <div class="abf__cel abf__con"><span class="abf__seta abf__seta--b">↓</span><b class="abf__taxa${melhorF(ck, "b")}">${pc(B[ck])}</b></div>
+        <div class="abf__cel abf__dif">${difPct(A[ck], B[ck])}</div>`;
+    }
+  });
+  funil += `<div class="abf__cel abf__rot abf__rot--total abf__fim">Conversão da página<small>visita → cadastro</small></div>
+    <div class="abf__cel abf__con abf__fim"><span class="abf__total abf__total--a${melhorF("conv", "a")}">↳ ${pc(A.conv)}</span></div>
+    <div class="abf__cel abf__con abf__fim"><span class="abf__total abf__total--b${melhorF("conv", "b")}">↳ ${pc(B.conv)}</span></div>
+    <div class="abf__cel abf__dif abf__fim">${difPct(A.conv, B.conv)}</div>`;
+
   alvo.innerHTML = `
     <div class="ab-cabeca">
       <div><p class="rotulo">Em andamento</p><h3>${AB_TESTE1.nome}</h3>
         <p class="t-nota">Desde ${dataBR(ini)} às ${horaSP.format(new Date(AB.inicio)).split(", ").pop()} · cada visitante é sorteado 50/50 e vê sempre a mesma versão</p></div>
       <div class="ab-versoes"><span class="ab-tag ab-tag--a">A · Com e-mail<small>nome, e-mail e WhatsApp</small></span><span class="ab-tag ab-tag--b">B · Sem e-mail<small>só nome e WhatsApp</small></span></div>
     </div>
+    <div class="abf" role="img" aria-label="Funil das duas versões: visitantes, aberturas do formulário e cadastros">${funil}</div>
     <p class="ab-veredito ab-veredito--${veredito.cls}">${veredito.txt}</p>
     <div class="tabela-wrap"><table class="tabela ab-tabela">
       <thead><tr><th>Métrica</th><th class="n">A · Com e-mail</th><th class="n">B · Sem e-mail</th><th class="n">B × A</th></tr></thead>
