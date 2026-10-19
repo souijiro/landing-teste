@@ -39,13 +39,14 @@ const pluginCabecas = {
     const ctx = chart.ctx, meta = chart.getDatasetMeta(0), total = chart.data.datasets[0].data.reduce((s, v) => s + v, 0);
     meta.data.forEach((arc, i) => {
       const v = chart.data.datasets[0].data[i];
-      if (!v || v / total < 0.04) return; // fatia pequena demais para caber o ícone
+      if (!v) return;
       const p = arc.getProps(["x", "y", "startAngle", "endAngle", "innerRadius", "outerRadius"], true);
       const meio = (p.startAngle + p.endAngle) / 2;
       const raio = (p.innerRadius + p.outerRadius) / 2;
       const espessura = p.outerRadius - p.innerRadius;
       const arco = (p.endAngle - p.startAngle) * raio;
-      const h = Math.max(18, Math.min(espessura * 0.78, arco * 0.62, 64));
+      // tamanho proporcional à fatia (cabe no arco); fatia pequena = cabecinha pequenina
+      const h = Math.max(10, Math.min(espessura * 0.78, arco * (GRUPOS_ALUNO[i].icone === "ambos" ? 0.65 : 0.8), 64));
       desenharIcone(ctx, GRUPOS_ALUNO[i].icone, p.x + Math.cos(meio) * raio, p.y + Math.sin(meio) * raio, GRUPOS_ALUNO[i].icone === "ambos" ? h * 0.85 : h);
     });
     // total no meio
