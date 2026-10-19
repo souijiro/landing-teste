@@ -372,3 +372,6 @@ body { min-height: 100dvh; }
   .abf__taxa { font-size: .85rem; padding: 1px 4px; }
   .abf__total { font-size: .95rem; padding: 5px 8px; }
 }
+.ab-agora { margin: 8px 0 0; font-size: .85rem; }
+.ab-agora b { padding: 2px 8px; border-radius: 8px; color: #fff; }
+.ab-agora--com_email { background: #2a78d6; } .ab-agora--sem_email { background: #eb6834; }

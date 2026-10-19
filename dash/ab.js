@@ -15,6 +15,16 @@ function confiancaDiferenca(x1, n1, x2, n2) {
   return 1 - 2 * cauda;
 }
 
+// só cadastros feitos depois do início do teste atual
+const noTeste = (l) => AB && AB.inicio && Date.parse(l.criado_em) >= Date.parse(AB.inicio);
+// versão no ar agora: blocos de 10 min a partir do início, 1º bloco sem e-mail
+function versaoAgora() {
+  if (!AB || !AB.inicio) return null;
+  const bloco = (AB.bloco_min || 10) * 60000, ini = Date.parse(AB.inicio), b = Math.floor((Date.now() - ini) / bloco);
+  if (b < 0) return { v: "sem_email", ate: new Date(ini + bloco), antes: true };
+  return { v: b % 2 === 0 ? "sem_email" : "com_email", ate: new Date(ini + (b + 1) * bloco) };
+}
+
 function metricasVariante(v, ini) {
   const r = { visitantes: 0, visitantes_pagos: 0, popups: 0, cadastros: 0, cad_trafego: 0, atribuidos: 0, alunos: 0 };
   ((AB && AB.unicos) || []).forEach(([vv, us, um, uc, vis, pop]) => {
@@ -23,7 +33,7 @@ function metricasVariante(v, ini) {
     if (tipoOrigem({ utm_source: us, utm_medium: um, utm_campaign: uc }) === "Tráfego") r.visitantes_pagos += +vis || 0;
   });
   UNICOS.forEach((l) => {
-    if (l.ab !== v) return;
+    if (l.ab !== v || !noTeste(l)) return;
     r.cadastros++;
     if (l.tipo === "Tráfego") r.cad_trafego++;
     if (typeof ATRIB !== "undefined" && ATRIB.has(l.id)) r.atribuidos++;
@@ -60,7 +70,7 @@ function renderAB() {
   const dias = new Map();
   const gd = (d) => { if (!dias.has(d)) dias.set(d, { com_email: { vis: 0, cad: 0 }, sem_email: { vis: 0, cad: 0 } }); return dias.get(d); };
   (AB.dias || []).forEach(([d, v, , , , vis]) => { gd(d)[v].vis += +vis || 0; });
-  UNICOS.forEach((l) => { if (l.ab) gd(l.dia)[l.ab].cad++; });
+  UNICOS.forEach((l) => { if (l.ab && noTeste(l)) gd(l.dia)[l.ab].cad++; });
   const linhasDia = [...dias.keys()].sort().reverse().map((d) => {
     const x = dias.get(d), ca = x.com_email, sb = x.sem_email;
     const c1 = ca.vis ? ca.cad / ca.vis : null, c2 = sb.vis ? sb.cad / sb.vis : null;
@@ -95,7 +105,8 @@ function renderAB() {
   alvo.innerHTML = `
     <div class="ab-cabeca">
       <div><p class="rotulo">Em andamento</p><h3>${AB_TESTE1.nome}</h3>
-        <p class="t-nota">Desde ${dataBR(ini)} às ${horaSP.format(new Date(AB.inicio)).split(", ").pop()} · cada visitante é sorteado 50/50 e vê sempre a mesma versão</p></div>
+        <p class="t-nota">Desde ${dataBR(ini)} às ${horaSP.format(new Date(AB.inicio)).split(", ").pop()} · as versões se alternam a cada ${AB.bloco_min || 10} minutos (começou pela sem e-mail)</p>
+        ${(() => { const x = versaoAgora(); return x ? `<p class="ab-agora">${x.antes ? "Começa às " + horaSP.format(new Date(AB.inicio)).split(", ").pop() + " com" : "No ar agora:"} <b class="ab-agora--${x.v}">${x.v === "sem_email" ? "B · Sem e-mail" : "A · Com e-mail"}</b> até ${horaSP.format(x.ate).split(", ").pop()}</p>` : ""; })()}</div>
       <div class="ab-versoes"><span class="ab-tag ab-tag--a">A · Com e-mail<small>nome, e-mail e WhatsApp</small></span><span class="ab-tag ab-tag--b">B · Sem e-mail<small>só nome e WhatsApp</small></span></div>
     </div>
     <div class="abf" role="img" aria-label="Funil das duas versões: visitantes, aberturas do formulário e cadastros">${funil}</div>

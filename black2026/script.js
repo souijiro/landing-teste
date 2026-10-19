@@ -26,16 +26,18 @@ const PAGINA_ORIGEM = location.href.slice(0, 1000);
 const uuid = () => (crypto.randomUUID ? crypto.randomUUID() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (c) => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)));
 
 // ---------- Teste A/B 1: formulário com e-mail x sem e-mail ----------
-// Cada visitante é sorteado uma vez (50/50) e continua na mesma versão nas próximas visitas.
-// ?ab=com_email ou ?ab=sem_email força a versão para conferência e NÃO conta visita.
+// Alterna a cada 10 minutos a partir de AB_INICIO: o 1º bloco é SEM e-mail, o 2º COM e-mail, e assim por diante.
+// A versão vale pela hora em que a página abriu. ?ab=com_email ou ?ab=sem_email força a versão e NÃO conta visita.
 const AB_VARIANTES = ["com_email", "sem_email"];
+const AB_INICIO = Date.parse("2026-10-19T15:28:00Z"); // 12:28 de Brasília
+const AB_BLOCO = 10 * 60 * 1000;
 const AB_FORCADA = AB_VARIANTES.includes(new URLSearchParams(location.search).get("ab")) ? new URLSearchParams(location.search).get("ab") : null;
 function lerOuCriar(chave, criar) {
   try { let v = localStorage.getItem(chave); if (!v) { v = criar(); localStorage.setItem(chave, v); } return v; } catch (e) { return criar(); }
 }
 const VISITANTE = lerOuCriar("black2026_visitante", uuid);
-let VARIANTE = AB_FORCADA || lerOuCriar("black2026_ab1", () => AB_VARIANTES[crypto.getRandomValues(new Uint8Array(1))[0] % 2]);
-if (!AB_VARIANTES.includes(VARIANTE)) VARIANTE = "com_email";
+const blocoAB = Math.floor((Date.now() - AB_INICIO) / AB_BLOCO);
+const VARIANTE = AB_FORCADA || (blocoAB <= 0 || blocoAB % 2 === 0 ? "sem_email" : "com_email");
 const SEM_EMAIL = VARIANTE === "sem_email";
 if (SEM_EMAIL) {
   const campoEmail = document.getElementById("email").closest(".campo");
