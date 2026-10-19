@@ -123,38 +123,46 @@ const adPassa = (a, f) => a && f.sel.every(([c, v]) => (a[c] || "") === v);
 const diaPassa = (d, f) => (!f.de || d >= f.de) && (!f.ate || d <= f.ate);
 
 // ---------- Teste A/B 1 (e-mail no formulário): visão do tráfego por versão ----------
-// A Meta não sabe qual versão cada pessoa viu: investimento, impressões, cliques e page views de cada dia
-// são divididos pela proporção de visitantes de tráfego pago que caíram em cada versão naquele dia.
+// As versões se alternam a cada 10 min desde AB.inicio (1º bloco = sem e-mail). A Meta dá gasto/impressões/cliques
+// por HORA (conta Docis): cada hora é dividida pelos minutos em que cada versão esteve no ar.
 let AB = null;          // dados de dash_ab_black2026
 let VIS = { insights: [], horas: [], unicos: [] };
 const AB_NOMES = { com_email: "Com e-mail", sem_email: "Sem e-mail" };
 function abInicioDia() { return AB && AB.inicio ? diaSP.format(new Date(AB.inicio)) : null; }
-function abPagosPorDia() {
-  if (AB && AB._pagos) return AB._pagos;
-  const m = new Map();
-  ((AB && AB.dias) || []).forEach(([dia, v, us, um, uc, visitantes]) => {
-    if (tipoOrigem({ utm_source: us, utm_medium: um, utm_campaign: uc }) !== "Tráfego") return;
-    if (!m.has(dia)) m.set(dia, { com_email: 0, sem_email: 0 });
-    m.get(dia)[v] += +visitantes || 0;
-  });
-  if (AB) AB._pagos = m;
-  return m;
+const noTeste = (l) => !!(AB && AB.inicio && Date.parse(l.criado_em) >= Date.parse(AB.inicio));
+function versaoEm(ms) {
+  if (!AB || !AB.inicio) return null;
+  const b = Math.floor((ms - Date.parse(AB.inicio)) / ((AB.bloco_min || 10) * 60000));
+  return b < 0 ? null : b % 2 === 0 ? "sem_email" : "com_email";
 }
-function fatorAB(v, dia) {
-  const ini = abInicioDia();
-  if (!ini || dia < ini) return v === "com_email" ? 1 : 0; // antes do teste todo mundo via o e-mail
-  const p = abPagosPorDia().get(dia);
-  const t = p ? p.com_email + p.sem_email : 0;
-  return t ? p[v] / t : 0.5;
+// fração do gasto da hora (dia, hora em Brasília) que pertence à versão v
+const _frac = new Map();
+function fracHora(dia, hora, v) {
+  const k = `${dia}|${hora}|${v}`;
+  if (_frac.has(k)) return _frac.get(k);
+  const ini = Date.parse(`${dia}T${String(hora).padStart(2, "0")}:00:00-03:00`), agora = Date.now();
+  let dentro = 0, daV = 0;
+  for (let m = 0; m < 60; m++) {
+    const t = ini + m * 60000 + 30000;
+    if (t > agora) break;
+    dentro++;
+    if (versaoEm(t) === v) daV++;
+  }
+  const f = dentro ? daV / dentro : 0;
+  if (ini + 3600000 < agora) _frac.set(k, f); // hora fechada não muda
+  return f;
 }
 function aplicarAB() {
   const v = $("#t-ab") ? $("#t-ab").value : "todos";
-  if (!AB_NOMES[v]) { VIS = { insights: TRAF.insights, horas: TRAF.horas || [], unicos: UNICOS }; return; }
-  VIS = {
-    insights: TRAF.insights.map((i) => { const x = fatorAB(v, i.dia); return { ...i, investimento: i.investimento * x, impressoes: i.impressoes * x, cliques: i.cliques * x, page_views: i.page_views * x, leads_meta: i.leads_meta * x, alcance: i.alcance * x }; }),
-    horas: (TRAF.horas || []).map(([d, h, ad, inv, imp, cl, lpv]) => { const x = fatorAB(v, d); return [d, h, ad, (+inv || 0) * x, (+imp || 0) * x, (+cl || 0) * x, (+lpv || 0) * x]; }),
-    unicos: UNICOS.filter((l) => l.variante === v)
-  };
+  if (!AB_NOMES[v] || !AB || !AB.inicio) { VIS = { insights: TRAF.insights, horas: TRAF.horas || [], unicos: UNICOS }; return; }
+  const horas = [], insights = [];
+  (TRAF.horas || []).forEach(([d, h, ad, inv, imp, cl, lpv]) => {
+    const x = fracHora(d, h, v);
+    if (!x) return;
+    horas.push([d, h, ad, (+inv || 0) * x, (+imp || 0) * x, (+cl || 0) * x, (+lpv || 0) * x]);
+    insights.push({ dia: d, ad_id: ad, investimento: (+inv || 0) * x, impressoes: (+imp || 0) * x, cliques: (+cl || 0) * x, page_views: (+lpv || 0) * x, leads_meta: 0, alcance: 0 });
+  });
+  VIS = { insights, horas, unicos: UNICOS.filter((l) => l.ab === v && noTeste(l)) };
 }
 
 // ---------- Agregação ----------

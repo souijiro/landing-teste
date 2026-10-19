@@ -1,23 +1,20 @@
-// Aba "Teste A/B". Teste 1: formulário com e-mail x só nome e telefone.
-// Usa AB, fatorAB, abPagosPorDia, ATRIB, TRAF (trafego.js) e UNICOS, fmt, brl, dataBR, horaSP, $ (dash.js).
+// Aba "Teste A/B". Teste 1: formulário com e-mail x só nome e telefone, alternando a cada 10 minutos.
+// Usa AB, noTeste, versaoEm, fracHora, ATRIB, ADS, TRAF, CONTA_DOCIS (trafego.js) e UNICOS, fmt, brl, esc, dataBR, horaSP, tipoOrigem, $ (dash.js).
 
 const AB_TESTE1 = { nome: "Teste 1 · E-mail no formulário", a: "com_email", b: "sem_email" };
+let gAbCusto = null;
 
-// teste de duas proporções (bicaudal): devolve a confiança de que a diferença é real (0 a 1)
+// teste de duas proporções (bicaudal): confiança de que a diferença é real (0 a 1)
 function confiancaDiferenca(x1, n1, x2, n2) {
   if (!n1 || !n2) return null;
   const p = (x1 + x2) / (n1 + n2), se = Math.sqrt(p * (1 - p) * (1 / n1 + 1 / n2));
   if (!se) return null;
   const z = Math.abs(x1 / n1 - x2 / n2) / se;
-  // aproximação da normal acumulada
   const t = 1 / (1 + 0.2316419 * z), d = Math.exp(-z * z / 2) / Math.sqrt(2 * Math.PI);
   const cauda = d * t * (0.319381530 + t * (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429))));
   return 1 - 2 * cauda;
 }
 
-// só cadastros feitos depois do início do teste atual
-const noTeste = (l) => AB && AB.inicio && Date.parse(l.criado_em) >= Date.parse(AB.inicio);
-// versão no ar agora: blocos de 10 min a partir do início, 1º bloco sem e-mail
 function versaoAgora() {
   if (!AB || !AB.inicio) return null;
   const bloco = (AB.bloco_min || 10) * 60000, ini = Date.parse(AB.inicio), b = Math.floor((Date.now() - ini) / bloco);
@@ -25,39 +22,99 @@ function versaoAgora() {
   return { v: b % 2 === 0 ? "sem_email" : "com_email", ate: new Date(ini + (b + 1) * bloco) };
 }
 
-function metricasVariante(v, ini) {
-  const r = { visitantes: 0, visitantes_pagos: 0, popups: 0, cadastros: 0, cad_trafego: 0, atribuidos: 0, alunos: 0 };
+// visitantes vindos dos anúncios da conta Docis (a que tem gasto por hora)
+const ehPagoDocis = (us, um, uc) => tipoOrigem({ utm_source: us, utm_medium: um, utm_campaign: uc }) === "Tráfego" && !/felipe/i.test(uc || "");
+
+function metricasVariante(v) {
+  const r = { visitantes: 0, popups: 0, cadastros: 0, vis_pago: 0, pop_pago: 0, cad_pago: 0,
+    investimento: 0, impressoes: 0, cliques: 0 };
   ((AB && AB.unicos) || []).forEach(([vv, us, um, uc, vis, pop]) => {
     if (vv !== v) return;
     r.visitantes += +vis || 0; r.popups += +pop || 0;
-    if (tipoOrigem({ utm_source: us, utm_medium: um, utm_campaign: uc }) === "Tráfego") r.visitantes_pagos += +vis || 0;
+    if (ehPagoDocis(us, um, uc)) { r.vis_pago += +vis || 0; r.pop_pago += +pop || 0; }
   });
   UNICOS.forEach((l) => {
     if (l.ab !== v || !noTeste(l)) return;
     r.cadastros++;
-    if (l.tipo === "Tráfego") r.cad_trafego++;
-    if (typeof ATRIB !== "undefined" && ATRIB.has(l.id)) r.atribuidos++;
-    if (l.perfil && l.perfil !== "nao_aluno") r.alunos++;
+    const at = ATRIB.get(l.id);
+    if (at) at.forEach(({ ad_id, peso }) => { if (ADS.get(ad_id)?.conta_id === CONTA_DOCIS) r.cad_pago += peso; });
   });
-  r.conv = r.visitantes ? r.cadastros / r.visitantes : null;
-  r.conv_pago = r.visitantes_pagos ? r.cad_trafego / r.visitantes_pagos : null;
-  r.tx_popup = r.visitantes ? r.popups / r.visitantes : null;
-  r.conv_popup = r.popups ? r.cadastros / r.popups : null;
-  r.pct_alunos = r.cadastros ? r.alunos / r.cadastros : null;
+  (TRAF.horas || []).forEach(([d, h, , inv, imp, cl]) => {
+    const x = fracHora(d, h, v);
+    if (!x) return;
+    r.investimento += (+inv || 0) * x; r.impressoes += (+imp || 0) * x; r.cliques += (+cl || 0) * x;
+  });
+  const div = (a, b) => (b ? a / b : null);
+  Object.assign(r, {
+    conv: div(r.cadastros, r.visitantes),
+    ctr: div(r.cliques, r.impressoes), tx_visita: div(r.vis_pago, r.cliques), tx_popup: div(r.pop_pago, r.vis_pago),
+    conv_popup: div(r.cad_pago, r.pop_pago), conv_pago: div(r.cad_pago, r.vis_pago),
+    cpm: r.impressoes ? r.investimento / r.impressoes * 1000 : null, cpc: div(r.investimento, r.cliques),
+    cpv: div(r.investimento, r.vis_pago), cpl: div(r.investimento, r.cad_pago)
+  });
   return r;
 }
 
 function renderAB() {
   const alvo = $("#ab-conteudo");
   if (!alvo) return;
-  const ini = abInicioDia();
   if (!AB || !AB.inicio) {
     alvo.innerHTML = `<p class="t-nota">O teste começa a contar na primeira visita à página depois da publicação. Volte em alguns minutos.</p>`;
     return;
   }
-  const A = metricasVariante(AB_TESTE1.a, ini), B = metricasVariante(AB_TESTE1.b, ini);
+  const ini = abInicioDia();
+  const A = metricasVariante(AB_TESTE1.a), B = metricasVariante(AB_TESTE1.b);
   const pc = (v) => (v == null ? "—" : (v * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "%");
-  // veredito pela conversão da página
+  const rs = (v) => (v == null ? "—" : brl(v));
+  const n1 = (v) => (v < 10 && v % 1 ? v.toLocaleString("pt-BR", { maximumFractionDigits: 1 }) : fmt(v));
+
+  // ---------- funil de custo + conversão, A e B lado a lado, setas por fora ----------
+  // colunas: rótulo | seta A | barras A | seta longa A | seta longa B | barras B | seta B
+  const etapas = [
+    ["Investimento", "investimento", rs, null, 100],
+    ["Impressões", "impressoes", fmt, ["CPM", "cpm"], 88],
+    ["Cliques", "cliques", fmt, ["CPC", "cpc"], 76],
+    ["Visitantes", "vis_pago", fmt, ["por visitante", "cpv"], 64],
+    ["Abriram o formulário", "pop_pago", fmt, null, 54],
+    ["Cadastros", "cad_pago", n1, ["CPL", "cpl"], 44]
+  ];
+  // seta que CHEGA em cada etapa (índice = etapa de destino)
+  const conectores = [null, null, ["CTR", "ctr"], ["chegaram na página", "tx_visita"], ["abriram o formulário", "tx_popup"], ["cadastraram", "conv_popup"]];
+  const melhor = (k, x, menorMelhor) => {
+    const a = A[k], b = B[k];
+    if (a == null || b == null || a === b) return "";
+    return (x === "a" ? (menorMelhor ? a < b : a > b) : (menorMelhor ? b < a : b > a)) ? " abc--melhor" : "";
+  };
+  let g = `<div class="abc__cab" style="grid-column:2 / 5;color:#2a78d6">A · Com e-mail</div><div class="abc__cab" style="grid-column:5 / 8;color:#eb6834">B · Sem e-mail</div>`;
+  etapas.forEach(([nome, k, f, custo, w], i) => {
+    const lin = i * 2 + 2;
+    const bar = (x, R) => `<div class="abc__cel" style="grid-row:${lin};grid-column:${x === "a" ? 3 : 6}">
+        <div class="abc__barra abc__barra--${x}" style="width:${w}%;opacity:${1 - i * 0.11}"><b>${f(R[k])}</b><span>${nome === "Abriram o formulário" ? "Formulário" : nome}</span></div>
+        ${custo ? `<p class="abc__custo${melhor(custo[1], x, true)}">${custo[0]} ${rs(R[custo[1]])}</p>` : ""}</div>`;
+    g += `<div class="abc__rot" style="grid-row:${lin}">${nome}</div>${bar("a", A)}${bar("b", B)}`;
+    if (i < etapas.length - 1) g += `<div class="abc__vao" style="grid-row:${lin + 1}"></div>`;
+    const c = conectores[i];
+    if (c) {
+      // seta da etapa anterior para esta, vindo por fora (A à esquerda, B à direita)
+      const sp = `grid-row:${lin - 2} / ${lin + 1}`;
+      g += `<div class="abc__chave abc__chave--a" style="${sp};grid-column:2"><span><b class="${melhor(c[1], "a")}">${pc(A[c[1]])}</b>${c[0]}</span></div>`;
+      g += `<div class="abc__chave abc__chave--b" style="${sp};grid-column:7"><span><b class="${melhor(c[1], "b")}">${pc(B[c[1]])}</b>${c[0]}</span></div>`;
+    }
+  });
+  // seta longa visitante → cadastro, por dentro de cada lado (linha de Visitantes = 8, Cadastros = 12)
+  const longa = "grid-row:8 / 13";
+  g += `<div class="abc__chave abc__chave--longa-a" style="${longa};grid-column:4"><span><b class="${melhor("conv_pago", "a")}">${pc(A.conv_pago)}</b>visitante → cadastro</span></div>`;
+  g += `<div class="abc__chave abc__chave--longa-b" style="${longa};grid-column:5"><span><b class="${melhor("conv_pago", "b")}">${pc(B.conv_pago)}</b>visitante → cadastro</span></div>`;
+  // CPL em destaque
+  const difCpl = A.cpl && B.cpl ? B.cpl / A.cpl - 1 : null;
+  const pill = (x, R) => {
+    const vence = melhor("cpl", x, true);
+    const txt = vence && difCpl != null ? ` · ${pc(Math.abs(difCpl))} menor` : "";
+    return `<div class="abc__fim" style="grid-row:14;grid-column:${x === "a" ? "2 / 5" : "5 / 8"}"><span class="abc__cpl abc__cpl--${x}${vence}">CPL ${rs(R.cpl)}${txt}</span></div>`;
+  };
+  g += `<div class="abc__rot abc__fim" style="grid-row:14">Custo por lead</div>${pill("a", A)}${pill("b", B)}`;
+
+  // ---------- veredito pela conversão de todos os visitantes ----------
   const conf = confiancaDiferenca(A.cadastros, A.visitantes, B.cadastros, B.visitantes);
   let veredito;
   if (A.visitantes + B.visitantes < 200 || A.cadastros + B.cadastros < 20) veredito = { cls: "espera", txt: `Ainda poucos dados (${fmt(A.visitantes + B.visitantes)} visitantes, ${fmt(A.cadastros + B.cadastros)} cadastros). Espere pelo menos 200 visitantes e 20 cadastros em cada lado antes de decidir.` };
@@ -66,7 +123,7 @@ function renderAB() {
     veredito = { cls: "vence", txt: `<b>${ganhaB ? "Sem e-mail" : "Com e-mail"} converte mais</b>: ${pc(ganhaB ? B.conv : A.conv)} contra ${pc(ganhaB ? A.conv : B.conv)}, com ${pc(conf)} de confiança.${ganhaB ? " Lembre que sem e-mail você perde o canal de e-mail com esses leads." : ""}` };
   } else veredito = { cls: "empate", txt: `Até agora sem diferença confiável na conversão (${pc(A.conv)} com e-mail × ${pc(B.conv)} sem e-mail; confiança ${conf == null ? "—" : pc(conf)}, o ideal é 95%). Continue rodando.` };
 
-  // por dia
+  // ---------- por dia ----------
   const dias = new Map();
   const gd = (d) => { if (!dias.has(d)) dias.set(d, { com_email: { vis: 0, cad: 0 }, sem_email: { vis: 0, cad: 0 } }); return dias.get(d); };
   (AB.dias || []).forEach(([d, v, , , , vis]) => { gd(d)[v].vis += +vis || 0; });
@@ -78,43 +135,43 @@ function renderAB() {
       <td class="n">${fmt(sb.vis)}</td><td class="n">${fmt(sb.cad)}</td><td class="n ${c1 != null && c2 != null && c2 > c1 ? "ab-melhor" : ""}">${pc(c2)}</td></tr>`;
   }).join("");
 
-  // funil lado a lado, nas mesmas colunas da tabela (rótulo | A | B | B × A)
-  const difPct = (a, b) => (a && b != null ? `${b / a - 1 > 0 ? "+" : ""}${((b / a - 1) * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%` : "");
-  const etapasF = [["Visitantes únicos", "visitantes", 100], ["Abriram o formulário", "popups", 74], ["Cadastros", "cadastros", 50]];
-  const conectF = [["abriram o formulário", "tx_popup"], ["cadastraram", "conv_popup"]];
-  const melhorF = (k, x) => (A[k] != null && B[k] != null && A[k] !== B[k] && (x === "a" ? A[k] > B[k] : B[k] > A[k]) ? " abf__taxa--melhor" : "");
-  let funil = `<div class="abf__cel abf__cab"></div><div class="abf__cel abf__cab abf__cab--a">A · Com e-mail</div><div class="abf__cel abf__cab abf__cab--b">B · Sem e-mail</div><div class="abf__cel abf__cab abf__dif">B × A</div>`;
-  etapasF.forEach(([nome, k, w], i) => {
-    funil += `<div class="abf__cel abf__rot">${nome}</div>
-      <div class="abf__cel"><div class="abf__barra abf__barra--a" style="width:${w}%;opacity:${1 - i * 0.18}"><b>${fmt(A[k])}</b></div></div>
-      <div class="abf__cel"><div class="abf__barra abf__barra--b" style="width:${w}%;opacity:${1 - i * 0.18}"><b>${fmt(B[k])}</b></div></div>
-      <div class="abf__cel abf__dif">${difPct(A[k], B[k])}</div>`;
-    if (conectF[i]) {
-      const [cn, ck] = conectF[i];
-      funil += `<div class="abf__cel abf__rot abf__rot--taxa">${cn}</div>
-        <div class="abf__cel abf__con"><span class="abf__seta abf__seta--a">↓</span><b class="abf__taxa${melhorF(ck, "a")}">${pc(A[ck])}</b></div>
-        <div class="abf__cel abf__con"><span class="abf__seta abf__seta--b">↓</span><b class="abf__taxa${melhorF(ck, "b")}">${pc(B[ck])}</b></div>
-        <div class="abf__cel abf__dif">${difPct(A[ck], B[ck])}</div>`;
-    }
-  });
-  funil += `<div class="abf__cel abf__rot abf__rot--total abf__fim">Conversão da página<small>visita → cadastro</small></div>
-    <div class="abf__cel abf__con abf__fim"><span class="abf__total abf__total--a${melhorF("conv", "a")}">↳ ${pc(A.conv)}</span></div>
-    <div class="abf__cel abf__con abf__fim"><span class="abf__total abf__total--b${melhorF("conv", "b")}">↳ ${pc(B.conv)}</span></div>
-    <div class="abf__cel abf__dif abf__fim">${difPct(A.conv, B.conv)}</div>`;
-
+  const agora = versaoAgora();
   alvo.innerHTML = `
     <div class="ab-cabeca">
       <div><p class="rotulo">Em andamento</p><h3>${AB_TESTE1.nome}</h3>
         <p class="t-nota">Desde ${dataBR(ini)} às ${horaSP.format(new Date(AB.inicio)).split(", ").pop()} · as versões se alternam a cada ${AB.bloco_min || 10} minutos (começou pela sem e-mail)</p>
-        ${(() => { const x = versaoAgora(); return x ? `<p class="ab-agora">${x.antes ? "Começa às " + horaSP.format(new Date(AB.inicio)).split(", ").pop() + " com" : "No ar agora:"} <b class="ab-agora--${x.v}">${x.v === "sem_email" ? "B · Sem e-mail" : "A · Com e-mail"}</b> até ${horaSP.format(x.ate).split(", ").pop()}</p>` : ""; })()}</div>
+        ${agora ? `<p class="ab-agora">${agora.antes ? "Começa com" : "No ar agora:"} <b class="ab-agora--${agora.v}">${agora.v === "sem_email" ? "B · Sem e-mail" : "A · Com e-mail"}</b> até ${horaSP.format(agora.ate).split(", ").pop()}</p>` : ""}</div>
       <div class="ab-versoes"><span class="ab-tag ab-tag--a">A · Com e-mail<small>nome, e-mail e WhatsApp</small></span><span class="ab-tag ab-tag--b">B · Sem e-mail<small>só nome e WhatsApp</small></span></div>
     </div>
-    <div class="abf" role="img" aria-label="Funil das duas versões: visitantes, aberturas do formulário e cadastros">${funil}</div>
     <p class="ab-veredito ab-veredito--${veredito.cls}">${veredito.txt}</p>
+    <div class="abc" role="img" aria-label="Funil de custo e conversão das duas versões">${g}</div>
+    <p class="t-nota ab-nota">Funil dos anúncios da conta Docis: a Meta manda gasto, impressões e cliques hora a hora, e cada hora é dividida pelos minutos em que cada versão ficou no ar. Visitantes, formulário e cadastros são contados pela própria página. O custo da última hora chega com até ~1 h de atraso.</p>
+    <h3 class="ab-sub">Custo de cada etapa</h3>
+    <div class="ab-grafico"><canvas id="g-ab-custo" role="img" aria-label="Barras: CPM ÷ 10, CPC, custo por visitante e CPL das versões A e B"></canvas></div>
+    <h3 class="ab-sub">Todos os visitantes (inclui orgânico e conta do Felipe)</h3>
+    <div class="tabela-wrap"><table class="tabela">
+      <thead><tr><th>Versão</th><th class="n">Visitantes</th><th class="n">Abriram o formulário</th><th class="n">Cadastros</th><th class="n">Conversão</th></tr></thead>
+      <tbody>
+        <tr><td><b style="color:#2a78d6">A · Com e-mail</b></td><td class="n">${fmt(A.visitantes)}</td><td class="n">${fmt(A.popups)}</td><td class="n">${fmt(A.cadastros)}</td><td class="n${melhor("conv", "a") ? " ab-melhor" : ""}">${pc(A.conv)}</td></tr>
+        <tr><td><b style="color:#eb6834">B · Sem e-mail</b></td><td class="n">${fmt(B.visitantes)}</td><td class="n">${fmt(B.popups)}</td><td class="n">${fmt(B.cadastros)}</td><td class="n${melhor("conv", "b") ? " ab-melhor" : ""}">${pc(B.conv)}</td></tr>
+      </tbody></table></div>
     <h3 class="ab-sub">Por dia</h3>
     <div class="tabela-wrap"><table class="tabela">
       <thead><tr><th rowspan="2">Data</th><th class="n" colspan="3">A · Com e-mail</th><th class="n" colspan="3">B · Sem e-mail</th></tr>
       <tr><th class="n">Visitantes</th><th class="n">Cadastros</th><th class="n">Conversão</th><th class="n">Visitantes</th><th class="n">Cadastros</th><th class="n">Conversão</th></tr></thead>
-      <tbody>${linhasDia || '<tr><td colspan="7" class="vazio">Sem visitas ainda.</td></tr>'}</tbody></table></div>
-    <p class="t-nota ab-nota">Visitantes e aberturas do formulário são contados pela própria página (não pela Meta). Verde = melhor resultado na linha. Custos não aparecem aqui: a Meta não sabe qual versão cada pessoa viu.</p>`;
+      <tbody>${linhasDia || '<tr><td colspan="7" class="vazio">Sem visitas ainda.</td></tr>'}</tbody></table></div>`;
+
+  // barras do custo por etapa
+  if (gAbCusto) { gAbCusto.destroy(); gAbCusto = null; }
+  const val = (R) => [R.cpm != null ? R.cpm / 10 : null, R.cpc, R.cpv, R.cpl];
+  gAbCusto = new Chart($("#g-ab-custo"), {
+    type: "bar",
+    data: { labels: ["CPM ÷ 10", "CPC", "Custo por visitante", "CPL"],
+      datasets: [{ label: "A · Com e-mail", data: val(A), backgroundColor: "#2a78d6", borderRadius: 4 },
+        { label: "B · Sem e-mail", data: val(B), backgroundColor: "#eb6834", borderRadius: 4 }] },
+    options: { responsive: true, maintainAspectRatio: false, animation: { duration: 300 },
+      plugins: { legend: { labels: { font: { family: "Montserrat", weight: 600 }, boxWidth: 12 } },
+        tooltip: { backgroundColor: "#0b0b0b", callbacks: { label: (c) => ` ${c.dataset.label}: ${c.label === "CPM ÷ 10" ? "CPM " + brl(c.parsed.y * 10) : brl(c.parsed.y)}` } } },
+      scales: { x: { grid: { display: false }, ticks: { font: { family: "Montserrat" } } }, y: { beginAtZero: true, ticks: { callback: (v) => "R$ " + v.toLocaleString("pt-BR"), font: { family: "Montserrat" } } } } }
+  });
 }
