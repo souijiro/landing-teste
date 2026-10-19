@@ -16,7 +16,7 @@ function confiancaDiferenca(x1, n1, x2, n2) {
 }
 
 function metricasVariante(v, ini) {
-  const r = { visitantes: 0, visitantes_pagos: 0, popups: 0, cadastros: 0, cad_trafego: 0, atribuidos: 0, alunos: 0, investimento: 0 };
+  const r = { visitantes: 0, visitantes_pagos: 0, popups: 0, cadastros: 0, cad_trafego: 0, atribuidos: 0, alunos: 0 };
   ((AB && AB.unicos) || []).forEach(([vv, us, um, uc, vis, pop]) => {
     if (vv !== v) return;
     r.visitantes += +vis || 0; r.popups += +pop || 0;
@@ -29,12 +29,10 @@ function metricasVariante(v, ini) {
     if (typeof ATRIB !== "undefined" && ATRIB.has(l.id)) r.atribuidos++;
     if (l.perfil && l.perfil !== "nao_aluno") r.alunos++;
   });
-  TRAF.insights.forEach((i) => { if (ini && i.dia >= ini) r.investimento += i.investimento * fatorAB(v, i.dia); });
   r.conv = r.visitantes ? r.cadastros / r.visitantes : null;
   r.conv_pago = r.visitantes_pagos ? r.cad_trafego / r.visitantes_pagos : null;
   r.tx_popup = r.visitantes ? r.popups / r.visitantes : null;
   r.conv_popup = r.popups ? r.cadastros / r.popups : null;
-  r.cpl = r.atribuidos ? r.investimento / r.atribuidos : null;
   r.pct_alunos = r.cadastros ? r.alunos / r.cadastros : null;
   return r;
 }
@@ -49,34 +47,6 @@ function renderAB() {
   }
   const A = metricasVariante(AB_TESTE1.a, ini), B = metricasVariante(AB_TESTE1.b, ini);
   const pc = (v) => (v == null ? "—" : (v * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "%");
-  const rs = (v) => (v == null ? "—" : brl(v));
-  // [rótulo, valorA, valorB, formato, maior é melhor?, dica]
-  const linhas = [
-    ["Visitantes únicos", A.visitantes, B.visitantes, fmt, null, "pessoas diferentes que abriram a página"],
-    ["Abriram o formulário", A.popups, B.popups, fmt, null, ""],
-    ["Taxa de abertura do formulário", A.tx_popup, B.tx_popup, pc, true, "abriram ÷ visitantes"],
-    ["Cadastros", A.cadastros, B.cadastros, fmt, null, "leads únicos"],
-    ["Conversão da página", A.conv, B.conv, pc, true, "cadastros ÷ visitantes — a métrica principal do teste"],
-    ["Conversão do formulário", A.conv_popup, B.conv_popup, pc, true, "cadastros ÷ quem abriu o formulário"],
-    ["Visitantes de tráfego pago", A.visitantes_pagos, B.visitantes_pagos, fmt, null, ""],
-    ["Conversão do tráfego pago", A.conv_pago, B.conv_pago, pc, true, "cadastros de tráfego ÷ visitantes de tráfego"],
-    ["Investimento ≈", A.investimento, B.investimento, rs, null, "dividido pela proporção de visitantes pagos de cada versão no dia"],
-    ["CPL ≈", A.cpl, B.cpl, rs, false, "investimento ≈ ÷ leads ligados aos anúncios"],
-    ["Alunos entre os cadastros", A.pct_alunos, B.pct_alunos, pc, null, ""]
-  ];
-  const corpo = linhas.map(([n, a, b, f, maiorMelhor, dica]) => {
-    let ca = "", cb = "", dif = "";
-    if (a != null && b != null && a !== b && maiorMelhor !== null) {
-      const aMelhor = maiorMelhor ? a > b : a < b;
-      ca = aMelhor ? "ab-melhor" : ""; cb = aMelhor ? "" : "ab-melhor";
-    }
-    if (a && b != null && typeof a === "number") {
-      const d = b / a - 1;
-      dif = `${d > 0 ? "+" : ""}${(d * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%`;
-    }
-    return `<tr${n.startsWith("Conversão da página") ? ' class="ab-principal"' : ""}><td title="${esc(dica)}">${n}${dica ? `<small>${esc(dica)}</small>` : ""}</td><td class="n ${ca}">${f(a)}</td><td class="n ${cb}">${f(b)}</td><td class="n ab-dif">${dif}</td></tr>`;
-  }).join("");
-
   // veredito pela conversão da página
   const conf = confiancaDiferenca(A.cadastros, A.visitantes, B.cadastros, B.visitantes);
   let veredito;
@@ -130,13 +100,10 @@ function renderAB() {
     </div>
     <div class="abf" role="img" aria-label="Funil das duas versões: visitantes, aberturas do formulário e cadastros">${funil}</div>
     <p class="ab-veredito ab-veredito--${veredito.cls}">${veredito.txt}</p>
-    <div class="tabela-wrap"><table class="tabela ab-tabela">
-      <thead><tr><th>Métrica</th><th class="n">A · Com e-mail</th><th class="n">B · Sem e-mail</th><th class="n">B × A</th></tr></thead>
-      <tbody>${corpo}</tbody></table></div>
     <h3 class="ab-sub">Por dia</h3>
     <div class="tabela-wrap"><table class="tabela">
       <thead><tr><th rowspan="2">Data</th><th class="n" colspan="3">A · Com e-mail</th><th class="n" colspan="3">B · Sem e-mail</th></tr>
       <tr><th class="n">Visitantes</th><th class="n">Cadastros</th><th class="n">Conversão</th><th class="n">Visitantes</th><th class="n">Cadastros</th><th class="n">Conversão</th></tr></thead>
       <tbody>${linhasDia || '<tr><td colspan="7" class="vazio">Sem visitas ainda.</td></tr>'}</tbody></table></div>
-    <p class="t-nota ab-nota">Visitantes e aberturas do formulário são contados pela própria página (não pela Meta). A Meta não sabe qual versão cada pessoa viu, então investimento e CPL de cada versão são estimados (≈). Verde = melhor resultado na linha.</p>`;
+    <p class="t-nota ab-nota">Visitantes e aberturas do formulário são contados pela própria página (não pela Meta). Verde = melhor resultado na linha. Custos não aparecem aqui: a Meta não sabe qual versão cada pessoa viu.</p>`;
 }
