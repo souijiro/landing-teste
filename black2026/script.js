@@ -23,21 +23,22 @@ const PAGINA_ORIGEM = location.href.slice(0, 1000);
 
 const uuid = () => (crypto.randomUUID ? crypto.randomUUID() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (c) => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)));
 
-// ---------- Teste A/B 1: formulário com e-mail x sem e-mail ----------
-// A versão muda a cada HORA CHEIA (mesma janela dos dados da Meta), a partir de AB_INICIO.
-// 1ª hora sem e-mail, depois com, e a ordem inverte a cada dia. Antes do início: com e-mail.
+// ---------- Teste A/B 2: um dia inteiro sem e-mail x um dia inteiro com e-mail (mesma copy) ----------
+// 20/10 (Brasília): SEM e-mail · 21/10: COM e-mail (dia de comparação) · fora disso: COM e-mail.
 // A versão vale pela hora em que a página abriu. ?ab=com_email ou ?ab=sem_email força a versão e NÃO conta visita.
 const AB_VARIANTES = ["com_email", "sem_email"];
-const AB_INICIO = Date.parse("2026-10-19T16:00:00Z"); // 13:00 de Brasília
+const AB_DIAS = [
+  { ini: Date.parse("2026-10-20T00:00:00-03:00"), fim: Date.parse("2026-10-21T00:00:00-03:00"), v: "sem_email" },
+  { ini: Date.parse("2026-10-21T00:00:00-03:00"), fim: Date.parse("2026-10-22T00:00:00-03:00"), v: "com_email" }
+];
 const AB_FORCADA = AB_VARIANTES.includes(new URLSearchParams(location.search).get("ab")) ? new URLSearchParams(location.search).get("ab") : null;
 function lerOuCriar(chave, criar) {
   try { let v = localStorage.getItem(chave); if (!v) { v = criar(); localStorage.setItem(chave, v); } return v; } catch (e) { return criar(); }
 }
 const VISITANTE = lerOuCriar("black2026_visitante", uuid);
 function versaoAB(ms) {
-  const h = Math.floor((ms - AB_INICIO) / 3600000);
-  if (h < 0) return "com_email";
-  return (h + Math.floor(h / 24)) % 2 === 0 ? "sem_email" : "com_email";
+  const p = AB_DIAS.find((x) => ms >= x.ini && ms < x.fim);
+  return p ? p.v : "com_email";
 }
 const VARIANTE = AB_FORCADA || versaoAB(Date.now());
 const SEM_EMAIL = VARIANTE === "sem_email";

@@ -18,6 +18,10 @@
   <!-- Desempenho: GTM e pixel só carregam depois da página aparecer (no load ou no 1º toque/rolagem).
        Os eventos (PageView, dataLayer) ficam na fila e são enviados assim que os scripts chegam. -->
   <script>
+    // domínio do Felipe: cursos dele primeiro e copy com "Felipe Russo e Docis" (troca feita por CSS, sem piscar)
+    if (location.hostname === "black.confeitaria5estrelas.com") document.documentElement.classList.add("dom-felipe");
+  </script>
+  <script>
     window.carregarDepois = function (fn) {
       var feito = false, go = function () { if (!feito) { feito = true; fn(); } };
       if (document.readyState === "complete") setTimeout(go, 0);
@@ -137,7 +141,7 @@ img { max-width: 100%; display: block; }
 .expert__card { background: #000; border: 1px solid rgba(255,255,255,.12); border-radius: 18px; padding: 0 16px 16px; overflow: hidden; }
 .expert__foto { width: 82%; height: auto; margin: 0 auto -60px; }
 .expert__foto--com-fundo { margin-top: 16px; border-radius: 14px; }
-.expert__cursos { position: relative; display: grid; gap: 10px; }
+.expert__cursos { position: relative; display: grid; gap: 16px; padding-top: 6px; }
 .expert__cursos img { width: 100%; height: auto; aspect-ratio: 521 / 196; object-fit: cover; border-radius: 14px; }
 
 /* ---------- Acordeão ---------- */
@@ -152,6 +156,19 @@ img { max-width: 100%; display: block; }
 .acc details[open] summary::after { content: "−"; color: #111; }
 .acc .acc__corpo { padding: 0 16px 16px; font-size: .92rem; color: #333; }
 .acc ul { margin: 6px 0 0; padding-left: 20px; }
+/* troca por domínio */
+.so-felipe { display: none; }
+.dom-felipe .so-felipe { display: block; }
+.dom-felipe .so-docis { display: none; }
+.experts, .acc-grupos { display: flex; flex-direction: column; }
+.dom-felipe .expert--felipe, .dom-felipe .acc-bloco--felipe { order: -1; }
+.dom-felipe .expert--felipe { background: var(--grafite); }
+.dom-felipe .expert--docis { background: var(--preto); }
+.hero h1 strong { color: #fff; }
+.hero__vip { display: inline-block; margin: 4px 0 6px !important; color: var(--amarelo) !important; font-weight: 800; font-size: 1.05rem; }
+/* tag "Acesso vitalício" sobre as imagens dos cursos */
+.curso { position: relative; margin: 0; }
+.tag-vitalicio { position: absolute; top: -9px; right: 12px; z-index: 1; background: var(--amarelo); color: var(--preto); font-weight: 800; font-size: .66rem; letter-spacing: .06em; text-transform: uppercase; padding: 4px 8px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0,0,0,.35); }
 .acc__grupo { font-weight: 800; margin: 22px 0 8px; text-transform: uppercase; font-size: .8rem; letter-spacing: .08em; color: #666; }
 .inclusos .btn { margin-top: 28px; }
 
@@ -219,11 +236,12 @@ img { max-width: 100%; display: block; }
         <img class="hero__cabeca" src="img/cabeca-felipe.webp" alt="Felipe Russo" width="71" height="96">
       </div>
 
-      <h1>A Rainha do Brigadeiro e o Rei do Delivery juntos em uma <em>Black com acesso vitalício</em></h1>
+      <h1 class="so-docis">Cadastre-se para receber uma oferta imperdível com <strong>TODOS</strong> os cursos Docis e Felipe Russo com <em>ACESSO VITALÍCIO</em></h1>
+      <h1 class="so-felipe">Cadastre-se para receber uma oferta imperdível com <strong>TODOS</strong> os cursos Felipe Russo e Docis com <em>ACESSO VITALÍCIO</em></h1>
 
-      <p>Aprenda os produtos e as estratégias por trás dos <strong>6 mil pedidos por mês</strong> da Docis para vender mais, começando na cozinha de casa.</p>
+      <p>Aprenda os produtos e tudo sobre Delivery do iniciante ao avançado. Felipe com suas estratégias do Delivery. Docis com seus produtos que vendem <strong>6 mil pedidos por mês</strong>. Tudo com <strong>acesso vitalício</strong> e muito mais em conta do que comprar separadamente.</p>
 
-      <p>Todos os cursos <strong>para sempre</strong>, por muito menos do que comprar separadamente.</p>
+      <p class="hero__vip">Cadastre-se grátis e receba a oferta no grupo VIP</p>
 
       <p class="hero__aluno">Já é aluno? Você terá uma oferta especial.</p>
 
@@ -231,41 +249,45 @@ img { max-width: 100%; display: block; }
     </div>
   </header>
 
-  <section class="expert">
+  <div class="experts">
+  <section class="expert expert--docis">
     <div class="wrap">
       <h2>Cilaine Rodrigues</h2>
       <p class="expert__tag">A Rainha do Brigadeiro · Docis</p>
       <div class="expert__card">
         <img class="expert__foto" src="img/cilaine-700.webp" srcset="img/cilaine-480.webp 480w, img/cilaine-560.webp 560w, img/cilaine-700.webp 700w, img/cilaine.webp 884w" sizes="(max-width: 560px) 72vw, 420px" alt="Cilaine Rodrigues" width="884" height="1200" loading="lazy">
         <div class="expert__cursos">
-          <img src="img/curso-brigadeiro.webp" alt="Brigadeiro de A a Z" width="521" height="196" loading="lazy">
-          <img src="img/curso-naked.webp" alt="Naked Cakes" width="521" height="196" loading="lazy">
-          <img src="img/curso-cookies.webp" alt="Cookies Perfeitos na Prática" width="521" height="196" loading="lazy">
-          <img src="img/curso-tortas.webp" alt="Tortas Especiais" width="521" height="196" loading="lazy">
-          <img src="img/curso-p5s.webp" alt="Meus primeiros 500 reais por semana" width="521" height="196" loading="lazy">
+          <figure class="curso"><img src="img/curso-brigadeiro.webp" alt="Brigadeiro de A a Z" width="521" height="196" loading="lazy"><span class="tag-vitalicio">Acesso vitalício</span></figure>
+          <figure class="curso"><img src="img/curso-naked.webp" alt="Naked Cakes" width="521" height="196" loading="lazy"><span class="tag-vitalicio">Acesso vitalício</span></figure>
+          <figure class="curso"><img src="img/curso-cookies.webp" alt="Cookies Perfeitos na Prática" width="521" height="196" loading="lazy"><span class="tag-vitalicio">Acesso vitalício</span></figure>
+          <figure class="curso"><img src="img/curso-tortas.webp" alt="Tortas Especiais" width="521" height="196" loading="lazy"><span class="tag-vitalicio">Acesso vitalício</span></figure>
+          <figure class="curso"><img src="img/curso-p5s.webp" alt="Meus primeiros 500 reais por semana" width="521" height="196" loading="lazy"><span class="tag-vitalicio">Acesso vitalício</span></figure>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="expert expert--b">
+  <section class="expert expert--b expert--felipe">
     <div class="wrap">
       <h2>Felipe Russo</h2>
       <p class="expert__tag">O Rei do Delivery</p>
       <div class="expert__card">
         <img class="expert__foto expert__foto--com-fundo" src="img/felipe.webp?v=2" alt="Felipe Russo" width="400" height="543" loading="lazy">
         <div class="expert__cursos">
-          <img src="img/curso-5estrelas.webp?v=2" alt="Confeitaria 5 Estrelas" width="521" height="196" loading="lazy">
-          <img src="img/curso-99lucrativo.webp" alt="99 Lucrativo" width="521" height="196" loading="lazy">
+          <figure class="curso"><img src="img/curso-5estrelas.webp?v=2" alt="Confeitaria 5 Estrelas" width="521" height="196" loading="lazy"><span class="tag-vitalicio">Acesso vitalício</span></figure>
+          <figure class="curso"><img src="img/curso-99lucrativo.webp" alt="99 Lucrativo" width="521" height="196" loading="lazy"><span class="tag-vitalicio">Acesso vitalício</span></figure>
         </div>
       </div>
     </div>
   </section>
+  </div>
 
   <section class="inclusos">
     <div class="wrap">
       <h2>QUAIS CURSOS ESTÃO INCLUSOS NA OFERTA?</h2>
 
+      <div class="acc-grupos">
+      <div class="acc-bloco acc-bloco--docis">
       <p class="acc__grupo">Docis · Cilaine Rodrigues</p>
       <div class="acc">
         <details open>
@@ -294,6 +316,8 @@ img { max-width: 100%; display: block; }
         </details>
       </div>
 
+      </div>
+      <div class="acc-bloco acc-bloco--felipe">
       <p class="acc__grupo">Felipe Russo</p>
       <div class="acc">
         <details>
@@ -306,6 +330,9 @@ img { max-width: 100%; display: block; }
           <summary>99 Lucrativo</summary>
           <div class="acc__corpo">Aprenda a vender todos os dias no 99Food e transforme o delivery em uma fonte real de faturamento.</div>
         </details>
+      </div>
+
+      </div>
       </div>
 
       <button type="button" class="btn" data-abrir>Quero participar da Black</button>
@@ -347,6 +374,6 @@ img { max-width: 100%; display: block; }
     </div>
   </div>
 
-  <script type="module" src="script.js?v=11"></script>
+  <script type="module" src="script.js?v=12"></script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 // Aba "Teste A/B". Teste 1: formulário com e-mail x só nome e telefone, alternando a cada 10 minutos.
 // Usa AB, noTeste, versaoEm, fracHora, ATRIB, ADS, TRAF, CONTA_DOCIS (trafego.js) e UNICOS, fmt, brl, esc, dataBR, horaSP, tipoOrigem, $ (dash.js).
 
-const AB_TESTE1 = { nome: "Teste 1 · E-mail no formulário", a: "com_email", b: "sem_email" };
+const AB_TESTE1 = { nome: "Teste 2 · Dia sem e-mail × dia com e-mail", a: "com_email", b: "sem_email" };
 let gAbCusto = null;
 
 // teste de duas proporções (bicaudal): confiança de que a diferença é real (0 a 1)
@@ -16,11 +16,10 @@ function confiancaDiferenca(x1, n1, x2, n2) {
 }
 
 function versaoAgora() {
-  if (!AB || !AB.inicio) return null;
-  const ini = Date.parse(AB.inicio), agora = Date.now();
-  if (agora < ini) return { v: "com_email", ate: new Date(ini), antes: true };
-  const h = Math.floor((agora - ini) / 3600000);
-  return { v: versaoEm(agora), ate: new Date(ini + (h + 1) * 3600000) };
+  const agora = Date.now(), p = AB_DIAS.find((x) => agora >= x.ini && agora < x.fim);
+  if (p) return { v: p.v, ate: new Date(p.fim) };
+  if (agora < AB_DIAS[0].ini) return { v: "com_email", ate: new Date(AB_DIAS[0].ini), antes: true };
+  return { v: "com_email", fim: true };
 }
 
 // visitantes vindos dos anúncios (Docis e Felipe, as duas contas têm gasto por hora)
@@ -84,8 +83,9 @@ function renderAB() {
   const ini = abInicioDia();
   const corte = corteFunil();
   const A = metricasVariante(AB_TESTE1.a, corte), B = metricasVariante(AB_TESTE1.b, corte);
-  const horaTxt = (ms) => horaSP.format(new Date(ms)).split(", ").pop();
-  const funilVazio = corte <= Date.parse(AB.inicio);
+  const horaTxt = (ms) => horaSP.format(new Date(ms));
+  const corteFim = Math.min(corte, AB.fim ? Date.parse(AB.fim) : corte);
+  const funilVazio = corteFim <= Date.parse(AB.inicio);
   const pc = (v) => (v == null ? "—" : (v * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "%");
   const rs = (v) => (v == null ? "—" : brl(v));
   const n1 = (v) => (v < 10 && v % 1 ? v.toLocaleString("pt-BR", { maximumFractionDigits: 1 }) : fmt(v));
@@ -161,14 +161,14 @@ function renderAB() {
   alvo.innerHTML = `
     <div class="ab-cabeca">
       <div><p class="rotulo">Em andamento</p><h3>${AB_TESTE1.nome}</h3>
-        <p class="t-nota">Desde ${dataBR(ini)} às ${horaSP.format(new Date(AB.inicio)).split(", ").pop()} · a versão muda a cada hora cheia, junto com a atualização do tráfego (1ª hora sem e-mail; a ordem inverte a cada dia)</p>
-        ${agora ? `<p class="ab-agora">${agora.antes ? "Antes do teste, no ar:" : "No ar agora:"} <b class="ab-agora--${agora.v}">${agora.v === "sem_email" ? "B · Sem e-mail" : "A · Com e-mail"}</b> até ${horaSP.format(agora.ate).split(", ").pop()}${agora.antes ? " (aí começa o teste, com B · Sem e-mail)" : ""}</p>` : ""}</div>
+        <p class="t-nota">20/10 o dia todo SEM e-mail · 21/10 o dia todo COM e-mail, com a mesma copy nova nos dois dias</p>
+        ${agora ? (agora.fim ? `<p class="ab-agora">Teste encerrado · a página voltou a pedir o e-mail</p>` : `<p class="ab-agora">${agora.antes ? "Antes do teste, no ar:" : "No ar agora:"} <b class="ab-agora--${agora.v}">${agora.v === "sem_email" ? "B · Sem e-mail" : "A · Com e-mail"}</b> até ${horaSP.format(agora.ate)}${agora.antes ? " (aí começa o dia SEM e-mail)" : ""}</p>`) : ""}</div>
       <div class="ab-versoes"><span class="ab-tag ab-tag--a">A · Com e-mail<small>nome, e-mail e WhatsApp</small></span><span class="ab-tag ab-tag--b">B · Sem e-mail<small>só nome e WhatsApp</small></span></div>
     </div>
     <p class="ab-veredito ab-veredito--${veredito.cls}">${veredito.txt}</p>
-    <h3 class="ab-sub">Funil de custo · ${funilVazio ? "aguardando a 1ª hora fechada" : `horas fechadas, das ${horaTxt(Date.parse(AB.inicio))} às ${horaTxt(corte)}`}</h3>
-    ${funilVazio ? `<p class="t-nota">A primeira hora do teste fecha e a Meta entrega o custo uns 10 minutos depois da hora cheia. Até lá, acompanhe a conversão abaixo.</p>` : `<div class="abc" role="img" aria-label="Funil de custo e conversão das duas versões">${g}</div>`}
-    <p class="t-nota ab-nota">Funil dos anúncios das contas Docis e Felipe Russo. Investimento, impressões, cliques e page views vêm da Meta hora a hora (cada hora do teste pertence inteira a uma versão). "Abriram o formulário" é contado pela própria página, só de quem veio de anúncio. Cadastros = leads ligados aos anúncios. A hora em andamento só entra no funil quando fecha e a Meta entrega o custo das duas contas (por volta de 10 min depois da hora cheia).</p>
+    <h3 class="ab-sub">Funil de custo · ${funilVazio ? "aguardando a 1ª hora fechada" : `horas fechadas, de ${horaTxt(Date.parse(AB.inicio))} a ${horaTxt(corteFim)}`}</h3>
+    ${funilVazio ? `<p class="t-nota">O teste começa em 20/10 à 0h. A primeira hora fecha e a Meta entrega o custo uns 10 minutos depois da hora cheia. Até lá, acompanhe a conversão abaixo.</p>` : `<div class="abc" role="img" aria-label="Funil de custo e conversão das duas versões">${g}</div>`}
+    <p class="t-nota ab-nota">Funil dos anúncios das contas Docis e Felipe Russo. Investimento, impressões, cliques e page views vêm da Meta hora a hora (cada dia do teste pertence inteiro a uma versão). "Abriram o formulário" é contado pela própria página, só de quem veio de anúncio. Cadastros = leads ligados aos anúncios. A hora em andamento só entra no funil quando fecha e a Meta entrega o custo das duas contas (por volta de 10 min depois da hora cheia).</p>
     <h3 class="ab-sub">Custo de cada etapa</h3>
     <div class="ab-grafico"><canvas id="g-ab-custo" role="img" aria-label="Barras: CPM ÷ 10, CPC, custo por page view e CPL das versões A e B"></canvas></div>
     <h3 class="ab-sub">Todos os visitantes contados pela página (inclui orgânico) · base do resultado do teste</h3>
