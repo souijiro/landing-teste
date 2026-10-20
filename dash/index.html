@@ -166,6 +166,17 @@
         </div>
       </section>
 
+      <section class="grade-2">
+        <div class="cartao">
+          <div class="cartao__topo"><h2>Taxas por dia</h2><span class="t-nota">CTR no eixo da direita</span></div>
+          <div class="grafico"><canvas id="g-taxas-dia" aria-label="CTR, carregamento da página e conversão da página por dia"></canvas></div>
+        </div>
+        <div class="cartao">
+          <div class="cartao__topo"><h2>Taxas hora a hora</h2><label class="t-nota">horas fechadas · <select id="tx-dia" aria-label="Dia das taxas hora a hora"></select></label></div>
+          <div class="grafico"><canvas id="g-taxas-hora" aria-label="CTR, carregamento da página e conversão da página hora a hora"></canvas></div>
+        </div>
+      </section>
+
       <section class="cartao">
         <div class="cartao__topo"><h2>Investimento por dia</h2></div>
         <div class="grafico"><canvas id="g-inv" aria-label="Investimento por dia na Meta"></canvas></div>
@@ -286,7 +297,7 @@
   <script src="/dash/dash.js?v=16"></script>
   <script src="/dash/alunos.js?v=3"></script>
   <script src="/dash/criativos.js?v=1"></script>
-  <script src="/dash/trafego.js?v=19"></script>
-  <script src="/dash/ab.js?v=10"></script>
+  <script src="/dash/trafego.js?v=22"></script>
+  <script src="/dash/ab.js?v=11"></script>
 </body>
 </html>

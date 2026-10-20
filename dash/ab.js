@@ -38,7 +38,7 @@ function corteFunil() {
 
 function metricasVariante(v, corte) {
   const r = { visitantes: 0, popups: 0, cadastros: 0, vis_pago: 0, pop_pago: 0, cad_pago: 0,
-    investimento: 0, impressoes: 0, cliques: 0 };
+    investimento: 0, impressoes: 0, cliques: 0, page_views: 0 };
   // totais ao vivo (todos os visitantes, inclui a hora em andamento)
   ((AB && AB.unicos) || []).forEach(([vv, , , , vis, pop]) => {
     if (vv !== v) return;
@@ -56,19 +56,20 @@ function metricasVariante(v, corte) {
     if (vv !== v || fimHora(dia, hora) > corte || !ehPagoDocis(us, um, uc)) return;
     r.vis_pago += +vis || 0; r.pop_pago += +pop || 0;
   });
-  (TRAF.horas || []).forEach(([d, h, , inv, imp, cl]) => {
+  (TRAF.horas || []).forEach(([d, h, , inv, imp, cl, lpv]) => {
     if (fimHora(d, h) > corte) return;
     const x = fracHora(d, h, v);
     if (!x) return;
-    r.investimento += (+inv || 0) * x; r.impressoes += (+imp || 0) * x; r.cliques += (+cl || 0) * x;
+    r.investimento += (+inv || 0) * x; r.impressoes += (+imp || 0) * x; r.cliques += (+cl || 0) * x; r.page_views += (+lpv || 0) * x;
   });
   const div = (a, b) => (b ? a / b : null);
   Object.assign(r, {
     conv: div(r.cadastros, r.visitantes),
-    ctr: div(r.cliques, r.impressoes), tx_visita: div(r.vis_pago, r.cliques), tx_popup: div(r.pop_pago, r.vis_pago),
-    conv_popup: div(r.cad_pago, r.pop_pago), conv_pago: div(r.cad_pago, r.vis_pago),
+    // mesmas definições da aba Tráfego: CTR, carregamento (page views ÷ cliques), conversão da página (cadastros ÷ page views)
+    ctr: div(r.cliques, r.impressoes), tx_lp: div(r.page_views, r.cliques), tx_popup: div(r.pop_pago, r.page_views),
+    conv_popup: div(r.cad_pago, r.pop_pago), conv_lp: div(r.cad_pago, r.page_views),
     cpm: r.impressoes ? r.investimento / r.impressoes * 1000 : null, cpc: div(r.investimento, r.cliques),
-    cpv: div(r.investimento, r.vis_pago), cpl: div(r.investimento, r.cad_pago)
+    cpv: div(r.investimento, r.page_views), cpl: div(r.investimento, r.cad_pago)
   });
   return r;
 }
@@ -95,12 +96,12 @@ function renderAB() {
     ["Investimento", "investimento", rs, null, 100],
     ["Impressões", "impressoes", fmt, ["CPM", "cpm"], 88],
     ["Cliques", "cliques", fmt, ["CPC", "cpc"], 76],
-    ["Visitantes", "vis_pago", fmt, ["por visitante", "cpv"], 64],
+    ["Page views", "page_views", fmt, ["por page view", "cpv"], 64],
     ["Abriram o formulário", "pop_pago", fmt, null, 54],
     ["Cadastros", "cad_pago", n1, ["CPL", "cpl"], 44]
   ];
   // seta que CHEGA em cada etapa (índice = etapa de destino)
-  const conectores = [null, null, ["CTR", "ctr"], ["chegaram na página", "tx_visita"], ["abriram o formulário", "tx_popup"], ["cadastraram", "conv_popup"]];
+  const conectores = [null, null, ["CTR", "ctr"], ["carregamento da página", "tx_lp"], ["abriram o formulário", "tx_popup"], ["cadastraram", "conv_popup"]];
   const melhor = (k, x, menorMelhor) => {
     const a = A[k], b = B[k];
     if (a == null || b == null || a === b) return "";
@@ -122,10 +123,10 @@ function renderAB() {
       g += `<div class="abc__chave abc__chave--b" style="${sp};grid-column:7"><span><b class="${melhor(c[1], "b")}">${pc(B[c[1]])}</b>${c[0]}</span></div>`;
     }
   });
-  // seta longa visitante → cadastro, por dentro de cada lado (linha de Visitantes = 8, Cadastros = 12)
+  // seta longa page view → cadastro (conversão da página), por dentro de cada lado (linha de Visitantes = 8, Cadastros = 12)
   const longa = "grid-row:8 / 13";
-  g += `<div class="abc__chave abc__chave--longa-a" style="${longa};grid-column:4"><span><b class="${melhor("conv_pago", "a")}">${pc(A.conv_pago)}</b>visitante → cadastro</span></div>`;
-  g += `<div class="abc__chave abc__chave--longa-b" style="${longa};grid-column:5"><span><b class="${melhor("conv_pago", "b")}">${pc(B.conv_pago)}</b>visitante → cadastro</span></div>`;
+  g += `<div class="abc__chave abc__chave--longa-a" style="${longa};grid-column:4"><span><b class="${melhor("conv_lp", "a")}">${pc(A.conv_lp)}</b>conversão da página</span></div>`;
+  g += `<div class="abc__chave abc__chave--longa-b" style="${longa};grid-column:5"><span><b class="${melhor("conv_lp", "b")}">${pc(B.conv_lp)}</b>conversão da página</span></div>`;
   // CPL em destaque
   const pctMenor = A.cpl && B.cpl ? 1 - Math.min(A.cpl, B.cpl) / Math.max(A.cpl, B.cpl) : null;
   const pill = (x, R) => {
@@ -167,10 +168,10 @@ function renderAB() {
     <p class="ab-veredito ab-veredito--${veredito.cls}">${veredito.txt}</p>
     <h3 class="ab-sub">Funil de custo · ${funilVazio ? "aguardando a 1ª hora fechada" : `horas fechadas, das ${horaTxt(Date.parse(AB.inicio))} às ${horaTxt(corte)}`}</h3>
     ${funilVazio ? `<p class="t-nota">A primeira hora do teste fecha e a Meta entrega o custo uns 10 minutos depois da hora cheia. Até lá, acompanhe a conversão abaixo.</p>` : `<div class="abc" role="img" aria-label="Funil de custo e conversão das duas versões">${g}</div>`}
-    <p class="t-nota ab-nota">Funil dos anúncios das contas Docis e Felipe Russo: a Meta manda gasto, impressões e cliques hora a hora, e cada hora do teste pertence inteira a uma versão. Visitantes, formulário e cadastros são contados pela própria página. A hora em andamento só entra no funil quando fecha e a Meta entrega o custo das duas contas (por volta de 10 min depois da hora cheia).</p>
+    <p class="t-nota ab-nota">Funil dos anúncios das contas Docis e Felipe Russo. Investimento, impressões, cliques e page views vêm da Meta hora a hora (cada hora do teste pertence inteira a uma versão). "Abriram o formulário" é contado pela própria página, só de quem veio de anúncio. Cadastros = leads ligados aos anúncios. A hora em andamento só entra no funil quando fecha e a Meta entrega o custo das duas contas (por volta de 10 min depois da hora cheia).</p>
     <h3 class="ab-sub">Custo de cada etapa</h3>
-    <div class="ab-grafico"><canvas id="g-ab-custo" role="img" aria-label="Barras: CPM ÷ 10, CPC, custo por visitante e CPL das versões A e B"></canvas></div>
-    <h3 class="ab-sub">Todos os visitantes (inclui orgânico)</h3>
+    <div class="ab-grafico"><canvas id="g-ab-custo" role="img" aria-label="Barras: CPM ÷ 10, CPC, custo por page view e CPL das versões A e B"></canvas></div>
+    <h3 class="ab-sub">Todos os visitantes contados pela página (inclui orgânico) · base do resultado do teste</h3>
     <div class="tabela-wrap"><table class="tabela">
       <thead><tr><th>Versão</th><th class="n">Visitantes</th><th class="n">Abriram o formulário</th><th class="n">Cadastros</th><th class="n">Conversão</th></tr></thead>
       <tbody>
@@ -188,7 +189,7 @@ function renderAB() {
   const val = (R) => [R.cpm != null ? R.cpm / 10 : null, R.cpc, R.cpv, R.cpl];
   gAbCusto = new Chart($("#g-ab-custo"), {
     type: "bar",
-    data: { labels: ["CPM ÷ 10", "CPC", "Custo por visitante", "CPL"],
+    data: { labels: ["CPM ÷ 10", "CPC", "Custo por page view", "CPL"],
       datasets: [{ label: "A · Com e-mail", data: val(A), backgroundColor: "#2a78d6", borderRadius: 4 },
         { label: "B · Sem e-mail", data: val(B), backgroundColor: "#eb6834", borderRadius: 4 }] },
     options: { responsive: true, maintainAspectRatio: false, animation: { duration: 300 },

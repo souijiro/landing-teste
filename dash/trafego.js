@@ -301,6 +301,7 @@ function renderTrafego() {
   if (diaHora) carregarHora(diaHora); // atualiza o dia que já estava aberto
   renderCplDia(f);                     // na primeira vez, abre o último dia
   renderDiaTrafego(f);
+  renderTaxas(f);
   renderTop5(f);
   renderRanking();
 }
@@ -555,7 +556,9 @@ function renderHora(dia, linhas) {
   let ai = 0, al = 0;
   const cplHora = inv.map((v, h) => (leads[h] ? +(v / leads[h]).toFixed(2) : null));
   const cplAcum = inv.map((v, h) => { ai += v; al += leads[h]; return al ? +(ai / al).toFixed(2) : null; });
-  const ult = Math.max(...inv.map((v, h) => (v || leads[h] ? h : -1)), 0);
+  // a hora em andamento fica de fora: já tem leads, mas o custo dela ainda não chegou da Meta
+  const limite = dia === hojeSP() ? Math.floor(minutoSP(new Date()) / 60) - 1 : 23;
+  const ult = Math.min(limite, Math.max(...inv.map((v, h) => (v || leads[h] ? h : -1)), 0));
   const labels = Array.from({ length: ult + 1 }, (_, h) => `${String(h).padStart(2, "0")}h`);
   const ds = [
     { label: "CPL da hora", data: cplHora.slice(0, ult + 1), borderColor: "#eb6834", backgroundColor: "#eb6834", borderWidth: 2, pointRadius: 3, spanGaps: true, tension: .2 },
@@ -643,4 +646,74 @@ function renderAnalise() {
   document.querySelectorAll("[data-copiar]").forEach((b) => b.addEventListener("click", async () => {
     try { await navigator.clipboard.writeText(document.getElementById(b.dataset.copiar).textContent); b.textContent = "Copiado ✓"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); } catch (e) {}
   }));
+}
+
+// ---------- Taxas por dia e hora a hora: CTR, carregamento da página e conversão da página ----------
+// mesmas definições do funil: CTR = cliques ÷ impressões · carregamento = page views ÷ cliques · conversão = leads ÷ page views
+let gTaxasDia = null, gTaxasHora = null;
+const COR_TAXAS = { ctr: "#2a78d6", tx_lp: "#eb6834", conv_lp: "#1a8f4c" };
+function opcoesTaxas() {
+  const o = opcoesGrafico({ legenda: true });
+  o.scales.y.ticks.callback = (v) => v + "%";
+  o.scales.y.ticks.precision = undefined;
+  o.scales.y.title = { display: false };
+  o.scales.y2 = { position: "right", beginAtZero: true, grid: { display: false }, border: { display: false }, ticks: { color: COR_TAXAS.ctr, font: { family: "Montserrat", size: 11 }, callback: (v) => v + "%" } };
+  o.plugins.tooltip.callbacks.label = (c) => ` ${c.dataset.label}: ${c.parsed.y == null ? "—" : c.parsed.y.toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "%"}`;
+  o.plugins.tooltip.callbacks.afterBody = (items) => { const x = items[0].chart.$base && items[0].chart.$base[items[0].dataIndex]; return x ? `Impressões ${fmt(x.impressoes)} · cliques ${fmt(x.cliques)} · page views ${fmt(x.page_views)} · leads ${num1(x.leads)}` : ""; };
+  return o;
+}
+function seriesTaxas(lista) {
+  const pc = (a, b) => (b ? +(a / b * 100).toFixed(2) : null);
+  return [
+    { label: "Carregamento da página", data: lista.map((r) => pc(r.page_views, r.cliques)), borderColor: COR_TAXAS.tx_lp, backgroundColor: COR_TAXAS.tx_lp, yAxisID: "y", tension: .25, borderWidth: 2, pointRadius: 2, spanGaps: true },
+    { label: "Conversão da página", data: lista.map((r) => pc(r.leads, r.page_views)), borderColor: COR_TAXAS.conv_lp, backgroundColor: COR_TAXAS.conv_lp, yAxisID: "y", tension: .25, borderWidth: 2, pointRadius: 2, spanGaps: true },
+    { label: "CTR", data: lista.map((r) => pc(r.cliques, r.impressoes)), borderColor: COR_TAXAS.ctr, backgroundColor: COR_TAXAS.ctr, yAxisID: "y2", tension: .25, borderWidth: 2, pointRadius: 2, borderDash: [5, 4], spanGaps: true }
+  ];
+}
+function desenharTaxas(atual, canvas, labels, lista) {
+  if (atual) { atual.data.labels = labels; seriesTaxas(lista).forEach((d, i) => { atual.data.datasets[i].data = d.data; }); atual.$base = lista; atual.update(); return atual; }
+  const g = new Chart(canvas, { type: "line", data: { labels, datasets: seriesTaxas(lista) }, options: opcoesTaxas() });
+  g.$base = lista;
+  return g;
+}
+function renderTaxas(f) {
+  const vazioT = () => ({ impressoes: 0, cliques: 0, page_views: 0, leads: 0 });
+  // por dia
+  const porDia = new Map();
+  const gd = (d) => { if (!porDia.has(d)) porDia.set(d, vazioT()); return porDia.get(d); };
+  VIS.insights.forEach((i) => {
+    if (!adPassa(ADS.get(i.ad_id), f) || !diaPassa(i.dia, f)) return;
+    const r = gd(i.dia); r.impressoes += i.impressoes; r.cliques += i.cliques; r.page_views += i.page_views;
+  });
+  VIS.unicos.forEach((l) => {
+    if (!diaPassa(l.dia, f)) return;
+    const at = ATRIB.get(l.id); if (!at) return;
+    at.forEach(({ ad_id, peso }) => { if (adPassa(ADS.get(ad_id), f)) gd(l.dia).leads += peso; });
+  });
+  const dias = [...porDia.keys()].filter((d) => porDia.get(d).impressoes > 0).sort();
+  gTaxasDia = desenharTaxas(gTaxasDia, $("#g-taxas-dia"), dias.map((d) => dataBR(d).slice(0, 5)), dias.map((d) => porDia.get(d)));
+
+  // hora a hora do dia escolhido
+  const sel = $("#tx-dia");
+  const diasHora = [...new Set(VIS.horas.map((r) => r[0]))].filter((d) => diaPassa(d, f)).sort().reverse();
+  const atual = sel.value;
+  sel.innerHTML = diasHora.map((d) => `<option value="${d}">${dataBR(d)}${d === hojeSP() ? " (hoje)" : ""}</option>`).join("");
+  if (diasHora.includes(atual)) sel.value = atual;
+  if (!sel.dataset.ligado) { sel.dataset.ligado = "1"; sel.addEventListener("change", () => renderTaxas(estadoFiltros())); }
+  const dia = sel.value;
+  const horas = Array.from({ length: 24 }, vazioT);
+  VIS.horas.forEach(([d, h, ad_id, , imp, cl, lpv]) => {
+    if (d !== dia || !adPassa(ADS.get(ad_id), f)) return;
+    horas[h].impressoes += +imp || 0; horas[h].cliques += +cl || 0; horas[h].page_views += +lpv || 0;
+  });
+  VIS.unicos.forEach((l) => {
+    if (l.dia !== dia) return;
+    const at = ATRIB.get(l.id); if (!at) return;
+    const h = parseInt(horaLead.format(new Date(l.criado_em)), 10);
+    at.forEach(({ ad_id, peso }) => { if (adPassa(ADS.get(ad_id), f)) horas[h].leads += peso; });
+  });
+  // a hora em andamento fica de fora (a Meta ainda não entregou os números dela)
+  const limite = dia === hojeSP() ? Math.floor(minutoSP(new Date()) / 60) - 1 : 23;
+  const ult = Math.min(limite, Math.max(0, ...horas.map((r, h) => (r.impressoes || r.leads ? h : 0))));
+  gTaxasHora = desenharTaxas(gTaxasHora, $("#g-taxas-hora"), horas.slice(0, ult + 1).map((_, h) => `${String(h).padStart(2, "0")}h`), horas.slice(0, ult + 1));
 }
