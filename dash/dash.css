@@ -481,3 +481,12 @@ td:first-child .delta { display: inline; margin-left: 4px; }
 .ctr-fmt__chip { display: inline-flex; align-items: baseline; gap: 5px; padding: 5px 10px; border-radius: 999px; background: color-mix(in srgb, var(--cor) 12%, #fff); border: 1.5px solid var(--cor); font-size: .8rem; font-weight: 700; }
 .ctr-fmt__chip b { font-size: .95rem; }
 .ctr-fmt__chip small { color: var(--texto-3); font-weight: 600; }
+
+/* filtro global de conta (no topo, vale para o dash todo) */
+.conta-global { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.conta-global span { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #a8a29e; margin-right: 2px; }
+.conta-global button { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 999px; border: 1px solid rgba(255,255,255,.25); background: transparent; color: #fff; font: 700 .78rem Montserrat, sans-serif; cursor: pointer; }
+.conta-global button img { height: 18px; width: auto; }
+.conta-global button.ativo { background: #ffee00; color: #111; border-color: #ffee00; }
+.conta-aviso { margin: 0; padding: 8px 16px; background: #fdf3cf; color: #6b4e00; font-size: .82rem; text-align: center; }
+.conta-aviso button { border: 0; background: none; color: #6b4e00; font: 800 .82rem Montserrat, sans-serif; text-decoration: underline; cursor: pointer; }

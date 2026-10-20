@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/dash/dash.css?v=29">
+  <link rel="stylesheet" href="/dash/dash.css?v=30">
 </head>
 <body>
 
@@ -49,12 +49,19 @@
         <button role="tab" class="aba" data-aba="ab" aria-selected="false">Teste A/B</button>
         <button role="tab" class="aba" data-aba="leads" aria-selected="false">Leads</button>
       </nav>
+      <div class="conta-global" id="conta-global" role="group" aria-label="Conta de anúncio (vale para o dash todo)">
+        <span>Conta</span>
+        <button type="button" data-conta="todas" class="ativo">Ambas</button>
+        <button type="button" data-conta="Docis"><img src="/black2026/img/cabeca-cilaine.webp" alt="">Docis</button>
+        <button type="button" data-conta="Felipe Russo"><img src="/black2026/img/cabeca-felipe.webp" alt="">Felipe</button>
+      </div>
       <div class="topo__acoes">
         <button class="btn-sec" id="recarregar" title="Atualizar agora">↻ Atualizar</button>
         <button class="btn-sec" id="sair">Sair</button>
       </div>
     </header>
 
+    <p class="conta-aviso" id="conta-aviso" hidden></p>
     <div class="instalar" id="instalar" hidden>
       <p>📲 <strong>Instale como app:</strong> toque em <span class="instalar__icone" aria-label="Compartilhar">⬆︎</span> Compartilhar e depois em <strong>Adicionar à Tela de Início</strong>.</p>
       <button class="instalar__fechar" id="instalar-fechar" aria-label="Fechar">×</button>
@@ -321,7 +328,7 @@
   <img class="previa-hover" id="previa-hover" alt="" hidden>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-  <script src="/dash/dash.js?v=20"></script>
+  <script src="/dash/dash.js?v=21"></script>
   <script src="/dash/alunos.js?v=3"></script>
   <script src="/dash/criativos.js?v=1"></script>
   <script src="/dash/trafego.js?v=29"></script>

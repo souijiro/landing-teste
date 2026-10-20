@@ -115,6 +115,7 @@ async function carregar() {
     AB = ab;
     preparar(linhas || []);
     if (traf) { prepararTrafego(traf); TRAF.horas = horas || []; registrarConjuntosHora(); }
+    guardarBase(); aplicarContaGlobal();
     renderPainel();
     montarFiltros();
     renderLeads();
@@ -134,6 +135,58 @@ async function carregar() {
   }
 }
 $("#recarregar").addEventListener("click", carregar);
+
+// ---------- Filtro global de conta (Ambas / Docis / Felipe Russo) ----------
+// Vale para o dash inteiro: o que não for da conta escolhida sai de LEADS/UNICOS e dos dados de tráfego.
+// Conta do lead: a do anúncio a que ele foi ligado; sem anúncio, pela UTM (blf26_felipe) ou pelo domínio da página.
+let CONTA_SEL = "todas";
+try { CONTA_SEL = localStorage.getItem("dash_conta") || "todas"; } catch (e) {}
+const BASE = { leads: [], unicos: [], ads: [], insights: [], horas: [] };
+function contaDoLead(l) {
+  const at = typeof ATRIB !== "undefined" ? ATRIB.get(l.id) : null;
+  if (at && at.length && typeof ADS !== "undefined") { const a = ADS.get(at[0].ad_id); if (a && a.conta) return a.conta; }
+  if (/felipe/i.test(l.utm_campaign || "")) return "Felipe Russo";
+  if (/confeitaria5estrelas/i.test(l.pagina_origem || "")) return "Felipe Russo";
+  return "Docis";
+}
+function guardarBase() {
+  BASE.leads = LEADS; BASE.unicos = UNICOS;
+  if (typeof TRAF !== "undefined") { BASE.ads = TRAF.ads; BASE.insights = TRAF.insights; BASE.horas = TRAF.horas || []; }
+  BASE.leads.forEach((l) => { l.conta = contaDoLead(l); });
+}
+const contaOk = (c) => CONTA_SEL === "todas" || (c || "Docis") === CONTA_SEL;
+function aplicarContaGlobal() {
+  LEADS = BASE.leads.filter((l) => contaOk(l.conta));
+  UNICOS = BASE.unicos.filter((l) => contaOk(l.conta));
+  if (typeof TRAF !== "undefined") {
+    const contaAd = (id) => (typeof ADS !== "undefined" && ADS.get(id) ? ADS.get(id).conta : "Docis");
+    TRAF.ads = BASE.ads.filter((a) => contaOk(a.conta));
+    TRAF.insights = BASE.insights.filter((i) => contaOk(contaAd(i.ad_id)));
+    TRAF.horas = BASE.horas.filter((r) => contaOk(contaAd(r[2])));
+  }
+  document.querySelectorAll("#conta-global button").forEach((b) => b.classList.toggle("ativo", b.dataset.conta === CONTA_SEL));
+  const aviso = $("#conta-aviso");
+  if (aviso) { aviso.hidden = CONTA_SEL === "todas"; aviso.innerHTML = CONTA_SEL === "todas" ? "" : `Mostrando só a conta <b>${CONTA_SEL}</b> em todas as abas (exceto Teste A/B, Alunos e Grupos) · <button type="button" id="conta-limpar">ver as duas</button>`; }
+  const limpar = $("#conta-limpar"); if (limpar) limpar.addEventListener("click", () => trocarConta("todas"));
+}
+// roda uma função com os dados das duas contas (o Teste A/B compara versões, não contas)
+function comBase(fn) {
+  const salvo = { leads: LEADS, unicos: UNICOS, ads: TRAF.ads, insights: TRAF.insights, horas: TRAF.horas };
+  LEADS = BASE.leads; UNICOS = BASE.unicos; TRAF.ads = BASE.ads; TRAF.insights = BASE.insights; TRAF.horas = BASE.horas;
+  try { return fn(); } finally { LEADS = salvo.leads; UNICOS = salvo.unicos; TRAF.ads = salvo.ads; TRAF.insights = salvo.insights; TRAF.horas = salvo.horas; }
+}
+function trocarConta(c) {
+  CONTA_SEL = c;
+  try { localStorage.setItem("dash_conta", c); } catch (e) {}
+  aplicarContaGlobal();
+  renderPainel(); montarFiltros(); renderLeads();
+  if (TRAF.ads.length || BASE.ads.length) { montarFiltrosTrafego(); renderTrafego(); }
+}
+document.querySelectorAll("#conta-global button").forEach((b) => b.addEventListener("click", () => trocarConta(b.dataset.conta)));
+addEventListener("load", () => {
+  // o Teste A/B sempre usa as duas contas
+  if (typeof renderAB === "function" && !renderAB.$base) { const orig = renderAB; window.renderAB = () => comBase(orig); window.renderAB.$base = true; }
+});
 
 // ---------- Abas ----------
 document.querySelectorAll(".aba").forEach((b) => b.addEventListener("click", () => {
