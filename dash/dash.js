@@ -110,7 +110,7 @@ async function carregar() {
       rpc("dash_leads_black2026", { p_token: token }),
       rpc("dash_trafego_black2026", { p_token: token }).catch((e) => { if (e.code === "28000") throw e; return null; }),
       rpc("dash_trafego_horas_black2026", { p_token: token }).catch(() => null),
-      rpc("dash_ab_black2026", { p_token: token }).catch(() => null)
+      rpc("dash_ab_black2026", typeof periodoAB === "function" ? periodoAB() : { p_token: token }).catch(() => null)
     ]);
     AB = ab;
     preparar(linhas || []);

@@ -130,19 +130,26 @@ let VIS = { insights: [], horas: [], unicos: [] };
 const AB_NOMES = { com_email: "Com e-mail", sem_email: "Sem e-mail" };
 function abInicioDia() { return AB && AB.inicio ? diaSP.format(new Date(AB.inicio)) : null; }
 const noTeste = (l) => !!versaoEm(Date.parse(l.criado_em));
-// Teste 2: 20/10 inteiro sem e-mail, 21/10 inteiro com e-mail (fora da janela do teste: null)
-const AB_DIAS = [
-  { ini: Date.parse("2026-10-20T00:00:00-03:00"), fim: Date.parse("2026-10-21T00:00:00-03:00"), v: "sem_email" },
-  { ini: Date.parse("2026-10-21T00:00:00-03:00"), fim: Date.parse("2026-10-22T00:00:00-03:00"), v: "com_email" }
+// Testes A/B (o mais recente primeiro). Cada um tem a janela e a regra de qual versão estava no ar em cada instante.
+const TESTES_AB = [
+  { id: 2, nome: "Teste 2 · Dia sem e-mail × dia com e-mail",
+    desc: "20/10 o dia todo SEM e-mail · 21/10 o dia todo COM e-mail, com a mesma copy nova nos dois dias",
+    ini: Date.parse("2026-10-20T00:00:00-03:00"), fim: Date.parse("2026-10-22T00:00:00-03:00"),
+    versao: (ms) => (ms < Date.parse("2026-10-21T00:00:00-03:00") ? "sem_email" : "com_email") },
+  { id: 1, nome: "Teste 1 · E-mail no formulário, trocando a cada hora",
+    desc: "19/10 das 13h às 23h: a versão mudava a cada hora cheia (13h sem e-mail, 14h com, 15h sem…), copy antiga",
+    ini: Date.parse("2026-10-19T13:00:00-03:00"), fim: Date.parse("2026-10-19T23:00:00-03:00"),
+    versao: (ms) => (Math.floor((ms - Date.parse("2026-10-19T13:00:00-03:00")) / 3600000) % 2 === 0 ? "sem_email" : "com_email") }
 ];
+let TESTE_AB = TESTES_AB[0];
 function versaoEm(ms) {
-  const p = AB_DIAS.find((x) => ms >= x.ini && ms < x.fim);
-  return p ? p.v : null;
+  const t = TESTE_AB;
+  return ms >= t.ini && ms < t.fim ? t.versao(ms) : null;
 }
 // fração do gasto da hora (dia, hora em Brasília) que pertence à versão v
 const _frac = new Map();
 function fracHora(dia, hora, v) {
-  const k = `${dia}|${hora}|${v}`;
+  const k = `${TESTE_AB.id}|${dia}|${hora}|${v}`;
   if (_frac.has(k)) return _frac.get(k);
   const ini = Date.parse(`${dia}T${String(hora).padStart(2, "0")}:00:00-03:00`), agora = Date.now();
   let dentro = 0, daV = 0;

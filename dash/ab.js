@@ -1,7 +1,7 @@
 // Aba "Teste A/B". Teste 1: formulário com e-mail x só nome e telefone, alternando a cada 10 minutos.
 // Usa AB, noTeste, versaoEm, fracHora, ATRIB, ADS, TRAF, CONTA_DOCIS (trafego.js) e UNICOS, fmt, brl, esc, dataBR, horaSP, tipoOrigem, $ (dash.js).
 
-const AB_TESTE1 = { nome: "Teste 2 · Dia sem e-mail × dia com e-mail", a: "com_email", b: "sem_email" };
+const AB_TESTE1 = { a: "com_email", b: "sem_email" };
 let gAbCusto = null;
 
 // teste de duas proporções (bicaudal): confiança de que a diferença é real (0 a 1)
@@ -15,12 +15,26 @@ function confiancaDiferenca(x1, n1, x2, n2) {
   return 1 - 2 * cauda;
 }
 
+// qual versão está no ar agora no teste escolhido e até quando
 function versaoAgora() {
-  const agora = Date.now(), p = AB_DIAS.find((x) => agora >= x.ini && agora < x.fim);
-  if (p) return { v: p.v, ate: new Date(p.fim) };
-  if (agora < AB_DIAS[0].ini) return { v: "com_email", ate: new Date(AB_DIAS[0].ini), antes: true };
-  return { v: "com_email", fim: true };
+  const t = TESTE_AB, agora = Date.now();
+  if (agora < t.ini) return { v: "com_email", ate: new Date(t.ini), antes: true };
+  if (agora >= t.fim) return { fim: true };
+  const v = versaoEm(agora);
+  let ate = agora - (agora % 60000) + 60000;
+  while (ate < t.fim && versaoEm(ate) === v) ate += 60000;
+  return { v, ate: new Date(Math.min(ate, t.fim)) };
 }
+
+// troca o teste exibido: recarrega visitas/aberturas do período dele
+async function escolherTeste(id) {
+  TESTE_AB = TESTES_AB.find((t) => t.id === +id) || TESTES_AB[0];
+  $("#ab-conteudo").innerHTML = `<p class="t-nota">Carregando…</p>`;
+  try { AB = await rpc("dash_ab_black2026", periodoAB()); } catch (e) { AB = null; }
+  renderAB();
+  if (typeof renderTrafego === "function" && TRAF.ads.length) renderTrafego();
+}
+const periodoAB = () => ({ p_token: lerToken(), p_ini: new Date(TESTE_AB.ini).toISOString(), p_fim: new Date(TESTE_AB.fim).toISOString() });
 
 // visitantes vindos dos anúncios (Docis e Felipe, as duas contas têm gasto por hora)
 const ehPagoDocis = (us, um, uc) => tipoOrigem({ utm_source: us, utm_medium: um, utm_campaign: uc }) === "Tráfego";
@@ -144,6 +158,9 @@ function renderAB() {
     const ganhaB = B.conv > A.conv;
     veredito = { cls: "vence", txt: `<b>${ganhaB ? "Sem e-mail" : "Com e-mail"} converte mais</b>: ${pc(ganhaB ? B.conv : A.conv)} contra ${pc(ganhaB ? A.conv : B.conv)}, com ${pc(conf)} de confiança.${ganhaB ? " Lembre que sem e-mail você perde o canal de e-mail com esses leads." : ""}` };
   } else veredito = { cls: "empate", txt: `Até agora sem diferença confiável na conversão (${pc(A.conv)} com e-mail × ${pc(B.conv)} sem e-mail; confiança ${conf == null ? "—" : pc(conf)}, o ideal é 95%). Continue rodando.` };
+  if (Date.now() >= TESTE_AB.fim) {
+    veredito.txt = "<b>Resultado final:</b> " + veredito.txt.replace("Até agora sem", "sem").replace(" Continue rodando.", "").replace("Espere pelo menos 200 visitantes e 20 cadastros em cada lado antes de decidir.", "Dados insuficientes para decidir.");
+  }
 
   // ---------- por dia ----------
   const dias = new Map();
@@ -160,14 +177,15 @@ function renderAB() {
   const agora = versaoAgora();
   alvo.innerHTML = `
     <div class="ab-cabeca">
-      <div><p class="rotulo">Em andamento</p><h3>${AB_TESTE1.nome}</h3>
-        <p class="t-nota">20/10 o dia todo SEM e-mail · 21/10 o dia todo COM e-mail, com a mesma copy nova nos dois dias</p>
-        ${agora ? (agora.fim ? `<p class="ab-agora">Teste encerrado · a página voltou a pedir o e-mail</p>` : `<p class="ab-agora">${agora.antes ? "Antes do teste, no ar:" : "No ar agora:"} <b class="ab-agora--${agora.v}">${agora.v === "sem_email" ? "B · Sem e-mail" : "A · Com e-mail"}</b> até ${horaSP.format(agora.ate)}${agora.antes ? " (aí começa o dia SEM e-mail)" : ""}</p>`) : ""}</div>
+      <div><label class="ab-escolha">Ver <select id="ab-teste" aria-label="Teste exibido">${TESTES_AB.map((t) => `<option value="${t.id}"${t.id === TESTE_AB.id ? " selected" : ""}>${t.nome}${t === TESTES_AB[0] ? " (atual)" : ""}</option>`).join("")}</select></label>
+        <p class="rotulo">${agora && agora.fim ? "Encerrado" : agora && agora.antes ? "Começa em breve" : "Em andamento"}</p><h3>${TESTE_AB.nome}</h3>
+        <p class="t-nota">${TESTE_AB.desc}</p>
+        ${agora ? (agora.fim ? `<p class="ab-agora">Teste encerrado</p>` : `<p class="ab-agora">${agora.antes ? "Antes do teste, no ar:" : "No ar agora:"} <b class="ab-agora--${agora.v}">${agora.v === "sem_email" ? "B · Sem e-mail" : "A · Com e-mail"}</b> até ${horaSP.format(agora.ate)}${agora.antes ? " (aí começa o teste)" : ""}</p>`) : ""}</div>
       <div class="ab-versoes"><span class="ab-tag ab-tag--a">A · Com e-mail<small>nome, e-mail e WhatsApp</small></span><span class="ab-tag ab-tag--b">B · Sem e-mail<small>só nome e WhatsApp</small></span></div>
     </div>
     <p class="ab-veredito ab-veredito--${veredito.cls}">${veredito.txt}</p>
     <h3 class="ab-sub">Funil de custo · ${funilVazio ? "aguardando a 1ª hora fechada" : `horas fechadas, de ${horaTxt(Date.parse(AB.inicio))} a ${horaTxt(corteFim)}`}</h3>
-    ${funilVazio ? `<p class="t-nota">O teste começa em 20/10 à 0h. A primeira hora fecha e a Meta entrega o custo uns 10 minutos depois da hora cheia. Até lá, acompanhe a conversão abaixo.</p>` : `<div class="abc" role="img" aria-label="Funil de custo e conversão das duas versões">${g}</div>`}
+    ${funilVazio ? `<p class="t-nota">O teste começa em ${horaTxt(TESTE_AB.ini)}. A primeira hora fecha e a Meta entrega o custo uns 10 minutos depois da hora cheia. Até lá, acompanhe a conversão abaixo.</p>` : `<div class="abc" role="img" aria-label="Funil de custo e conversão das duas versões">${g}</div>`}
     <p class="t-nota ab-nota">Funil dos anúncios das contas Docis e Felipe Russo. Investimento, impressões, cliques e page views vêm da Meta hora a hora (cada dia do teste pertence inteiro a uma versão). "Abriram o formulário" é contado pela própria página, só de quem veio de anúncio. Cadastros = leads ligados aos anúncios. A hora em andamento só entra no funil quando fecha e a Meta entrega o custo das duas contas (por volta de 10 min depois da hora cheia).</p>
     <h3 class="ab-sub">Custo de cada etapa</h3>
     <div class="ab-grafico"><canvas id="g-ab-custo" role="img" aria-label="Barras: CPM ÷ 10, CPC, custo por page view e CPL das versões A e B"></canvas></div>
@@ -183,6 +201,8 @@ function renderAB() {
       <thead><tr><th rowspan="2">Data</th><th class="n" colspan="3">A · Com e-mail</th><th class="n" colspan="3">B · Sem e-mail</th></tr>
       <tr><th class="n">Visitantes</th><th class="n">Cadastros</th><th class="n">Conversão</th><th class="n">Visitantes</th><th class="n">Cadastros</th><th class="n">Conversão</th></tr></thead>
       <tbody>${linhasDia || '<tr><td colspan="7" class="vazio">Sem visitas ainda.</td></tr>'}</tbody></table></div>`;
+
+  $("#ab-teste").addEventListener("change", (e) => escolherTeste(e.target.value));
 
   // barras do custo por etapa
   if (gAbCusto) { gAbCusto.destroy(); gAbCusto = null; }
