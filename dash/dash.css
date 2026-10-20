@@ -470,3 +470,14 @@ td:first-child .delta { display: inline; margin-left: 4px; }
 .kpi--grupos:not([class*="nivel--"]) { color: inherit; }
 .kpi--grupos:not([class*="nivel--"]) .rotulo, .kpi--grupos:not([class*="nivel--"]) .kpi__sub { color: var(--texto-2); }
 .kpi--grupos.nivel--bom { color: #0f3d20; } .kpi--grupos.nivel--bom .rotulo, .kpi--grupos.nivel--bom .kpi__sub { color: #1d5531; }
+
+/* botões das linhas do CPL (Geral / Docis / Felipe) */
+.chips-linhas { display: flex; flex-wrap: wrap; gap: 6px; margin: -2px 0 8px; }
+.chip-linha { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px 4px 5px; border-radius: 999px; border: 1.5px solid var(--cor); background: #fff; color: var(--texto); font: 700 .75rem Montserrat, sans-serif; cursor: pointer; opacity: .45; }
+.chip-linha.ativo { opacity: 1; background: color-mix(in srgb, var(--cor) 12%, #fff); }
+.chip-linha img { height: 20px; width: auto; }
+.chip-linha i { width: 14px; height: 14px; border-radius: 50%; background: var(--cor); margin-left: 3px; }
+.ctr-fmt__resumo { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: -2px 0 6px; }
+.ctr-fmt__chip { display: inline-flex; align-items: baseline; gap: 5px; padding: 5px 10px; border-radius: 999px; background: color-mix(in srgb, var(--cor) 12%, #fff); border: 1.5px solid var(--cor); font-size: .8rem; font-weight: 700; }
+.ctr-fmt__chip b { font-size: .95rem; }
+.ctr-fmt__chip small { color: var(--texto-3); font-weight: 600; }

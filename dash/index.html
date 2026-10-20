@@ -159,6 +159,7 @@
       <section class="grade-2">
         <div class="cartao">
           <div class="cartao__topo"><h2>CPL por dia</h2><span class="t-nota">clique num dia para ver hora a hora</span></div>
+          <div class="chips-linhas" id="cpl-linhas" aria-label="Mostrar ou esconder linhas"></div>
           <div class="grafico"><canvas id="g-cpl" aria-label="CPL por dia"></canvas></div>
         </div>
         <div class="cartao">
@@ -171,6 +172,13 @@
         <div class="cartao__topo"><h2>Taxas por conta</h2><label class="t-nota">hora a hora de <select id="tx-dia" aria-label="Dia dos gráficos hora a hora"></select></label></div>
         <p class="t-nota taxas-legenda"><img src="/black2026/img/cabeca-cilaine.webp" alt=""> Docis &nbsp; <img src="/black2026/img/cabeca-felipe.webp" alt=""> Felipe Russo · hora a hora só com horas fechadas</p>
         <div class="taxas" id="taxas"></div>
+      </section>
+
+      <section class="cartao">
+        <div class="cartao__topo"><h2>CTR por anúncio · vídeo × imagem</h2><span class="t-nota">cliques no link ÷ impressões · anúncios com 1.000+ impressões no período</span></div>
+        <div class="ctr-fmt__resumo" id="ctr-fmt-resumo"></div>
+        <div class="grafico" id="ctr-fmt-wrap"><canvas id="g-ctr-fmt" aria-label="CTR de cada anúncio, colorido por formato, com a média de vídeo e de imagem"></canvas></div>
+        <button type="button" class="btn-sec" id="ctr-fmt-todos" hidden>Ver todos</button>
       </section>
 
       <section class="cartao">
@@ -316,7 +324,7 @@
   <script src="/dash/dash.js?v=20"></script>
   <script src="/dash/alunos.js?v=3"></script>
   <script src="/dash/criativos.js?v=1"></script>
-  <script src="/dash/trafego.js?v=26"></script>
+  <script src="/dash/trafego.js?v=29"></script>
   <script src="/dash/ab.js?v=14"></script>
   <script src="/dash/grupos.js?v=3"></script>
 </body>

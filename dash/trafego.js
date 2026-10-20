@@ -313,6 +313,7 @@ function renderTrafego() {
   renderCplDia(f);                     // na primeira vez, abre o último dia
   renderDiaTrafego(f);
   renderTaxas(f);
+  renderCtrFormato(f);
   renderTop5(f);
   renderRanking();
 }
@@ -521,27 +522,51 @@ function renderContas(f) {
 }
 
 // ---------- CPL por dia + hora a hora ----------
+// ---------- CPL por conta: dia a dia e hora a hora ----------
+// Geral (preto, grosso) + Docis e Felipe (finos, com a cabecinha no começo). Botões escondem/mostram cada linha.
+const LINHAS_CPL = [
+  { chave: "geral", nome: "Geral", cor: "#0b0b0b", largura: 3.5, rotulo: "Geral" },
+  { chave: "Docis", nome: "Docis", cor: "#eda100", largura: 2, cabeca: () => (typeof CABECA_CI !== "undefined" ? CABECA_CI : null) },
+  { chave: "Felipe Russo", nome: "Felipe Russo", cor: "#4a3aa7", largura: 2, cabeca: () => (typeof CABECA_FELIPE !== "undefined" ? CABECA_FELIPE : null) }
+];
+const cplVisivel = { geral: true, Docis: true, "Felipe Russo": true };
+const contaDe = (ad_id) => ADS.get(ad_id)?.conta || "Docis";
+function montarBotoesCpl() {
+  const alvo = $("#cpl-linhas"); if (!alvo || alvo.dataset.montado) return;
+  alvo.dataset.montado = "1";
+  alvo.innerHTML = LINHAS_CPL.map((l) => `<button type="button" class="chip-linha ativo" data-linha="${l.chave}" style="--cor:${l.cor}">${l.cabeca ? `<img src="${l.chave === "Docis" ? "/black2026/img/cabeca-cilaine.webp" : "/black2026/img/cabeca-felipe.webp"}" alt="">` : "<i></i>"}${l.nome}</button>`).join("");
+  alvo.querySelectorAll("button").forEach((b) => b.addEventListener("click", () => {
+    cplVisivel[b.dataset.linha] = !cplVisivel[b.dataset.linha];
+    b.classList.toggle("ativo", cplVisivel[b.dataset.linha]);
+    [gCpl, gHora].forEach((g) => { if (!g) return; g.data.datasets.forEach((d) => { if (d.$chave) d.hidden = !cplVisivel[d.$chave]; }); g.update(); });
+  }));
+}
+const dsCpl = (l, data, extra = {}) => ({ label: l.nome, data, $chave: l.chave, $cabeca: l.cabeca, $rotulo: l.rotulo, hidden: !cplVisivel[l.chave],
+  borderColor: l.cor, backgroundColor: l.cor, borderWidth: l.largura, pointRadius: l.chave === "geral" ? 3 : 2, pointHoverRadius: 6, tension: .25, spanGaps: true, ...extra });
+
 function renderCplDia(f) {
-  const porDia = new Map();
-  const g = (d) => { if (!porDia.has(d)) porDia.set(d, { inv: 0, leads: 0 }); return porDia.get(d); };
-  VIS.insights.forEach((i) => { if (adPassa(ADS.get(i.ad_id), f) && diaPassa(i.dia, f)) g(i.dia).inv += i.investimento; });
+  montarBotoesCpl();
+  const porDia = new Map(); // dia -> { geral, Docis, "Felipe Russo" } cada um { inv, leads }
+  const g = (d, c) => { if (!porDia.has(d)) porDia.set(d, { geral: { inv: 0, leads: 0 }, Docis: { inv: 0, leads: 0 }, "Felipe Russo": { inv: 0, leads: 0 } }); const r = porDia.get(d); return [r.geral, r[c] || (r[c] = { inv: 0, leads: 0 })]; };
+  VIS.insights.forEach((i) => { if (adPassa(ADS.get(i.ad_id), f) && diaPassa(i.dia, f)) g(i.dia, contaDe(i.ad_id)).forEach((x) => { x.inv += i.investimento; }); });
   VIS.unicos.forEach((l) => {
     const at = ATRIB.get(l.id); if (!at || !diaPassa(l.dia, f)) return;
-    at.forEach(({ ad_id, peso }) => { if (adPassa(ADS.get(ad_id), f)) g(l.dia).leads += peso; });
+    at.forEach(({ ad_id, peso }) => { if (adPassa(ADS.get(ad_id), f)) g(l.dia, contaDe(ad_id)).forEach((x) => { x.leads += peso; }); });
   });
   const dias = [...porDia.keys()].sort();
-  const cpl = dias.map((d) => { const r = porDia.get(d); return r.leads ? +(r.inv / r.leads).toFixed(2) : null; });
-  const labels = dias.map(dataBR);
-  if (gCpl) { gCpl.data.labels = labels; gCpl.data.datasets[0].data = cpl; gCpl.$dias = dias; gCpl.$porDia = porDia; gCpl.update(); return; }
+  const cpl = (k) => dias.map((d) => { const r = porDia.get(d)[k]; return r && r.leads && r.inv ? +(r.inv / r.leads).toFixed(2) : null; });
+  const labels = dias.map((d) => dataBR(d).slice(0, 5));
+  const datasets = LINHAS_CPL.map((l) => dsCpl(l, cpl(l.chave), l.chave === "geral" ? { pointRadius: 4 } : {}));
+  if (gCpl) { gCpl.data.labels = labels; gCpl.data.datasets = datasets; gCpl.$dias = dias; gCpl.$porDia = porDia; gCpl.update(); return; }
   const o = opcoesGrafico({});
-  o.interaction = { mode: "nearest", intersect: false, axis: "x" };
-  o.plugins.tooltip.callbacks.label = (c) => ` CPL: ${brl(c.parsed.y)}`;
-  o.plugins.tooltip.callbacks.afterLabel = (c) => { const r = gCpl.$porDia.get(gCpl.$dias[c.dataIndex]); return r ? ` Investimento: ${brl(r.inv)} · Leads: ${num1(r.leads)}` : ""; };
+  o.layout = { padding: { left: 16, top: 28, right: 6 } };
+  o.interaction = { mode: "index", intersect: false };
+  o.plugins.tooltip.callbacks.label = (c) => { const r = gCpl.$porDia.get(gCpl.$dias[c.dataIndex])?.[c.dataset.$chave]; return ` ${c.dataset.label}: ${c.parsed.y == null ? "—" : brl(c.parsed.y)}${r ? ` · ${brl(r.inv)} ÷ ${num1(r.leads)} leads` : ""}`; };
   o.plugins.tooltip.callbacks.footer = () => "Clique para ver hora a hora";
   o.scales.y.ticks.callback = (v) => brl(v);
   o.onClick = (ev, els) => { const el = els[0]; if (el) carregarHora(gCpl.$dias[el.index]); };
   o.onHover = (ev, els) => { ev.native.target.style.cursor = els.length ? "pointer" : "default"; };
-  gCpl = new Chart($("#g-cpl"), { type: "line", data: { labels, datasets: [{ label: "CPL", data: cpl, borderColor: "#2a78d6", backgroundColor: "#2a78d6", borderWidth: 2, pointRadius: 5, pointHoverRadius: 8, tension: .25, spanGaps: true }] }, options: o });
+  gCpl = new Chart($("#g-cpl"), { type: "line", data: { labels, datasets }, options: o, plugins: [pluginCabecaLinha] });
   gCpl.$dias = dias; gCpl.$porDia = porDia;
   if (!diaHora && dias.length) carregarHora(dias[dias.length - 1]);
 }
@@ -557,32 +582,37 @@ async function carregarHora(dia) {
 }
 function renderHora(dia, linhas) {
   const f = estadoFiltros();
-  const inv = Array(24).fill(0), leads = Array(24).fill(0);
-  linhas.forEach(([h, ad_id, v]) => { if (adPassa(ADS.get(ad_id), f)) inv[h] += +v || 0; });
+  const novo = () => ({ inv: Array(24).fill(0), leads: Array(24).fill(0) });
+  const por = { geral: novo(), Docis: novo(), "Felipe Russo": novo() };
+  linhas.forEach(([h, ad_id, v]) => { if (adPassa(ADS.get(ad_id), f)) { const c = contaDe(ad_id); [por.geral, por[c] || (por[c] = novo())].forEach((x) => { x.inv[h] += +v || 0; }); } });
   VIS.unicos.forEach((l) => {
     if (l.dia !== dia) return; const at = ATRIB.get(l.id); if (!at) return;
     const h = parseInt(horaLead.format(new Date(l.criado_em)), 10);
-    at.forEach(({ ad_id, peso }) => { if (adPassa(ADS.get(ad_id), f)) leads[h] += peso; });
+    at.forEach(({ ad_id, peso }) => { if (adPassa(ADS.get(ad_id), f)) { const c = contaDe(ad_id); [por.geral, por[c] || (por[c] = novo())].forEach((x) => { x.leads[h] += peso; }); } });
   });
-  let ai = 0, al = 0;
-  const cplHora = inv.map((v, h) => (leads[h] ? +(v / leads[h]).toFixed(2) : null));
-  const cplAcum = inv.map((v, h) => { ai += v; al += leads[h]; return al ? +(ai / al).toFixed(2) : null; });
   // a hora em andamento fica de fora: já tem leads, mas o custo dela ainda não chegou da Meta
   const limite = dia === hojeSP() ? Math.floor(minutoSP(new Date()) / 60) - 1 : 23;
-  const ult = Math.min(limite, Math.max(...inv.map((v, h) => (v || leads[h] ? h : -1)), 0));
+  const ult = Math.min(limite, Math.max(...por.geral.inv.map((v, h) => (v || por.geral.leads[h] ? h : -1)), 0));
+  const acum = (x) => { let ai = 0, al = 0; return x.inv.slice(0, ult + 1).map((v, h) => { ai += v; al += x.leads[h]; return al && ai ? +(ai / al).toFixed(2) : null; }); };
+  const daHora = por.geral.inv.slice(0, ult + 1).map((v, h) => (por.geral.leads[h] ? +(v / por.geral.leads[h]).toFixed(2) : null));
   const labels = Array.from({ length: ult + 1 }, (_, h) => `${String(h).padStart(2, "0")}h`);
-  const ds = [
-    { label: "CPL da hora", data: cplHora.slice(0, ult + 1), borderColor: "#eb6834", backgroundColor: "#eb6834", borderWidth: 2, pointRadius: 3, spanGaps: true, tension: .2 },
-    { label: "CPL acumulado do dia", data: cplAcum.slice(0, ult + 1), borderColor: "#0b0b0b", backgroundColor: "#0b0b0b", borderWidth: 2, pointRadius: 0, tension: .2, spanGaps: true }
+  const datasets = [
+    ...LINHAS_CPL.map((l) => dsCpl(l, acum(por[l.chave] || novo()), { pointRadius: 0, label: `${l.nome} · acumulado do dia` })),
+    { type: "bar", label: "CPL da hora (geral)", data: daHora, backgroundColor: "rgba(120,113,108,.18)", borderWidth: 0, barPercentage: .7, order: 10 }
   ];
-  $("#hora-nota").textContent = `${brl(inv.reduce((s, v) => s + v, 0))} · ${num1(leads.reduce((s, v) => s + v, 0))} leads · horário de Brasília`;
-  if (gHora) { gHora.data.labels = labels; gHora.data.datasets.forEach((d, i) => { d.data = ds[i].data; }); gHora.$inv = inv; gHora.$leads = leads; gHora.update(); return; }
-  const o = opcoesGrafico({ legenda: true });
+  const t = por.geral;
+  $("#hora-nota").textContent = `${brl(t.inv.reduce((s, v) => s + v, 0))} · ${num1(t.leads.reduce((s, v) => s + v, 0))} leads · linhas = CPL acumulado do dia · barras = CPL de cada hora`;
+  if (gHora) { gHora.data.labels = labels; gHora.data.datasets = datasets; gHora.$por = por; gHora.update(); return; }
+  const o = opcoesGrafico({});
+  o.layout = { padding: { left: 16, top: 28, right: 6 } };
   o.plugins.tooltip.callbacks.label = (c) => ` ${c.dataset.label}: ${c.parsed.y == null ? "—" : brl(c.parsed.y)}`;
-  o.plugins.tooltip.callbacks.afterBody = (items) => { const h = items[0].dataIndex; return `Investimento: ${brl(gHora.$inv[h])} · Leads: ${num1(gHora.$leads[h])}`; };
+  o.plugins.tooltip.callbacks.afterBody = (items) => {
+    const h = items[0].dataIndex, p = gHora.$por;
+    return LINHAS_CPL.filter((l) => p[l.chave]).map((l) => `${l.nome} nesta hora: ${brl(p[l.chave].inv[h])} · ${num1(p[l.chave].leads[h])} leads`).join("\n");
+  };
   o.scales.y.ticks.callback = (v) => brl(v);
-  gHora = new Chart($("#g-hora"), { type: "line", data: { labels, datasets: ds }, options: o });
-  gHora.$inv = inv; gHora.$leads = leads;
+  gHora = new Chart($("#g-hora"), { type: "line", data: { labels, datasets }, options: o, plugins: [pluginCabecaLinha] });
+  gHora.$por = por;
 }
 
 // ---------- Top 5 ----------
@@ -680,7 +710,15 @@ const pluginCabecaLinha = {
     chart.data.datasets.forEach((ds, i) => {
       const meta = chart.getDatasetMeta(i); if (meta.hidden) return;
       const idx = ds.data.findIndex((v) => v != null); if (idx < 0) return;
-      const pt = meta.data[idx]; const img = ds.$cabeca && ds.$cabeca(); if (!pt || !img || !img.complete || !img.naturalWidth) return;
+      const pt = meta.data[idx]; if (!pt) return;
+      if (ds.$rotulo) {
+        ctx.save(); ctx.font = "800 10px Montserrat, sans-serif"; const tw = ctx.measureText(ds.$rotulo).width + 10;
+        const y = pt.y - 22; // acima do ponto, para não cobrir as cabecinhas
+        ctx.fillStyle = ds.borderColor; ctx.beginPath(); ctx.roundRect(pt.x - tw / 2, y - 9, tw, 18, 9); ctx.fill();
+        ctx.fillStyle = "#fff"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(ds.$rotulo, pt.x, y + .5); ctx.restore();
+        return;
+      }
+      const img = ds.$cabeca && ds.$cabeca(); if (!img || !img.complete || !img.naturalWidth) return;
       const h = 26, w = h * img.naturalWidth / img.naturalHeight;
       ctx.save(); ctx.shadowColor = "rgba(0,0,0,.3)"; ctx.shadowBlur = 3;
       ctx.drawImage(img, pt.x - w / 2, pt.y - h / 2, w, h); ctx.restore();
@@ -768,4 +806,73 @@ function renderTaxas(f) {
     desenharTaxa(`g-tx-${tx.k}-hora`, tx, labelsHora, porContaHora);
     $(`#sub-${tx.k}-hora`).textContent = `hora a hora · ${dia ? dataBR(dia) : "—"}`;
   });
+}
+
+// ---------- CTR por anúncio: vídeo × imagem ----------
+// cada barra é um anúncio (com volume mínimo de impressões), cor pelo formato; linhas tracejadas = CTR médio de cada formato
+let gCtrFmt = null, ctrFmtTodos = false;
+const COR_FMT = { "Vídeo": "#eb6834", "Imagem": "#2a78d6" };
+const MIN_IMPRESSOES_CTR = 1000;
+const pluginMediasCtr = {
+  id: "mediasCtr",
+  afterDatasetsDraw(chart) {
+    const m = chart.$medias; if (!m) return;
+    const { ctx, chartArea: a, scales: { x } } = chart;
+    Object.entries(m).forEach(([fmt, v]) => {
+      if (v == null) return;
+      const px = x.getPixelForValue(v);
+      ctx.save(); ctx.strokeStyle = COR_FMT[fmt]; ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
+      ctx.beginPath(); ctx.moveTo(px, a.top); ctx.lineTo(px, a.bottom); ctx.stroke(); ctx.setLineDash([]);
+      ctx.font = "800 10px Montserrat, sans-serif"; const txt = `média ${fmt.toLowerCase()} ${v.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}%`;
+      const tw = ctx.measureText(txt).width + 10;
+      ctx.fillStyle = COR_FMT[fmt]; ctx.beginPath(); ctx.roundRect(Math.min(px + 4, a.right - tw), fmt === "Vídeo" ? a.top + 2 : a.top + 22, tw, 17, 8); ctx.fill();
+      ctx.fillStyle = "#fff"; ctx.textBaseline = "middle"; ctx.fillText(txt, Math.min(px + 4, a.right - tw) + 5, (fmt === "Vídeo" ? a.top + 2 : a.top + 22) + 9);
+      ctx.restore();
+    });
+  }
+};
+function renderCtrFormato(f) {
+  const porAd = new Map();
+  VIS.insights.forEach((i) => {
+    const a = ADS.get(i.ad_id);
+    if (!adPassa(a, f) || !diaPassa(i.dia, f)) return;
+    const r = porAd.get(i.ad_id) || { impressoes: 0, cliques: 0 };
+    r.impressoes += i.impressoes; r.cliques += i.cliques; porAd.set(i.ad_id, r);
+  });
+  // junta anúncios com o mesmo nome e formato na mesma conta (cópias do mesmo criativo em conjuntos diferentes)
+  const porItem = new Map();
+  porAd.forEach((r, id) => {
+    const a = ADS.get(id); if (!a || !["Vídeo", "Imagem"].includes(a.formato)) return;
+    const k = `${a.conta}|${a.anuncio}`;
+    const x = porItem.get(k) || { nome: a.anuncio, conta: a.conta, formato: a.formato, impressoes: 0, cliques: 0 };
+    x.impressoes += r.impressoes; x.cliques += r.cliques; porItem.set(k, x);
+  });
+  const todosItens = [...porItem.values()].filter((x) => x.impressoes >= MIN_IMPRESSOES_CTR)
+    .map((x) => ({ ...x, ctr: x.cliques / x.impressoes * 100 })).sort((a, b) => b.ctr - a.ctr);
+  const media = (fmt) => { const l = [...porItem.values()].filter((x) => x.formato === fmt); const im = l.reduce((s, x) => s + x.impressoes, 0); return im ? l.reduce((s, x) => s + x.cliques, 0) / im * 100 : null; };
+  const medias = { "Vídeo": media("Vídeo"), "Imagem": media("Imagem") };
+  const qtd = (fmt) => todosItens.filter((x) => x.formato === fmt).length;
+  $("#ctr-fmt-resumo").innerHTML = ["Vídeo", "Imagem"].map((fmt) => `<span class="ctr-fmt__chip" style="--cor:${COR_FMT[fmt]}">${fmt === "Vídeo" ? "▶" : "▣"} ${fmt}: <b>${medias[fmt] == null ? "—" : medias[fmt].toLocaleString("pt-BR", { maximumFractionDigits: 2 }) + "%"}</b> <small>${qtd(fmt)} anúncio${qtd(fmt) === 1 ? "" : "s"}</small></span>`).join("")
+    + (medias["Vídeo"] && medias["Imagem"] ? `<span class="t-nota">${medias["Vídeo"] > medias["Imagem"] ? "vídeo" : "imagem"} com CTR ${Math.abs((medias["Vídeo"] / medias["Imagem"] - 1) * 100).toLocaleString("pt-BR", { maximumFractionDigits: 0 })}% maior</span>` : "");
+  // mostra os 20 primeiros; o botão abre a lista toda
+  const btn = $("#ctr-fmt-todos");
+  if (!btn.dataset.ligado) { btn.dataset.ligado = "1"; btn.addEventListener("click", () => { ctrFmtTodos = !ctrFmtTodos; renderCtrFormato(estadoFiltros()); }); }
+  btn.hidden = todosItens.length <= 20;
+  btn.textContent = ctrFmtTodos ? "Mostrar só os 20 primeiros" : `Ver todos (${todosItens.length})`;
+  const itens = ctrFmtTodos ? todosItens : todosItens.slice(0, 20);
+  const wrap = $("#ctr-fmt-wrap"); wrap.style.height = Math.max(160, itens.length * 26 + 50) + "px";
+  const labels = itens.map((x) => `${x.formato === "Vídeo" ? "▶" : "▣"} ${x.nome}${x.conta === "Felipe Russo" ? " · Felipe" : ""}`);
+  const data = itens.map((x) => +x.ctr.toFixed(2));
+  const cores = itens.map((x) => COR_FMT[x.formato]);
+  if (gCtrFmt) { gCtrFmt.data.labels = labels; gCtrFmt.data.datasets[0].data = data; gCtrFmt.data.datasets[0].backgroundColor = cores; gCtrFmt.$itens = itens; gCtrFmt.$medias = medias; gCtrFmt.resize(); gCtrFmt.update(); return; }
+  const o = opcoesGrafico({});
+  o.indexAxis = "y";
+  o.layout = { padding: { top: 40, right: 8 } };
+  o.interaction = { mode: "nearest", intersect: true, axis: "y" };
+  o.scales.x = { beginAtZero: true, grid: { color: "#f1ece6" }, border: { display: false }, ticks: { color: "#8a857f", font: { family: "Montserrat", size: 11 }, callback: (v) => v + "%" } };
+  o.scales.y = { grid: { display: false }, ticks: { color: "#3a3634", font: { family: "Montserrat", size: 11, weight: "600" }, autoSkip: false } };
+  o.plugins.tooltip.callbacks.title = (items) => gCtrFmt.$itens[items[0].dataIndex].nome;
+  o.plugins.tooltip.callbacks.label = (c) => { const x = gCtrFmt.$itens[c.dataIndex]; return ` CTR ${c.parsed.x.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}% · ${fmt(x.cliques)} cliques ÷ ${fmt(x.impressoes)} impressões · ${x.formato} · ${x.conta}`; };
+  gCtrFmt = new Chart($("#g-ctr-fmt"), { type: "bar", data: { labels, datasets: [{ label: "CTR", data, backgroundColor: cores, borderRadius: 4, barThickness: 16 }] }, options: o, plugins: [pluginMediasCtr] });
+  gCtrFmt.$itens = itens; gCtrFmt.$medias = medias;
 }
