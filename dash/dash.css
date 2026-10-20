@@ -428,3 +428,15 @@ body { min-height: 100dvh; }
 }
 .ab-escolha { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 10px; font-size: .78rem; font-weight: 700; color: var(--texto-2); }
 .ab-escolha select { font: 600 .82rem var(--fonte, Montserrat); padding: 6px 8px; border-radius: 8px; border: 1px solid var(--linha); background: var(--cartao); max-width: 100%; }
+
+/* Taxas por conta */
+.taxas-legenda { display: flex; align-items: center; gap: 4px; margin: -4px 0 6px; }
+.taxas-legenda img { height: 22px; width: auto; }
+.taxa { padding-top: 12px; border-top: 1px solid var(--linha); margin-top: 12px; }
+.taxa:first-child { border-top: 0; margin-top: 0; }
+.taxa h3 { margin: 0 0 6px; font-size: .95rem; font-weight: 800; }
+.taxa h3 .t-nota { font-weight: 500; margin-left: 6px; }
+.taxa__par { display: grid; gap: 12px; }
+.taxa__sub { margin: 0 0 2px; font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--texto-3); }
+.grafico--taxa { height: 210px; }
+@media (min-width: 900px) { .taxa__par { grid-template-columns: 1fr 1fr; } }

@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/dash/dash.css?v=26">
+  <link rel="stylesheet" href="/dash/dash.css?v=27">
 </head>
 <body>
 
@@ -166,15 +166,10 @@
         </div>
       </section>
 
-      <section class="grade-2">
-        <div class="cartao">
-          <div class="cartao__topo"><h2>Taxas por dia</h2><span class="t-nota">CTR no eixo da direita</span></div>
-          <div class="grafico"><canvas id="g-taxas-dia" aria-label="CTR, carregamento da página e conversão da página por dia"></canvas></div>
-        </div>
-        <div class="cartao">
-          <div class="cartao__topo"><h2>Taxas hora a hora</h2><label class="t-nota">horas fechadas · <select id="tx-dia" aria-label="Dia das taxas hora a hora"></select></label></div>
-          <div class="grafico"><canvas id="g-taxas-hora" aria-label="CTR, carregamento da página e conversão da página hora a hora"></canvas></div>
-        </div>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Taxas por conta</h2><label class="t-nota">hora a hora de <select id="tx-dia" aria-label="Dia dos gráficos hora a hora"></select></label></div>
+        <p class="t-nota taxas-legenda"><img src="/black2026/img/cabeca-cilaine.webp" alt=""> Docis &nbsp; <img src="/black2026/img/cabeca-felipe.webp" alt=""> Felipe Russo · hora a hora só com horas fechadas</p>
+        <div class="taxas" id="taxas"></div>
       </section>
 
       <section class="cartao">
@@ -297,7 +292,7 @@
   <script src="/dash/dash.js?v=18"></script>
   <script src="/dash/alunos.js?v=3"></script>
   <script src="/dash/criativos.js?v=1"></script>
-  <script src="/dash/trafego.js?v=25"></script>
+  <script src="/dash/trafego.js?v=26"></script>
   <script src="/dash/ab.js?v=14"></script>
 </body>
 </html>

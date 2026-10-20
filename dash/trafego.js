@@ -659,52 +659,85 @@ function renderAnalise() {
   }));
 }
 
-// ---------- Taxas por dia e hora a hora: CTR, carregamento da página e conversão da página ----------
-// mesmas definições do funil: CTR = cliques ÷ impressões · carregamento = page views ÷ cliques · conversão = leads ÷ page views
-let gTaxasDia = null, gTaxasHora = null;
-const COR_TAXAS = { ctr: "#2a78d6", tx_lp: "#eb6834", conv_lp: "#1a8f4c" };
-function opcoesTaxas() {
-  const o = opcoesGrafico({ legenda: true });
-  o.scales.y.ticks.callback = (v) => v + "%";
+// ---------- Taxas por conta, por dia e hora a hora: CTR, carregamento da página e conversão da página ----------
+// um gráfico por indicador; em cada um, a linha da Docis e a do Felipe, com a cabecinha no começo da linha.
+// CTR = cliques ÷ impressões · carregamento = page views ÷ cliques · conversão = leads ÷ page views
+const TAXAS = [
+  { k: "ctr", nome: "CTR", dica: "cliques ÷ impressões", num: "cliques", den: "impressoes" },
+  { k: "tx_lp", nome: "Carregamento da página", dica: "page views ÷ cliques", num: "page_views", den: "cliques" },
+  { k: "conv_lp", nome: "Conversão da página", dica: "leads ÷ page views", num: "leads", den: "page_views" }
+];
+const CONTAS_TX = [
+  { nome: "Docis", cor: "#eda100", cabeca: () => (typeof CABECA_CI !== "undefined" ? CABECA_CI : null) },
+  { nome: "Felipe Russo", cor: "#4a3aa7", cabeca: () => (typeof CABECA_FELIPE !== "undefined" ? CABECA_FELIPE : null) }
+];
+const gTaxas = {};
+// desenha a cabecinha da conta no primeiro ponto com valor de cada linha
+const pluginCabecaLinha = {
+  id: "cabecaLinha",
+  afterDatasetsDraw(chart) {
+    const ctx = chart.ctx;
+    chart.data.datasets.forEach((ds, i) => {
+      const meta = chart.getDatasetMeta(i); if (meta.hidden) return;
+      const idx = ds.data.findIndex((v) => v != null); if (idx < 0) return;
+      const pt = meta.data[idx]; const img = ds.$cabeca && ds.$cabeca(); if (!pt || !img || !img.complete || !img.naturalWidth) return;
+      const h = 26, w = h * img.naturalWidth / img.naturalHeight;
+      ctx.save(); ctx.shadowColor = "rgba(0,0,0,.3)"; ctx.shadowBlur = 3;
+      ctx.drawImage(img, pt.x - w / 2, pt.y - h / 2, w, h); ctx.restore();
+    });
+  }
+};
+function opcoesTaxa(tx) {
+  const o = opcoesGrafico({ legenda: false });
+  o.layout = { padding: { left: 14, right: 8, top: 14 } };
   o.scales.y.ticks.precision = undefined;
-  o.scales.y.title = { display: false };
-  o.scales.y2 = { position: "right", beginAtZero: true, grid: { display: false }, border: { display: false }, ticks: { color: COR_TAXAS.ctr, font: { family: "Montserrat", size: 11 }, callback: (v) => v + "%" } };
-  o.plugins.tooltip.callbacks.label = (c) => ` ${c.dataset.label}: ${c.parsed.y == null ? "—" : c.parsed.y.toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "%"}`;
-  o.plugins.tooltip.callbacks.afterBody = (items) => { const x = items[0].chart.$base && items[0].chart.$base[items[0].dataIndex]; return x ? `Impressões ${fmt(x.impressoes)} · cliques ${fmt(x.cliques)} · page views ${fmt(x.page_views)} · leads ${num1(x.leads)}` : ""; };
+  o.scales.y.ticks.callback = (v) => v.toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "%";
+  o.plugins.tooltip.callbacks.label = (c) => ` ${c.dataset.label}: ${c.parsed.y == null ? "—" : c.parsed.y.toLocaleString("pt-BR", { maximumFractionDigits: 2 }) + "%"}`;
+  o.plugins.tooltip.callbacks.afterLabel = (c) => { const b = c.dataset.$base && c.dataset.$base[c.dataIndex]; return b ? `   ${fmt(b[tx.num])} ÷ ${fmt(b[tx.den])}` : ""; };
   return o;
 }
-function seriesTaxas(lista) {
+function desenharTaxa(id, tx, labels, porConta) {
   const pc = (a, b) => (b ? +(a / b * 100).toFixed(2) : null);
-  return [
-    { label: "Carregamento da página", data: lista.map((r) => pc(r.page_views, r.cliques)), borderColor: COR_TAXAS.tx_lp, backgroundColor: COR_TAXAS.tx_lp, yAxisID: "y", tension: .25, borderWidth: 2, pointRadius: 2, spanGaps: true },
-    { label: "Conversão da página", data: lista.map((r) => pc(r.leads, r.page_views)), borderColor: COR_TAXAS.conv_lp, backgroundColor: COR_TAXAS.conv_lp, yAxisID: "y", tension: .25, borderWidth: 2, pointRadius: 2, spanGaps: true },
-    { label: "CTR", data: lista.map((r) => pc(r.cliques, r.impressoes)), borderColor: COR_TAXAS.ctr, backgroundColor: COR_TAXAS.ctr, yAxisID: "y2", tension: .25, borderWidth: 2, pointRadius: 2, borderDash: [5, 4], spanGaps: true }
-  ];
-}
-function desenharTaxas(atual, canvas, labels, lista) {
-  if (atual) { atual.data.labels = labels; seriesTaxas(lista).forEach((d, i) => { atual.data.datasets[i].data = d.data; }); atual.$base = lista; atual.update(); return atual; }
-  const g = new Chart(canvas, { type: "line", data: { labels, datasets: seriesTaxas(lista) }, options: opcoesTaxas() });
-  g.$base = lista;
-  return g;
+  const datasets = CONTAS_TX.filter((c) => porConta.has(c.nome)).map((c) => {
+    const lista = porConta.get(c.nome);
+    return { label: c.nome, data: lista.map((r) => pc(r[tx.num], r[tx.den])), borderColor: c.cor, backgroundColor: c.cor, tension: .25, borderWidth: 2.5, pointRadius: 2, spanGaps: true, $base: lista, $cabeca: c.cabeca };
+  });
+  if (gTaxas[id]) { gTaxas[id].data.labels = labels; gTaxas[id].data.datasets = datasets; gTaxas[id].update(); return; }
+  gTaxas[id] = new Chart($("#" + id), { type: "line", data: { labels, datasets }, options: opcoesTaxa(tx), plugins: [pluginCabecaLinha] });
 }
 function renderTaxas(f) {
+  const alvo = $("#taxas");
+  if (!alvo.dataset.montado) {
+    alvo.dataset.montado = "1";
+    alvo.innerHTML = TAXAS.map((tx) => `
+      <div class="taxa">
+        <h3>${tx.nome} <span class="t-nota">${tx.dica}</span></h3>
+        <div class="taxa__par">
+          <div><p class="taxa__sub">por dia</p><div class="grafico grafico--taxa"><canvas id="g-tx-${tx.k}-dia" aria-label="${tx.nome} por dia, Docis e Felipe Russo"></canvas></div></div>
+          <div><p class="taxa__sub" id="sub-${tx.k}-hora">hora a hora</p><div class="grafico grafico--taxa"><canvas id="g-tx-${tx.k}-hora" aria-label="${tx.nome} hora a hora, Docis e Felipe Russo"></canvas></div></div>
+        </div>
+      </div>`).join("");
+    [CABECA_CI, CABECA_FELIPE].forEach((img) => img.addEventListener("load", () => Object.values(gTaxas).forEach((g) => g.draw())));
+  }
   const vazioT = () => ({ impressoes: 0, cliques: 0, page_views: 0, leads: 0 });
-  // por dia
-  const porDia = new Map();
-  const gd = (d) => { if (!porDia.has(d)) porDia.set(d, vazioT()); return porDia.get(d); };
+  const conta = (ad_id) => ADS.get(ad_id)?.conta || "Docis";
+
+  // por dia, separado por conta
+  const porDia = new Map(); // conta -> Map(dia -> totais)
+  const gd = (c, d) => { if (!porDia.has(c)) porDia.set(c, new Map()); const m = porDia.get(c); if (!m.has(d)) m.set(d, vazioT()); return m.get(d); };
   VIS.insights.forEach((i) => {
-    if (!adPassa(ADS.get(i.ad_id), f) || !diaPassa(i.dia, f)) return;
-    const r = gd(i.dia); r.impressoes += i.impressoes; r.cliques += i.cliques; r.page_views += i.page_views;
+    if (!adPassa(ADS.get(i.ad_id), f) || !diaPassa(i.dia, f) || !(i.impressoes > 0)) return;
+    const r = gd(conta(i.ad_id), i.dia); r.impressoes += i.impressoes; r.cliques += i.cliques; r.page_views += i.page_views;
   });
   VIS.unicos.forEach((l) => {
     if (!diaPassa(l.dia, f)) return;
     const at = ATRIB.get(l.id); if (!at) return;
-    at.forEach(({ ad_id, peso }) => { if (adPassa(ADS.get(ad_id), f)) gd(l.dia).leads += peso; });
+    at.forEach(({ ad_id, peso }) => { if (adPassa(ADS.get(ad_id), f) && porDia.get(conta(ad_id))?.has(l.dia)) gd(conta(ad_id), l.dia).leads += peso; });
   });
-  const dias = [...porDia.keys()].filter((d) => porDia.get(d).impressoes > 0).sort();
-  gTaxasDia = desenharTaxas(gTaxasDia, $("#g-taxas-dia"), dias.map((d) => dataBR(d).slice(0, 5)), dias.map((d) => porDia.get(d)));
+  const dias = [...new Set([...porDia.values()].flatMap((m) => [...m.keys()]))].sort();
+  const porContaDia = new Map([...porDia].map(([c, m]) => [c, dias.map((d) => m.get(d) || vazioT())]));
 
-  // hora a hora do dia escolhido
+  // hora a hora do dia escolhido, separado por conta (a hora em andamento fica de fora)
   const sel = $("#tx-dia");
   const diasHora = [...new Set(VIS.horas.map((r) => r[0]))].filter((d) => diaPassa(d, f)).sort().reverse();
   const atual = sel.value;
@@ -712,19 +745,27 @@ function renderTaxas(f) {
   if (diasHora.includes(atual)) sel.value = atual;
   if (!sel.dataset.ligado) { sel.dataset.ligado = "1"; sel.addEventListener("change", () => renderTaxas(estadoFiltros())); }
   const dia = sel.value;
-  const horas = Array.from({ length: 24 }, vazioT);
+  const porHora = new Map();
+  const gh = (c) => { if (!porHora.has(c)) porHora.set(c, Array.from({ length: 24 }, vazioT)); return porHora.get(c); };
   VIS.horas.forEach(([d, h, ad_id, , imp, cl, lpv]) => {
     if (d !== dia || !adPassa(ADS.get(ad_id), f)) return;
-    horas[h].impressoes += +imp || 0; horas[h].cliques += +cl || 0; horas[h].page_views += +lpv || 0;
+    const r = gh(conta(ad_id))[h]; r.impressoes += +imp || 0; r.cliques += +cl || 0; r.page_views += +lpv || 0;
   });
   VIS.unicos.forEach((l) => {
     if (l.dia !== dia) return;
     const at = ATRIB.get(l.id); if (!at) return;
     const h = parseInt(horaLead.format(new Date(l.criado_em)), 10);
-    at.forEach(({ ad_id, peso }) => { if (adPassa(ADS.get(ad_id), f)) horas[h].leads += peso; });
+    at.forEach(({ ad_id, peso }) => { if (adPassa(ADS.get(ad_id), f) && porHora.has(conta(ad_id))) gh(conta(ad_id))[h].leads += peso; });
   });
-  // a hora em andamento fica de fora (a Meta ainda não entregou os números dela)
   const limite = dia === hojeSP() ? Math.floor(minutoSP(new Date()) / 60) - 1 : 23;
-  const ult = Math.min(limite, Math.max(0, ...horas.map((r, h) => (r.impressoes || r.leads ? h : 0))));
-  gTaxasHora = desenharTaxas(gTaxasHora, $("#g-taxas-hora"), horas.slice(0, ult + 1).map((_, h) => `${String(h).padStart(2, "0")}h`), horas.slice(0, ult + 1));
+  let ult = 0; porHora.forEach((arr) => arr.forEach((r, h) => { if (r.impressoes && h > ult) ult = h; }));
+  ult = Math.min(ult, limite);
+  const labelsHora = Array.from({ length: Math.max(ult + 1, 0) }, (_, h) => `${String(h).padStart(2, "0")}h`);
+  const porContaHora = new Map([...porHora].map(([c, arr]) => [c, arr.slice(0, ult + 1).map((r) => (r.impressoes ? r : { ...r, impressoes: 0 }))]));
+
+  TAXAS.forEach((tx) => {
+    desenharTaxa(`g-tx-${tx.k}-dia`, tx, dias.map((d) => dataBR(d).slice(0, 5)), porContaDia);
+    desenharTaxa(`g-tx-${tx.k}-hora`, tx, labelsHora, porContaHora);
+    $(`#sub-${tx.k}-hora`).textContent = `hora a hora · ${dia ? dataBR(dia) : "—"}`;
+  });
 }
