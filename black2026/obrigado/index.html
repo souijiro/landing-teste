@@ -62,6 +62,10 @@
     .btn[aria-disabled="true"] { cursor: default; }
     @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(47,168,79,.55); } 70% { box-shadow: 0 0 0 14px rgba(47,168,79,0); } }
     .aviso { display: none; color: #cfc9c4; font-size: .9rem; margin: 14px 0 0; }
+    .redireciona { margin: 0 0 18px; padding: 14px 16px; border-radius: 14px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14); }
+    .redireciona b { display: block; font-size: 1.02rem; color: #fff; margin-bottom: 4px; }
+    .redireciona span { color: #cfc9c4; font-size: .92rem; }
+    .redireciona .seg { display: inline-grid; place-items: center; width: 26px; height: 26px; margin-left: 6px; border-radius: 50%; background: var(--amarelo); color: #111; font-weight: 800; font-size: .9rem; vertical-align: middle; }
     footer { text-align: center; color: #666; font-size: .75rem; padding: 14px 16px calc(14px + env(safe-area-inset-bottom)); }
   </style>
 </head>
@@ -80,6 +84,10 @@
 
     <p class="texto">Para receber a oferta especial <mark>exclusiva para alunos</mark> você precisa entrar no grupo do WhatsApp</p>
 
+    <div class="redireciona" id="redireciona" role="status" aria-live="polite">
+      <b>Você será redirecionada para o grupo do WhatsApp<span class="seg" id="segundos">3</span></b>
+      <span>Se não abrir automaticamente, clique no botão.</span>
+    </div>
     <a class="btn" id="grupo" href="#">Entrar no grupo</a>
     <p class="aviso" id="aviso">O link do grupo será liberado em breve.</p>
   </main>
@@ -96,11 +104,36 @@
     const btn = document.getElementById("grupo");
     btn.href = GRUPO_PADRAO;
     btn.addEventListener("click", () => {
-      if (window.fbq) fbq("trackCustom", "EntrouGrupoBlack2026");
-      if (window.dataLayer) window.dataLayer.push({ event: "entrou_grupo_black2026" });
+      try { sessionStorage.setItem("black2026_redirecionou", "1"); } catch (e) {}
+      marcarEntrada();
     });
 
-    (async function () {
+    // Redireciona para o grupo depois de 3 s (uma vez só: quem volta pelo "voltar" não é mandado de novo)
+    let grupoPronto = null;
+    const marcarEntrada = () => {
+      if (window.fbq) fbq("trackCustom", "EntrouGrupoBlack2026");
+      if (window.dataLayer) window.dataLayer.push({ event: "entrou_grupo_black2026" });
+    };
+    function redirecionar() {
+      try { if (sessionStorage.getItem("black2026_redirecionou")) return; sessionStorage.setItem("black2026_redirecionou", "1"); } catch (e) {}
+      marcarEntrada();
+      setTimeout(() => { location.href = btn.href; }, 300); // tempo para os eventos saírem
+    }
+    (function contagem() {
+      let jaFoi = false;
+      try { jaFoi = !!sessionStorage.getItem("black2026_redirecionou"); } catch (e) {}
+      if (jaFoi) { document.getElementById("redireciona").innerHTML = "<span>Se o grupo não abriu, clique no botão.</span>"; return; }
+      const el = document.getElementById("segundos");
+      let s = 3;
+      const t = setInterval(async () => {
+        s--; if (s > 0) { el.textContent = s; return; }
+        clearInterval(t); el.textContent = "0";
+        await Promise.race([grupoPronto, new Promise((ok) => setTimeout(ok, 2000))]); // espera o link certo (até 2 s a mais)
+        redirecionar();
+      }, 1000);
+    })();
+
+    grupoPronto = (async function () {
       let eventId = new URLSearchParams(location.search).get("e");
       try { eventId = eventId || sessionStorage.getItem("black2026_event_id"); } catch (e) {}
       if (!eventId || !/^[0-9a-f-]{36}$/i.test(eventId)) return;
