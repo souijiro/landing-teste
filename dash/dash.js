@@ -122,6 +122,7 @@ async function carregar() {
     if (traf && typeof renderAB === "function") renderAB();
     if (typeof carregarAnalise === "function") carregarAnalise();
     carregarBases(token);
+    if (typeof carregarGrupos === "function") carregarGrupos(token);
     $("#atualizado").textContent = "Atualizado " + horaSP.format(new Date()) + " · atualiza sozinho a cada 1 min";
   } catch (err) {
     if (err.code === "28000") { apagarToken(); return mostrarLogin(); }

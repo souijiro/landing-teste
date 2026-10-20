@@ -440,3 +440,28 @@ body { min-height: 100dvh; }
 .taxa__sub { margin: 0 0 2px; font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--texto-3); }
 .grafico--taxa { height: 210px; }
 @media (min-width: 900px) { .taxa__par { grid-template-columns: 1fr 1fr; } }
+
+/* ---------- Aba Grupos ---------- */
+.g-topo { display: grid; gap: 16px; }
+@media (min-width: 900px) { .g-topo { grid-template-columns: minmax(300px, 1fr) 1.4fr; } }
+.g-hero { border-radius: 18px; padding: 22px 20px; color: #fff; background: var(--nivel, #57534e); }
+.g-hero .rotulo { color: rgba(255,255,255,.8); }
+.g-hero__pct { margin: 4px 0 8px; font-size: 3.6rem; line-height: 1; font-weight: 800; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.g-hero__sub { margin: 4px 0 0; font-size: .9rem; color: rgba(255,255,255,.88); }
+.g-hero.nivel--bom { color: #0f3d20; } .g-hero.nivel--bom .rotulo, .g-hero.nivel--bom .g-hero__sub { color: #1d5531; }
+.g-comp { background: var(--cartao); border: 1px solid var(--linha); border-radius: 16px; padding: 16px; display: grid; gap: 12px; align-content: start; }
+.g-comp h3 { margin: 0; font-size: 1rem; font-weight: 800; }
+.g-comp__linha { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; align-items: center; font-size: .86rem; }
+.g-comp__nome { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.g-comp__nome i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.g-comp__num { font-variant-numeric: tabular-nums; text-align: right; }
+.g-comp__num small { color: var(--texto-3); }
+.g-comp .trilho { grid-column: 1 / -1; height: 6px; background: #f1ece6; border-radius: 99px; overflow: hidden; display: block; }
+.g-comp .trilho b { display: block; height: 100%; border-radius: 99px; }
+.selo-nivel { display: inline-block; min-width: 56px; text-align: center; padding: 2px 8px; border-radius: 99px; font-weight: 800; font-size: .78rem; background: #eee; color: var(--texto); }
+.nivel--ruim { --nivel: #e5484d; } .selo-nivel.nivel--ruim { background: #e5484d; color: #fff; }
+.nivel--atencao { --nivel: #f08c2e; } .selo-nivel.nivel--atencao { background: #f08c2e; color: #fff; }
+.nivel--bom { --nivel: #7ccf8f; } .selo-nivel.nivel--bom { background: #7ccf8f; color: #0f3d20; }
+.nivel--otimo { --nivel: #146c3a; } .selo-nivel.nivel--otimo { background: #146c3a; color: #fff; }
+.tabela .delta, .delta { display: block; font-size: .68rem; color: var(--texto-3); font-weight: 500; }
+td:first-child .delta { display: inline; margin-left: 4px; }
