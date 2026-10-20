@@ -58,10 +58,8 @@
   </script>
   <!-- End Google Tag Manager -->
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap"></noscript>
+  <!-- Montserrat hospedada aqui (um arquivo variável 400–800), pedida logo no início -->
+  <link rel="preload" href="img/montserrat-latin.woff2" as="font" type="font/woff2" crossorigin>
   <!-- o seletor de país só aparece no popup: CSS dele não precisa travar a primeira pintura -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/css/intlTelInput.css" media="print" onload="this.media='all'">
     <style>
@@ -79,6 +77,10 @@
   --verde-hover: #186f30;
   --fonte: "Montserrat", "Montserrat Fallback", system-ui, sans-serif;
 }
+@font-face { font-family: "Montserrat"; font-style: normal; font-weight: 400 800; font-display: swap; src: url(img/montserrat-latin.woff2) format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Montserrat"; font-style: normal; font-weight: 400 800; font-display: swap; src: url(img/montserrat-latin-ext.woff2) format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
 /* Arial ajustada às medidas da Montserrat: o texto não "pula" quando a fonte chega */
 @font-face { font-family: "Montserrat Fallback"; src: local("Arial"), local("Helvetica"); size-adjust: 112.83%; ascent-override: 85.79%; descent-override: 22.25%; line-gap-override: 0%; }
 * { box-sizing: border-box; }
@@ -234,7 +236,7 @@ img { max-width: 100%; display: block; }
       <h2>Cilaine Rodrigues</h2>
       <p class="expert__tag">A Rainha do Brigadeiro · Docis</p>
       <div class="expert__card">
-        <img class="expert__foto" src="img/cilaine-700.webp" srcset="img/cilaine-480.webp 480w, img/cilaine-700.webp 700w, img/cilaine.webp 884w" sizes="(max-width: 560px) 72vw, 420px" alt="Cilaine Rodrigues" width="884" height="1200" loading="lazy">
+        <img class="expert__foto" src="img/cilaine-700.webp" srcset="img/cilaine-480.webp 480w, img/cilaine-560.webp 560w, img/cilaine-700.webp 700w, img/cilaine.webp 884w" sizes="(max-width: 560px) 72vw, 420px" alt="Cilaine Rodrigues" width="884" height="1200" loading="lazy">
         <div class="expert__cursos">
           <img src="img/curso-brigadeiro.webp" alt="Brigadeiro de A a Z" width="521" height="196" loading="lazy">
           <img src="img/curso-naked.webp" alt="Naked Cakes" width="521" height="196" loading="lazy">
@@ -345,7 +347,6 @@ img { max-width: 100%; display: block; }
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/intlTelInputWithUtils.min.js"></script>
-  <script type="module" src="script.js?v=10"></script>
+  <script type="module" src="script.js?v=11"></script>
 </body>
 </html>

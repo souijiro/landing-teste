@@ -1,5 +1,3 @@
-import ptBR from "https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/i18n/pt/index.js";
-
 // Supabase "Docis Controles" — chave pública: só permite INSERIR na tabela (não lê nada)
 const SUPABASE_URL = "https://eoqyoeohbcpdjxghfwua.supabase.co";
 const SUPABASE_KEY = "sb_publishable_cv-1jB60ZGb1hJHYQi0qPA_LwF9DS98";
@@ -59,25 +57,52 @@ function registrar(evento) {
     }).catch(() => {});
   } catch (e) {}
 }
-registrar("visita");
+// a visita é registrada logo que a página termina de carregar (ou no 1º toque), fora do caminho crítico
+(window.carregarDepois || ((f) => f()))(() => registrar("visita"));
 let popupRegistrado = false;
 
 // ---------- Telefone com DDI ----------
+// A biblioteca do seletor de país (~80 KB) só é usada no formulário: carrega depois que a página aparece
+// ou quando a pessoa abre o popup, o que vier primeiro.
+const ITI_URL = "https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/";
 const telInput = document.getElementById("telefone");
-const iti = window.intlTelInput(telInput, {
-  initialCountry: "br",
-  countryOrder: ["br", "pt", "us"],
-  separateDialCode: true,
-  countrySearch: true,
-  nationalMode: true,
-  formatAsYouType: true,
-  strictMode: true,
-  i18n: ptBR,
-  dropdownContainer: document.body
-});
-telInput.addEventListener("countrychange", () => {
-  telInput.placeholder = iti.getSelectedCountryData().iso2 === "br" ? "* DDD + WhatsApp" : "* WhatsApp";
-});
+let iti = null, carregandoTel = null;
+function carregarTelefone() {
+  if (carregandoTel) return carregandoTel;
+  carregandoTel = (async () => {
+    await new Promise((ok, erro) => {
+      const sc = document.createElement("script");
+      sc.src = ITI_URL + "intlTelInputWithUtils.min.js"; sc.onload = ok; sc.onerror = erro;
+      document.head.appendChild(sc);
+    });
+    const { default: ptBR } = await import(ITI_URL + "i18n/pt/index.js");
+    iti = window.intlTelInput(telInput, {
+      initialCountry: "br",
+      countryOrder: ["br", "pt", "us"],
+      separateDialCode: true,
+      countrySearch: true,
+      nationalMode: true,
+      formatAsYouType: true,
+      strictMode: true,
+      i18n: ptBR,
+      dropdownContainer: document.body
+    });
+    telInput.addEventListener("countrychange", () => {
+      telInput.placeholder = iti.getSelectedCountryData().iso2 === "br" ? "* DDD + WhatsApp" : "* WhatsApp";
+    });
+    return iti;
+  })();
+  carregandoTel.catch(() => { carregandoTel = null; }); // se o CDN falhar, tenta de novo no envio
+  return carregandoTel;
+}
+(window.carregarDepois || ((f) => f()))(() => setTimeout(carregarTelefone, 200));
+
+// Sem a biblioteca (CDN fora do ar): aceita número brasileiro com DDD
+function telefoneReserva() {
+  let d = telInput.value.replace(/\D/g, "");
+  if (d.length === 10 || d.length === 11) d = "55" + d;
+  return /^55\d{10,11}$/.test(d) ? "+" + d : null;
+}
 
 // ---------- Popup ----------
 const modal = document.getElementById("modal");
@@ -91,6 +116,7 @@ function abrir() {
   if (window.fbq) fbq("trackCustom", "AbriuPopupBlack2026");
   if (window.dataLayer) window.dataLayer.push({ event: "abriu_popup_black2026", variante_ab: VARIANTE });
   if (!popupRegistrado) { popupRegistrado = true; registrar("popup"); }
+  carregarTelefone().catch(() => {});
 }
 function fechar() {
   modal.classList.remove("aberto");
@@ -128,7 +154,8 @@ form.addEventListener("submit", async (e) => {
   const email = emailEl.value.trim().toLowerCase();
   const okNome = marcar(nomeEl, nome.length >= 2);
   const okEmail = SEM_EMAIL || marcar(emailEl, /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email));
-  const okTel = marcar(telInput, iti.isValidNumber());
+  if (!iti) { try { await carregarTelefone(); } catch (err) { /* usa a validação reserva */ } }
+  const okTel = marcar(telInput, iti ? iti.isValidNumber() : !!telefoneReserva());
   if (!okNome || !okEmail || !okTel) {
     form.querySelector(".campo.erro input").focus();
     return;
@@ -137,8 +164,8 @@ form.addEventListener("submit", async (e) => {
   const lead = {
     nome,
     email: SEM_EMAIL ? null : email,
-    telefone: iti.getNumber(), // E.164, ex: +5511999999999
-    pais: iti.getSelectedCountryData().iso2 || null,
+    telefone: iti ? iti.getNumber() : telefoneReserva(), // E.164, ex: +5511999999999
+    pais: iti ? iti.getSelectedCountryData().iso2 || null : "br",
     ...UTMS,
     pagina_origem: PAGINA_ORIGEM,
     // mesmo ID no banco, no pixel e no GTM: a Meta descarta Leads repetidos com o mesmo event_id
