@@ -22,7 +22,8 @@ const delta = (v) => v == null ? "" : `<small class="delta">${v > 0 ? "+" : ""}$
 async function carregarGrupos(token) {
   let d;
   try { d = await rpc("dash_grupos_black2026", { p_token: token }); } catch (e) { return; }
-  const R = (d?.rodadas || []).map((r) => ({ ...r, em: new Date(r.rodada_em) }));
+  const R = (d?.rodadas || []).map((r) => ({ ...r, em: new Date(r.rodada_em), col: new Date(r.coletado_em || r.rodada_em) }));
+  // leads são contados até `col` (momento em que os grupos foram lidos); `em` (horário previsto) só agrupa por dia
   if (!R.length) { $("#grupos-hero").innerHTML = '<p class="t-nota">Nenhuma contagem ainda.</p>'; return; }
   const u = R[R.length - 1];
 
@@ -32,7 +33,7 @@ async function carregarGrupos(token) {
   if (box) {
     box.className = "kpi kpi--grupos " + n.classe;
     $("#k-grupos").textContent = pctTxt(p);
-    $("#k-grupos-sub").textContent = `${fmt(u.membros)} de ${fmt(u.leads)} leads · ${fmtHora.format(u.em)}`;
+    $("#k-grupos-sub").textContent = `${fmt(u.membros)} de ${fmt(u.leads)} leads · ${fmtHora.format(u.col)}`;
   }
   const alunosD = u.alunos_docis, alunosF = u.alunos_felipe;
   const quem = alunosD === alunosF ? "Empate entre alunos Docis e Felipe" : alunosD > alunosF ? "Mais alunos Docis nos grupos" : "Mais alunos Felipe nos grupos";
@@ -40,8 +41,8 @@ async function carregarGrupos(token) {
     <div class="g-hero ${n.classe}">
       <p class="rotulo">Pessoas nos grupos ÷ leads únicos</p>
       <p class="g-hero__pct">${pctTxt(p)}</p>
-      <p class="g-hero__sub"><b>${fmt(u.membros)}</b> nos ${u.grupos} grupos · <b>${fmt(u.leads)}</b> leads até ${fmtHora.format(u.em)}</p>
-      <p class="g-hero__sub">Contagem de ${fmtDiaHora.format(u.em)} · faltam ${fmt(Math.max(0, u.leads - u.membros))} pessoas</p>
+      <p class="g-hero__sub"><b>${fmt(u.membros)}</b> nos ${u.grupos} grupos · <b>${fmt(u.leads)}</b> leads até ${fmtHora.format(u.col)}</p>
+      <p class="g-hero__sub">Contagem de ${fmtDiaHora.format(u.col)} · faltam ${fmt(Math.max(0, u.leads - u.membros))} pessoas</p>
     </div>
     <div class="g-comp">
       <h3>${quem}</h3>
@@ -53,7 +54,7 @@ async function carregarGrupos(token) {
     </div>`;
 
   // ---- Gráfico por horário ----
-  const rot = R.map((r) => fmtDiaHora.format(r.em));
+  const rot = R.map((r) => fmtDiaHora.format(r.col));
   const dados = {
     labels: rot,
     datasets: [
@@ -69,7 +70,7 @@ async function carregarGrupos(token) {
   // ---- Tabela por horário (mais recente primeiro) ----
   $("#t-grupos-hora tbody").innerHTML = R.map((r, i) => {
     const a = R[i - 1];
-    return `<tr><td>${esc(fmtDiaHora.format(r.em))}</td><td class="n">${fmt(r.leads)}${delta(a ? r.leads - a.leads : null)}</td><td class="n">${fmt(r.membros)}${delta(a ? r.membros - a.membros : null)}</td><td class="n">${selo(r.membros, r.leads)}</td><td class="n">${fmt(r.alunos_docis + r.alunos_ambos)}</td><td class="n">${fmt(r.alunos_felipe + r.alunos_ambos)}</td></tr>`;
+    return `<tr><td>${esc(fmtDiaHora.format(r.col))}</td><td class="n">${fmt(r.leads)}${delta(a ? r.leads - a.leads : null)}</td><td class="n">${fmt(r.membros)}${delta(a ? r.membros - a.membros : null)}</td><td class="n">${selo(r.membros, r.leads)}</td><td class="n">${fmt(r.alunos_docis + r.alunos_ambos)}</td><td class="n">${fmt(r.alunos_felipe + r.alunos_ambos)}</td></tr>`;
   }).reverse().join("");
 
   // ---- Tabela por dia (última contagem de cada dia) ----
@@ -78,7 +79,7 @@ async function carregarGrupos(token) {
   const D = [...porDia.entries()];
   $("#t-grupos-dia tbody").innerHTML = D.map(([dia, r], i) => {
     const a = D[i - 1]?.[1];
-    return `<tr><td>${dia.slice(8, 10)}/${dia.slice(5, 7)} <small class="delta">até ${fmtHora.format(r.em)}</small></td><td class="n">${fmt(r.leads)}</td><td class="n">${a ? fmt(r.leads - a.leads) : "—"}</td><td class="n">${fmt(r.membros)}</td><td class="n">${a ? fmt(r.membros - a.membros) : "—"}</td><td class="n">${selo(r.membros, r.leads)}</td></tr>`;
+    return `<tr><td>${dia.slice(8, 10)}/${dia.slice(5, 7)} <small class="delta">até ${fmtHora.format(r.col)}</small></td><td class="n">${fmt(r.leads)}</td><td class="n">${a ? fmt(r.leads - a.leads) : "—"}</td><td class="n">${fmt(r.membros)}</td><td class="n">${a ? fmt(r.membros - a.membros) : "—"}</td><td class="n">${selo(r.membros, r.leads)}</td></tr>`;
   }).reverse().join("");
 }
 
