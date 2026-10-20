@@ -207,8 +207,6 @@ function renderPainel() {
   $("#k-cpl-hoje").textContent = invDia.get(hoje) && atribHoje ? brl(invDia.get(hoje) / atribHoje) : "—";
   $("#k-cpl-hoje-sub").textContent = `${brl(invDia.get(hoje) || 0)} · ${fmt(atribHoje)} leads hoje`;
 
-  $("#k-total").textContent = fmt(LEADS.length);
-  $("#k-dup").textContent = `${fmt(LEADS.length - n)} cadastros repetidos (mesmo e-mail ou telefone)`;
 
   // gráfico único: barras = leads por dia (eixo esquerdo) · linhas = acumulado, projeção e meta (eixo direito)
   const diasAte = [];

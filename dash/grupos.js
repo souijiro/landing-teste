@@ -28,6 +28,12 @@ async function carregarGrupos(token) {
 
   // ---- Hero ----
   const p = u.leads ? u.membros / u.leads * 100 : 0, n = nivelGrupo(p);
+  const box = $("#k-grupos-box");
+  if (box) {
+    box.className = "kpi kpi--grupos " + n.classe;
+    $("#k-grupos").textContent = pctTxt(p);
+    $("#k-grupos-sub").textContent = `${fmt(u.membros)} de ${fmt(u.leads)} leads · ${fmtHora.format(u.em)}`;
+  }
   const alunosD = u.alunos_docis, alunosF = u.alunos_felipe;
   const quem = alunosD === alunosF ? "Empate entre alunos Docis e Felipe" : alunosD > alunosF ? "Mais alunos Docis nos grupos" : "Mais alunos Felipe nos grupos";
   $("#grupos-hero").innerHTML = `

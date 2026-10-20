@@ -465,3 +465,8 @@ body { min-height: 100dvh; }
 .nivel--otimo { --nivel: #146c3a; } .selo-nivel.nivel--otimo { background: #146c3a; color: #fff; }
 .tabela .delta, .delta { display: block; font-size: .68rem; color: var(--texto-3); font-weight: 500; }
 td:first-child .delta { display: inline; margin-left: 4px; }
+.kpi--grupos { background: var(--nivel, var(--cartao)); border-color: var(--nivel, var(--linha)); color: #fff; }
+.kpi--grupos .rotulo, .kpi--grupos .kpi__sub { color: rgba(255,255,255,.88); }
+.kpi--grupos:not([class*="nivel--"]) { color: inherit; }
+.kpi--grupos:not([class*="nivel--"]) .rotulo, .kpi--grupos:not([class*="nivel--"]) .kpi__sub { color: var(--texto-2); }
+.kpi--grupos.nivel--bom { color: #0f3d20; } .kpi--grupos.nivel--bom .rotulo, .kpi--grupos.nivel--bom .kpi__sub { color: #1d5531; }
