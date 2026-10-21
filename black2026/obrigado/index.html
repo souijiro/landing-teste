@@ -62,7 +62,7 @@
     .btn[aria-disabled="true"] { cursor: default; }
     @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(30,133,58,.55); } 70% { box-shadow: 0 0 0 14px rgba(30,133,58,0); } }
     .aviso { display: none; color: #cfc9c4; font-size: .9rem; margin: 14px 0 0; }
-    .redireciona { margin: 0 0 18px; padding: 14px 16px; border-radius: 14px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14); }
+    .redireciona { margin: 0 0 20px; padding: 14px 16px; border-radius: 14px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14); }
     .redireciona b { display: block; font-size: 1.02rem; color: #fff; margin-bottom: 4px; }
     .redireciona span { color: #cfc9c4; font-size: .92rem; }
     .redireciona .seg { display: inline-grid; place-items: center; width: 26px; height: 26px; margin-left: 6px; border-radius: 50%; background: var(--amarelo); color: #111; font-weight: 800; font-size: .9rem; vertical-align: middle; }
@@ -73,6 +73,10 @@
   <div class="topo">ESTAMOS QUASE LÁ · <span>5/11 às 19h</span></div>
 
   <main>
+    <div class="redireciona" id="redireciona" role="status" aria-live="polite">
+      <b>Você será redirecionada para o grupo do WhatsApp<span class="seg" id="segundos">3</span></b>
+      <span>Se não abrir automaticamente, clique no botão.</span>
+    </div>
     <div class="fotos">
       <img src="/black2026/img/cilaine-circulo.webp" alt="Cilaine Rodrigues" width="773" height="900">
       <img src="/black2026/img/felipe-circulo.webp?v=2" alt="Felipe Russo" width="294" height="342">
@@ -84,10 +88,6 @@
 
     <p class="texto">Para receber a oferta especial <mark>exclusiva para alunos</mark> você precisa entrar no grupo do WhatsApp</p>
 
-    <div class="redireciona" id="redireciona" role="status" aria-live="polite">
-      <b>Você será redirecionada para o grupo do WhatsApp<span class="seg" id="segundos">3</span></b>
-      <span>Se não abrir automaticamente, clique no botão.</span>
-    </div>
     <a class="btn" id="grupo" href="#">Entrar no grupo</a>
     <p class="aviso" id="aviso">O link do grupo será liberado em breve.</p>
   </main>
