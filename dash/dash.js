@@ -550,3 +550,38 @@ async function carregarBases(token) {
     + card("Alunos Felipe Russo", "#4a3aa7", fe, d.felipe.total, d.felipe.inscritos, [], `${fmt(d.felipe.sem_telefone)} sem telefone na lista (só pelo e-mail)`)
     + card("Alunos dos dois", "#e87ba4", ci + fe, d.ambos.total, d.ambos.inscritos, [], "estão na lista da Docis e na do Felipe");
 }
+
+// ---------- Notificações no celular (app na tela inicial) ----------
+// O botão registra este aparelho; a função dash-push do Supabase manda as notificações.
+const VAPID_PUBLICA = "BGFHHY1zPQ-OthAO7GrRsaDHNxaPxcRDF2tet5k-adHaFdxDK1Fqk5xNsX_T3b065ON61t7f_ebPV6B0Hw9Q3os";
+const b64paraBytes = (b64) => { const p = "=".repeat((4 - (b64.length % 4)) % 4), raw = atob((b64 + p).replace(/-/g, "+").replace(/_/g, "/")); return Uint8Array.from(raw, (c) => c.charCodeAt(0)); };
+const temPush = () => "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+const ehApp = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+async function estadoNotificacoes() {
+  const btn = $("#notificar"); if (!btn) return;
+  if (!temPush()) { btn.hidden = !/iphone|ipad/i.test(navigator.userAgent); btn.textContent = "🔔 Notificações"; return; }
+  const reg = await navigator.serviceWorker.register("/dash/sw.js", { scope: "/dash/" });
+  const sub = await reg.pushManager.getSubscription();
+  btn.hidden = false;
+  btn.classList.toggle("ativo", !!sub && Notification.permission === "granted");
+  btn.textContent = sub && Notification.permission === "granted" ? "🔔 Notificações ativas" : "🔔 Ativar notificações";
+}
+async function ativarNotificacoes() {
+  if (!temPush() || (/iphone|ipad/i.test(navigator.userAgent) && !ehApp())) {
+    alert("Para receber notificações no iPhone, abra o dash pelo app da tela inicial (Compartilhar → Adicionar à Tela de Início) e toque aqui de novo.");
+    return;
+  }
+  try {
+    const perm = await Notification.requestPermission();
+    if (perm !== "granted") { alert("As notificações foram bloqueadas. Libere nos Ajustes do celular para o app Black 2026."); return; }
+    const reg = await navigator.serviceWorker.register("/dash/sw.js", { scope: "/dash/" });
+    await navigator.serviceWorker.ready;
+    const sub = (await reg.pushManager.getSubscription()) || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64paraBytes(VAPID_PUBLICA) });
+    const j = sub.toJSON();
+    await rpc("dash_push_inscrever", { p_token: lerToken(), p_endpoint: j.endpoint, p_p256dh: j.keys.p256dh, p_auth: j.keys.auth, p_aparelho: navigator.userAgent.slice(0, 200) });
+    $("#notificar").textContent = "🔔 Notificações ativas"; $("#notificar").classList.add("ativo");
+  } catch (e) {
+    alert("Não consegui ativar as notificações: " + (e.message || e));
+  }
+}
+if ($("#notificar")) { $("#notificar").addEventListener("click", ativarNotificacoes); estadoNotificacoes().catch(() => {}); }

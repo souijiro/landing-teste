@@ -515,3 +515,5 @@ td:first-child .delta { display: inline; margin-left: 4px; }
 .rank-conta-item { display: inline-flex; align-items: center; gap: 4px; margin-right: 6px; font-size: .78rem; font-weight: 700; }
 .rank-conta { height: 20px; width: auto; }
 .tabela td.rank-inativo { color: var(--texto-3); font-style: italic; }
+
+.btn-notificar.ativo { border-color: #25d366; color: #25d366; }
