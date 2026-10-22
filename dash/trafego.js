@@ -741,7 +741,8 @@ function renderAnalise() {
 const TAXAS = [
   { k: "ctr", nome: "CTR", dica: "cliques ÷ impressões", num: "cliques", den: "impressoes" },
   { k: "tx_lp", nome: "Carregamento da página", dica: "page views ÷ cliques", num: "page_views", den: "cliques" },
-  { k: "conv_lp", nome: "Conversão da página", dica: "leads ÷ page views", num: "leads", den: "page_views" }
+  { k: "conv_lp", nome: "Conversão da página", dica: "leads ÷ page views", num: "leads", den: "page_views" },
+  { k: "cpm", nome: "CPM", dica: "custo por mil impressões", num: "investimento", den: "impressoes", mult: 1000, moeda: true }
 ];
 const CONTAS_TX = [
   { nome: "Docis", cor: "#eda100", cabeca: () => (typeof CABECA_CI !== "undefined" ? CABECA_CI : null) },
@@ -775,13 +776,14 @@ function opcoesTaxa(tx) {
   const o = opcoesGrafico({ legenda: false });
   o.layout = { padding: { left: 14, right: 8, top: 14 } };
   o.scales.y.ticks.precision = undefined;
-  o.scales.y.ticks.callback = (v) => v.toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "%";
-  o.plugins.tooltip.callbacks.label = (c) => ` ${c.dataset.label}: ${c.parsed.y == null ? "—" : c.parsed.y.toLocaleString("pt-BR", { maximumFractionDigits: 2 }) + "%"}`;
-  o.plugins.tooltip.callbacks.afterLabel = (c) => { const b = c.dataset.$base && c.dataset.$base[c.dataIndex]; return b ? `   ${fmt(b[tx.num])} ÷ ${fmt(b[tx.den])}` : ""; };
+  const fmtV = (v) => (tx.moeda ? brl(v) : v.toLocaleString("pt-BR", { maximumFractionDigits: 2 }) + "%");
+  o.scales.y.ticks.callback = (v) => (tx.moeda ? "R$ " + v.toLocaleString("pt-BR", { maximumFractionDigits: 0 }) : v.toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "%");
+  o.plugins.tooltip.callbacks.label = (c) => ` ${c.dataset.label}: ${c.parsed.y == null ? "—" : fmtV(c.parsed.y)}`;
+  o.plugins.tooltip.callbacks.afterLabel = (c) => { const b = c.dataset.$base && c.dataset.$base[c.dataIndex]; return b ? `   ${tx.moeda ? brl(b[tx.num]) : fmt(b[tx.num])} ÷ ${fmt(b[tx.den])}${tx.mult ? " × " + fmt(tx.mult) : ""}` : ""; };
   return o;
 }
 function desenharTaxa(id, tx, labels, porConta) {
-  const pc = (a, b) => (b ? +(a / b * 100).toFixed(2) : null);
+  const pc = (a, b) => (b ? +(a / b * (tx.mult || 100)).toFixed(2) : null);
   const datasets = CONTAS_TX.filter((c) => porConta.has(c.nome)).map((c) => {
     const lista = porConta.get(c.nome);
     return { label: c.nome, data: lista.map((r) => pc(r[tx.num], r[tx.den])), borderColor: c.cor, backgroundColor: c.cor, tension: .25, borderWidth: 2.5, pointRadius: 2, spanGaps: true, $base: lista, $cabeca: c.cabeca };
@@ -803,7 +805,7 @@ function renderTaxas(f) {
       </div>`).join("");
     [CABECA_CI, CABECA_FELIPE].forEach((img) => img.addEventListener("load", () => Object.values(gTaxas).forEach((g) => g.draw())));
   }
-  const vazioT = () => ({ impressoes: 0, cliques: 0, page_views: 0, leads: 0 });
+  const vazioT = () => ({ investimento: 0, impressoes: 0, cliques: 0, page_views: 0, leads: 0 });
   const conta = (ad_id) => ADS.get(ad_id)?.conta || "Docis";
 
   // por dia, separado por conta
@@ -811,7 +813,7 @@ function renderTaxas(f) {
   const gd = (c, d) => { if (!porDia.has(c)) porDia.set(c, new Map()); const m = porDia.get(c); if (!m.has(d)) m.set(d, vazioT()); return m.get(d); };
   VIS.insights.forEach((i) => {
     if (!adPassa(ADS.get(i.ad_id), f) || !diaPassa(i.dia, f) || !(i.impressoes > 0)) return;
-    const r = gd(conta(i.ad_id), i.dia); r.impressoes += i.impressoes; r.cliques += i.cliques; r.page_views += i.page_views;
+    const r = gd(conta(i.ad_id), i.dia); r.investimento += i.investimento; r.impressoes += i.impressoes; r.cliques += i.cliques; r.page_views += i.page_views;
   });
   VIS.unicos.forEach((l) => {
     if (!diaPassa(l.dia, f)) return;
@@ -831,9 +833,9 @@ function renderTaxas(f) {
   const dia = sel.value;
   const porHora = new Map();
   const gh = (c) => { if (!porHora.has(c)) porHora.set(c, Array.from({ length: 24 }, vazioT)); return porHora.get(c); };
-  VIS.horas.forEach(([d, h, ad_id, , imp, cl, lpv]) => {
+  VIS.horas.forEach(([d, h, ad_id, inv, imp, cl, lpv]) => {
     if (d !== dia || !adPassa(ADS.get(ad_id), f)) return;
-    const r = gh(conta(ad_id))[h]; r.impressoes += +imp || 0; r.cliques += +cl || 0; r.page_views += +lpv || 0;
+    const r = gh(conta(ad_id))[h]; r.investimento += +inv || 0; r.impressoes += +imp || 0; r.cliques += +cl || 0; r.page_views += +lpv || 0;
   });
   VIS.unicos.forEach((l) => {
     if (l.dia !== dia) return;
