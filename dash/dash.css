@@ -490,3 +490,21 @@ td:first-child .delta { display: inline; margin-left: 4px; }
 .conta-global button.ativo { background: #ffee00; color: #111; border-color: #ffee00; }
 .conta-aviso { margin: 0; padding: 8px 16px; background: #fdf3cf; color: #6b4e00; font-size: .82rem; text-align: center; }
 .conta-aviso button { border: 0; background: none; color: #6b4e00; font: 800 .82rem Montserrat, sans-serif; text-decoration: underline; cursor: pointer; }
+
+/* Teste A/B com 3+ versões */
+.ab-ver-lista { margin: -6px 0 14px; padding-left: 18px; font-size: .85rem; color: var(--texto-2); }
+.ab-ver-lista li { margin: 3px 0; }
+.abm-tabela td small { display: block; font-size: .68rem; color: var(--texto-3); font-weight: 500; white-space: normal; }
+.abm-tabela td.n { min-width: 92px; }
+.abm__val { display: block; }
+.abm__barra { display: block; height: 4px; border-radius: 99px; margin: 4px 0 0 auto; opacity: .85; }
+.abm-tabela { table-layout: fixed; width: 100%; min-width: 0; }
+.abm-tabela th, .abm-tabela td { white-space: normal; padding-left: 6px; padding-right: 6px; }
+.abm-tabela th:first-child, .abm-tabela td:first-child { width: 34%; }
+.abm-tabela td.n { min-width: 0; }
+@media (max-width: 700px) {
+  .abm-tabela { font-size: .76rem; }
+  .abm-tabela th { font-size: .6rem; }
+  .abm-tabela td small { display: none; }
+  .abm-tabela th:first-child, .abm-tabela td:first-child { width: 31%; }
+}

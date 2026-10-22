@@ -131,10 +131,15 @@ function abInicioDia() { return AB && AB.inicio ? diaSP.format(new Date(AB.inici
 // Testes A/B (o mais recente primeiro). Cada um diz o campo que separa as versões, os nomes, a janela
 // e a regra de qual versão estava no ar em cada instante (no sorteio por visitante, as duas ficam no ar juntas).
 const TESTES_AB = [
-  { id: 3, nome: "Teste 3 · Headline atual × nova", campo: "headline", a: "atual", b: "nova", sorteio: true,
-    nomeA: "A · Headline atual", nomeB: "B · Headline nova",
+  { id: 3, nome: "Teste 3 · Headline A × B × C", campo: "headline", a: "atual", b: "nova", sorteio: true,
+    nomeA: "A · Headline atual", nomeB: "B · Compre uma vez",
     subA: "“Todos os cursos… Acesso para sempre.”", subB: "“Compre uma vez. Aprenda para sempre.”",
-    desc: "22/10 das 15h à meia-noite · cada visitante é sorteado 50/50 e vê sempre a mesma versão (e-mail pedido nas duas)",
+    variantes: [
+      { id: "atual", nome: "A · Headline atual", sub: "“Todos os cursos… Uma única oferta. Acesso para sempre.”", cor: "#2a78d6" },
+      { id: "nova", nome: "B · Compre uma vez", sub: "“Compre uma vez. Aprenda para sempre.”", cor: "#eb6834" },
+      { id: "sonho", nome: "C · Sonho", sub: "“Seu sonho de viver da confeitaria…”", cor: "#7c3aed" }
+    ],
+    desc: "22/10 das 15h à meia-noite · cada visitante é sorteado 1/3 para cada versão e vê sempre a mesma (e-mail pedido nas três)",
     ini: Date.parse("2026-10-22T15:00:00-03:00"), fim: Date.parse("2026-10-23T00:00:00-03:00"),
     versao: () => "sorteio" },
   { id: 2, nome: "Teste 2 · Dia sem e-mail × dia com e-mail", campo: "email", a: "com_email", b: "sem_email",
@@ -150,7 +155,9 @@ const TESTES_AB = [
 ];
 let TESTE_AB = TESTES_AB[0];
 // nomes das versões do teste escolhido (A e B)
-const AB_NOMES = new Proxy({}, { get: (_, k) => (k === TESTE_AB.a ? TESTE_AB.nomeA : k === TESTE_AB.b ? TESTE_AB.nomeB : undefined) });
+const AB_NOMES = new Proxy({}, { get: (_, k) => (TESTE_AB.variantes ? (TESTE_AB.variantes.find((x) => x.id === k) || {}).nome
+  : k === TESTE_AB.a ? TESTE_AB.nomeA : k === TESTE_AB.b ? TESTE_AB.nomeB : undefined) });
+const idsVariantes = () => (TESTE_AB.variantes ? TESTE_AB.variantes.map((x) => x.id) : [TESTE_AB.a, TESTE_AB.b]);
 // versão em que o lead se cadastrou, no campo do teste escolhido
 const varianteDoLead = (l) => (TESTE_AB.campo === "headline" ? l.hl : l.ab);
 const noTeste = (l) => !!versaoEm(Date.parse(l.criado_em));
@@ -159,7 +166,7 @@ function versaoEm(ms) {
   return ms >= t.ini && ms < t.fim ? t.versao(ms) : null;
 }
 // fração do gasto da hora (dia, hora em Brasília) que pertence à versão v
-// (sorteio 50/50: metade de cada minuto da hora que está dentro do teste)
+// (sorteio: cada versão fica com 1/N de cada minuto da hora que está dentro do teste)
 const _frac = new Map();
 function fracHora(dia, hora, v) {
   const k = `${TESTE_AB.id}|${dia}|${hora}|${v}`;
@@ -171,7 +178,7 @@ function fracHora(dia, hora, v) {
     if (t > agora) break;
     dentro++;
     const x = versaoEm(t);
-    if (x === v) daV++; else if (x === "sorteio" && (v === TESTE_AB.a || v === TESTE_AB.b)) daV += 0.5;
+    if (x === v) daV++; else if (x === "sorteio" && idsVariantes().includes(v)) daV += 1 / idsVariantes().length;
   }
   const f = dentro ? daV / dentro : 0;
   if (ini + 3600000 < agora) _frac.set(k, f); // hora fechada não muda
@@ -461,8 +468,8 @@ $("#t-ab").addEventListener("change", () => renderTrafego());
 // opções do filtro "Teste A/B" seguem o teste escolhido na aba Teste A/B
 function montarFiltroAB() {
   const sel = $("#t-ab"), atual = sel.value;
-  sel.innerHTML = `<option value="todos">Todas as versões (${TESTE_AB.nome.split(" · ")[0]})</option><option value="${TESTE_AB.a}">Só ${TESTE_AB.nomeA}</option><option value="${TESTE_AB.b}">Só ${TESTE_AB.nomeB}</option>`;
-  sel.value = [TESTE_AB.a, TESTE_AB.b].includes(atual) ? atual : "todos";
+  sel.innerHTML = `<option value="todos">Todas as versões (${TESTE_AB.nome.split(" · ")[0]})</option>` + idsVariantes().map((v) => `<option value="${v}">Só ${AB_NOMES[v]}</option>`).join("");
+  sel.value = idsVariantes().includes(atual) ? atual : "todos";
 }
 montarFiltroAB();
 $("#t-limpar").addEventListener("click", () => {

@@ -90,6 +90,7 @@ function metricasVariante(v, corte) {
 }
 
 function renderAB() {
+  if (TESTE_AB.variantes && TESTE_AB.variantes.length > 2) return renderABMulti();
   const alvo = $("#ab-conteudo");
   if (!alvo) return;
   if (!AB || !AB.inicio) {
@@ -218,5 +219,100 @@ function renderAB() {
       plugins: { legend: { labels: { font: { family: "Montserrat", weight: 600 }, boxWidth: 12 } },
         tooltip: { backgroundColor: "#0b0b0b", callbacks: { label: (c) => ` ${c.dataset.label}: ${c.label === "CPM ÷ 10" ? "CPM " + brl(c.parsed.y * 10) : brl(c.parsed.y)}` } } },
       scales: { x: { grid: { display: false }, ticks: { font: { family: "Montserrat" } } }, y: { beginAtZero: true, ticks: { callback: (v) => "R$ " + v.toLocaleString("pt-BR"), font: { family: "Montserrat" } } } } }
+  });
+}
+
+// ---------- Teste com 3+ versões (sorteio): colunas lado a lado, cada uma comparada com a A ----------
+let gAbCustoMulti = null;
+function renderABMulti() {
+  const alvo = $("#ab-conteudo");
+  if (!alvo) return;
+  const T = TESTE_AB, V = T.variantes;
+  const pc = (v) => (v == null ? "—" : (v * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "%");
+  const rs = (v) => (v == null ? "—" : brl(v));
+  const n1 = (v) => (v < 10 && v % 1 ? v.toLocaleString("pt-BR", { maximumFractionDigits: 1 }) : fmt(v));
+  const horaTxt = (ms) => horaSP.format(new Date(ms));
+  const corte = Math.min(corteFunil(), AB && AB.fim ? Date.parse(AB.fim) : Infinity);
+  const M = V.map((x) => ({ ...x, m: metricasVariante(x.id, corte) }));
+  const agora = versaoAgora();
+  const funilVazio = !AB || corte <= Date.parse(AB.inicio || T.ini);
+
+  // veredito: cada desafiante contra a A (conversão de todos os visitantes)
+  const A = M[0].m, totVis = M.reduce((s2, x) => s2 + x.m.visitantes, 0), totCad = M.reduce((s2, x) => s2 + x.m.cadastros, 0);
+  const lider = [...M].filter((x) => x.m.conv != null).sort((a, b) => b.m.conv - a.m.conv)[0];
+  const linhasVer = M.slice(1).map((x) => {
+    const conf = confiancaDiferenca(x.m.cadastros, x.m.visitantes, A.cadastros, A.visitantes);
+    const dif = x.m.conv != null && A.conv ? x.m.conv / A.conv - 1 : null;
+    const ok = conf != null && conf >= 0.95;
+    return `<li><b style="color:${x.cor}">${x.nome}</b> × A: ${dif == null ? "—" : `${dif > 0 ? "+" : ""}${pc(dif)}`} na conversão · confiança ${conf == null ? "—" : pc(conf)}${ok ? (dif > 0 ? " · <b>vence a A</b>" : " · <b>perde para a A</b>") : ""}</li>`;
+  }).join("");
+  const poucos = totVis < 300 || totCad < 30;
+  const encerrado = Date.now() >= T.fim;
+  const veredito = `<p class="ab-veredito ab-veredito--${poucos ? "espera" : "empate"}">${encerrado ? "<b>Resultado final.</b> " : ""}${poucos ? `Ainda poucos dados (${fmt(totVis)} visitantes, ${fmt(totCad)} cadastros). Espere pelo menos 100 visitantes e 10 cadastros em cada versão antes de decidir.` : `Líder em conversão: <b style="color:${lider.cor}">${lider.nome}</b> (${pc(lider.m.conv)}). O ideal é 95% de confiança para declarar vencedora.`}</p>
+    <ul class="ab-ver-lista">${linhasVer}</ul>`;
+
+  // comparação lado a lado: cada linha com barrinhas proporcionais e o melhor em verde
+  const linhas = [
+    ["Visitantes únicos", "visitantes", fmt, null, "todos os visitantes contados pela página"],
+    ["Cadastros", "cadastros", fmt, null, "leads únicos"],
+    ["Conversão da página", "conv", pc, true, "cadastros ÷ visitantes — a métrica principal do teste", true],
+    ["Abriram o formulário", "popups", fmt, null, ""],
+    ["Taxa de abertura do formulário", (m) => (m.visitantes ? m.popups / m.visitantes : null), pc, true, "abriram ÷ visitantes"],
+    ["Conversão do formulário", (m) => (m.popups ? m.cadastros / m.popups : null), pc, true, "cadastros ÷ quem abriu"],
+    ["Investimento ≈", "investimento", rs, null, "1/3 de cada hora fechada do teste (sorteio)"],
+    ["Page views (Meta)", "page_views", fmt, null, "1/3 de cada hora fechada"],
+    ["Cadastros de anúncio", "cad_pago", n1, null, "horas fechadas"],
+    ["CPL ≈", "cpl", rs, false, "investimento ÷ cadastros de anúncio (horas fechadas)"],
+    ["Conversão da página (anúncios)", "conv_lp", pc, true, "cadastros de anúncio ÷ page views"]
+  ];
+  const val = (m, k) => (typeof k === "function" ? k(m) : m[k]);
+  const corpo = linhas.map(([nome, k, f, maiorMelhor, dica, principal]) => {
+    const vals = M.map((x) => val(x.m, k));
+    const validos = vals.filter((v) => v != null);
+    const max = Math.max(...validos.map(Math.abs), 0);
+    let melhor = null;
+    if (maiorMelhor !== null && validos.length > 1 && new Set(validos).size > 1) melhor = maiorMelhor ? Math.max(...validos) : Math.min(...validos);
+    return `<tr${principal ? ' class="ab-principal"' : ""}><td>${nome}${dica ? `<small>${dica}</small>` : ""}</td>${vals.map((v, i) => `
+      <td class="n${v != null && v === melhor ? " ab-melhor" : ""}"><span class="abm__val">${f(v)}</span>${v != null && max ? `<i class="abm__barra" style="width:${Math.max(4, Math.abs(v) / max * 100)}%;background:${M[i].cor}"></i>` : ""}</td>`).join("")}</tr>`;
+  }).join("");
+
+  // por dia
+  const dias = new Map();
+  const gd = (d) => { if (!dias.has(d)) dias.set(d, Object.fromEntries(V.map((x) => [x.id, { vis: 0, cad: 0 }]))); return dias.get(d); };
+  ((AB && AB.dias) || []).forEach(([d, v, , , , vis]) => { if (gd(d)[v]) gd(d)[v].vis += +vis || 0; });
+  UNICOS.forEach((l) => { const v = varianteDoLead(l); if (v && noTeste(l) && gd(l.dia)[v]) gd(l.dia)[v].cad++; });
+  const linhasDia = [...dias.keys()].sort().reverse().map((d) => `<tr><td>${dataBR(d)}</td>${V.map((x) => { const r = dias.get(d)[x.id]; return `<td class="n">${fmt(r.vis)}</td><td class="n">${fmt(r.cad)}</td><td class="n">${pc(r.vis ? r.cad / r.vis : null)}</td>`; }).join("")}</tr>`).join("");
+
+  alvo.innerHTML = `
+    <div class="ab-cabeca">
+      <div><label class="ab-escolha">Ver <select id="ab-teste" aria-label="Teste exibido">${TESTES_AB.map((t) => `<option value="${t.id}"${t.id === T.id ? " selected" : ""}>${t.nome}${t === TESTES_AB[0] ? " (atual)" : ""}</option>`).join("")}</select></label>
+        <p class="rotulo">${encerrado ? "Encerrado" : agora && agora.antes ? "Começa em breve" : "Em andamento"}</p><h3>${T.nome}</h3>
+        <p class="t-nota">${T.desc}</p>
+        ${agora && agora.antes ? `<p class="ab-agora">A divisão já está no ar; a contagem começa em ${horaTxt(agora.ate)}</p>` : !encerrado ? `<p class="ab-agora">No ar: as ${V.length} versões, 1/${V.length} dos visitantes cada, até ${horaTxt(T.fim)}</p>` : ""}</div>
+      <div class="ab-versoes">${V.map((x) => `<span class="ab-tag" style="background:${x.cor}">${x.nome}<small>${x.sub}</small></span>`).join("")}</div>
+    </div>
+    ${veredito}
+    <div class="tabela-wrap"><table class="tabela abm-tabela">
+      <thead><tr><th>Métrica</th>${V.map((x) => `<th class="n" style="color:${x.cor}">${x.nome}</th>`).join("")}</tr></thead>
+      <tbody>${corpo}</tbody></table></div>
+    <p class="t-nota ab-nota">${funilVazio ? "O custo aparece quando a primeira hora do teste fechar e a Meta entregar os dados (uns 10 min depois da hora cheia)." : `Custos e page views: horas fechadas de ${horaTxt(Date.parse(AB.inicio))} a ${horaTxt(corte)}, 1/${V.length} de cada hora para cada versão.`} Verde = melhor da linha.</p>
+    <h3 class="ab-sub">Custo de cada etapa</h3>
+    <div class="ab-grafico"><canvas id="g-ab-custo-multi" role="img" aria-label="CPM ÷ 10, CPC, custo por page view e CPL de cada versão"></canvas></div>
+    <h3 class="ab-sub">Por dia</h3>
+    <div class="tabela-wrap"><table class="tabela">
+      <thead><tr><th rowspan="2">Data</th>${V.map((x) => `<th class="n" colspan="3" style="color:${x.cor}">${x.nome}</th>`).join("")}</tr>
+      <tr>${V.map(() => `<th class="n">Visitantes</th><th class="n">Cadastros</th><th class="n">Conversão</th>`).join("")}</tr></thead>
+      <tbody>${linhasDia || `<tr><td colspan="${1 + V.length * 3}" class="vazio">Sem visitas ainda.</td></tr>`}</tbody></table></div>`;
+
+  $("#ab-teste").addEventListener("change", (e) => escolherTeste(e.target.value));
+  if (gAbCustoMulti) { gAbCustoMulti.destroy(); gAbCustoMulti = null; }
+  const valC = (m) => [m.cpm != null ? m.cpm / 10 : null, m.cpc, m.cpv, m.cpl];
+  gAbCustoMulti = new Chart($("#g-ab-custo-multi"), {
+    type: "bar",
+    data: { labels: ["CPM ÷ 10", "CPC", "Custo por page view", "CPL"], datasets: M.map((x) => ({ label: x.nome, data: valC(x.m), backgroundColor: x.cor, borderRadius: 4 })) },
+    options: { responsive: true, maintainAspectRatio: false, animation: { duration: 300 },
+      plugins: { legend: { labels: { font: { family: "Montserrat", weight: 600 }, boxWidth: 12 } },
+        tooltip: { backgroundColor: "#0b0b0b", callbacks: { label: (c) => ` ${c.dataset.label}: ${c.label === "CPM ÷ 10" ? "CPM " + brl(c.parsed.y * 10) : brl(c.parsed.y)}` } } },
+      scales: { x: { grid: { display: false } }, y: { beginAtZero: true, ticks: { callback: (v) => "R$ " + v.toLocaleString("pt-BR") } } } }
   });
 }
