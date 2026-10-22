@@ -439,6 +439,17 @@ function renderRanking() {
   const f = estadoFiltros();
   const dim = $("#t-dim").value || "anuncio";
   const grupos = comCplHoje([...agregar(f, dim).entries()], f, dim);
+  // em quantas campanhas e conjuntos cada linha está ATIVA agora, e de qual conta é
+  const extra = new Map();
+  TRAF.ads.forEach((a) => {
+    if (!adPassa(a, f)) return;
+    const k = chaveDim(a, dim);
+    if (!extra.has(k)) extra.set(k, { camp: new Set(), conj: new Set(), contas: new Set() });
+    const x = extra.get(k);
+    x.contas.add(a.conta || "Docis");
+    if (a.status === "ACTIVE") { x.camp.add(a.campaign_id); x.conj.add(a.adset_id); }
+  });
+  grupos.forEach(([k, r]) => { const x = extra.get(k); r.n_camp = x ? x.camp.size : 0; r.n_conj = x ? x.conj.size : 0; r.contas = x ? [...x.contas].sort() : []; });
   const val = (r) => (ordem.col === "nome" ? null : r[ordem.col]);
   grupos.sort((a, b) => {
     if (ordem.col === "nome") return ordem.dir * a[0].localeCompare(b[0], "pt-BR", { numeric: true });
@@ -449,10 +460,13 @@ function renderRanking() {
   });
   const seta = (c) => (ordem.col === c ? (ordem.dir > 0 ? " ▲" : " ▼") : "");
   const nomeDim = DIMENSOES.find((d) => d[0] === dim)[1];
-  $("#t-rank thead").innerHTML = `<tr><th data-col="nome" class="ordenavel">${esc(nomeDim)}${seta("nome")}</th>${COLUNAS.map(([c, n]) => `<th data-col="${c}" class="n ordenavel">${n}${seta(c)}</th>`).join("")}</tr>`;
+  const cabecaConta = (c) => `<img class="rank-conta" src="/black2026/img/${c === "Felipe Russo" ? "cabeca-felipe" : "cabeca-cilaine"}.webp" alt="" title="${esc(c)}">`;
+  $("#t-rank thead").innerHTML = `<tr><th data-col="nome" class="ordenavel">${esc(nomeDim)}${seta("nome")}</th><th class="rank-conta-th">Conta</th><th data-col="n_camp" class="n ordenavel" title="campanhas em que está ativo agora">Ativo em campanhas${seta("n_camp")}</th><th data-col="n_conj" class="n ordenavel" title="conjuntos em que está ativo agora">Ativo em conjuntos${seta("n_conj")}</th>${COLUNAS.map(([c, n]) => `<th data-col="${c}" class="n ordenavel">${n}${seta(c)}</th>`).join("")}</tr>`;
   $("#t-rank tbody").innerHTML = grupos.map(([k, r]) => `<tr>
     <td title="${esc(k)}"><div class="rank-nome">${dim === "anuncio" && criativoDe(k) ? `<img class="thumb" src="${thumbUrl(criativoDe(k))}" alt="" loading="lazy" referrerpolicy="no-referrer" data-criativo="${esc(k)}">` : ""}<div><strong>${dim === "anuncio" ? iconeFormato(r.formato) : ""}${esc(k)}</strong>${r.campanha ? `<span class="sub">${esc(r.campanha)}${r.conjunto ? " · " + esc(r.conjunto) : ""}</span>` : ""}</div></div></td>
-    ${COLUNAS.map(([c]) => `<td class="n">${celula(c, r)}</td>`).join("")}</tr>`).join("") || `<tr><td colspan="${COLUNAS.length + 1}" class="vazio">Sem dados.</td></tr>`;
+    <td class="rank-conta-td">${(r.contas || []).map((c) => `<span class="rank-conta-item">${cabecaConta(c)}${c === "Felipe Russo" ? "Felipe" : "Docis"}</span>`).join("")}</td>
+    <td class="n${r.n_camp ? "" : " rank-inativo"}">${r.n_camp ? fmt(r.n_camp) : "pausado"}</td><td class="n${r.n_conj ? "" : " rank-inativo"}">${r.n_conj ? fmt(r.n_conj) : "—"}</td>
+    ${COLUNAS.map(([c]) => `<td class="n">${celula(c, r)}</td>`).join("")}</tr>`).join("") || `<tr><td colspan="${COLUNAS.length + 4}" class="vazio">Sem dados.</td></tr>`;
   $("#t-rank-info").textContent = `${fmt(grupos.length)} ${grupos.length === 1 ? "linha" : "linhas"} · clique no título da coluna para ordenar · empate: leads, CPL, alunos`;
   $("#t-rank thead").querySelectorAll("th").forEach((th) => th.addEventListener("click", () => {
     const c = th.dataset.col;
@@ -644,13 +658,17 @@ function renderHora(dia, linhas) {
 }
 
 // ---------- Top 5 ----------
+// Top 5: menor CPL entre os anúncios com pelo menos MIN_LEADS_TOP leads (evita campeão por acaso com 1 lead);
+// empate no CPL: mais leads, depois mais alunos
+const MIN_LEADS_TOP = 5;
+const porCpl = (a, b) => (a.cpl ?? Infinity) - (b.cpl ?? Infinity) || arred(b.leads) - arred(a.leads) || arred(alunosDe(b)) - arred(alunosDe(a));
 function renderTop5(f) {
-  const todos = comCplHoje([...agregar(f, "anuncio").entries()], f, "anuncio").filter(([, r]) => r.leads > 0).sort((a, b) => desempate(a[1], b[1]));
-  desenharTop($("#t-top5"), todos.slice(0, 5), "Ainda sem leads ligados a anúncios.");
-  desenharTop($("#t-top5-imagem"), todos.filter(([, r]) => r.formato === "Imagem").slice(0, 5), "Nenhuma imagem com leads no período.");
+  const todos = comCplHoje([...agregar(f, "anuncio").entries()], f, "anuncio").filter(([, r]) => r.leads >= MIN_LEADS_TOP && r.cpl != null).sort((a, b) => porCpl(a[1], b[1]));
+  desenharTop($("#t-top5"), todos.slice(0, 5), `Ainda nenhum anúncio com ${MIN_LEADS_TOP} leads ou mais no período.`);
+  desenharTop($("#t-top5-imagem"), todos.filter(([, r]) => r.formato === "Imagem").slice(0, 5), `Nenhuma imagem com ${MIN_LEADS_TOP}+ leads no período.`);
   const videos = todos.filter(([, r]) => r.formato === "Vídeo").slice(0, 5);
   const temVideo = TRAF.ads.some((a) => a.formato === "Vídeo" && adPassa(a, f));
-  desenharTop($("#t-top5-video"), videos, temVideo ? "Os vídeos ainda não trouxeram leads no período." : "Nenhum anúncio em vídeo rodando nas campanhas blf26 (com os filtros escolhidos).");
+  desenharTop($("#t-top5-video"), videos, temVideo ? `Nenhum vídeo com ${MIN_LEADS_TOP}+ leads no período.` : "Nenhum anúncio em vídeo rodando nas campanhas blf26 (com os filtros escolhidos).");
 }
 function iconeFormato(fmt) {
   return fmt === "Vídeo" ? '<span class="fmt fmt--video" title="Vídeo" aria-label="Vídeo">▶</span>' : '<span class="fmt fmt--img" title="Imagem" aria-label="Imagem">▣</span>';
