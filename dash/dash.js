@@ -139,8 +139,9 @@ $("#recarregar").addEventListener("click", carregar);
 // ---------- Filtro global de conta (Ambas / Docis / Felipe Russo) ----------
 // Vale para o dash inteiro: o que não for da conta escolhida sai de LEADS/UNICOS e dos dados de tráfego.
 // Conta do lead: a do anúncio a que ele foi ligado; sem anúncio, pela UTM (blf26_felipe) ou pelo domínio da página.
+// sempre abre em "Ambas"; a escolha vale só enquanto o dash está aberto (não fica salva no aparelho)
 let CONTA_SEL = "todas";
-try { CONTA_SEL = localStorage.getItem("dash_conta") || "todas"; } catch (e) {}
+try { localStorage.removeItem("dash_conta"); } catch (e) {}
 const BASE = { leads: [], unicos: [], ads: [], insights: [], horas: [] };
 function contaDoLead(l) {
   const at = typeof ATRIB !== "undefined" ? ATRIB.get(l.id) : null;
@@ -177,7 +178,6 @@ function comBase(fn) {
 }
 function trocarConta(c) {
   CONTA_SEL = c;
-  try { localStorage.setItem("dash_conta", c); } catch (e) {}
   aplicarContaGlobal();
   renderPainel(); montarFiltros(); renderLeads();
   if (TRAF.ads.length || BASE.ads.length) { montarFiltrosTrafego(); renderTrafego(); }
