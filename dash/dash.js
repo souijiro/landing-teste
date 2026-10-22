@@ -111,7 +111,7 @@ async function carregar() {
       rpc("dash_leads_black2026", { p_token: token }),
       rpc("dash_trafego_black2026", { p_token: token }).catch((e) => { if (e.code === "28000") throw e; return null; }),
       rpc("dash_trafego_horas_black2026", { p_token: token }).catch(() => null),
-      rpc("dash_ab_black2026", typeof periodoAB === "function" ? periodoAB() : { p_token: token }).catch(() => null)
+      typeof periodoAB === "function" ? rpc("dash_ab_black2026", periodoAB()).catch(() => null) : Promise.resolve(null)
     ]);
     AB = ab;
     preparar(linhas || []);
@@ -520,7 +520,8 @@ $("#f-csv").addEventListener("click", () => {
 })();
 
 // ---------- Início ----------
-if (lerToken()) { mostrarApp(); carregar(); } else mostrarLogin();
+// espera os outros arquivos (tráfego, Teste A/B) carregarem antes da primeira busca, para o teste escolhido vir certo
+if (lerToken()) { mostrarApp(); if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", carregar, { once: true }); else carregar(); } else mostrarLogin();
 document.addEventListener("visibilitychange", () => { if (!document.hidden && lerToken()) carregar(); });
 
 // ---------- Aba Alunos: totais das bases e % que já se inscreveu ----------
