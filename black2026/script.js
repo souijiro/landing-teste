@@ -48,12 +48,12 @@ if (SEM_EMAIL) {
   document.getElementById("email").required = false;
 }
 function registrar(evento) {
-  if (AB_FORCADA) return;
+  if (AB_FORCADA || window.HEADLINE_FORCADA) return;
   try {
     fetch(`${SUPABASE_URL}/rest/v1/visitas_black2026`, {
       method: "POST", keepalive: true,
       headers: { apikey: SUPABASE_KEY, "Content-Type": "application/json", Prefer: "return=minimal" },
-      body: JSON.stringify({ visitante: VISITANTE, variante: VARIANTE, evento, host: location.hostname.slice(0, 100),
+      body: JSON.stringify({ visitante: VISITANTE, variante: VARIANTE, variante_headline: window.HEADLINE || null, evento, host: location.hostname.slice(0, 100),
         utm_source: UTMS.utm_source, utm_medium: UTMS.utm_medium, utm_campaign: UTMS.utm_campaign, utm_content: UTMS.utm_content, utm_term: UTMS.utm_term })
     }).catch(() => {});
   } catch (e) {}
@@ -171,7 +171,8 @@ form.addEventListener("submit", async (e) => {
     pagina_origem: PAGINA_ORIGEM,
     // mesmo ID no banco, no pixel e no GTM: a Meta descarta Leads repetidos com o mesmo event_id
     event_id: uuid(),
-    variante_ab: VARIANTE
+    variante_ab: VARIANTE,
+    variante_headline: window.HEADLINE || null // Teste A/B 3: "atual" ou "nova"
   };
 
   btn.disabled = true;
@@ -216,7 +217,7 @@ form.addEventListener("submit", async (e) => {
   // GTM (c.docis.com.br): evento único do cadastro; redireciona quando as tags terminarem
   if (window.dataLayer && window.google_tag_manager) {
     window.dataLayer.push({
-      event: "lead_black2026", event_id: lead.event_id, variante_ab: VARIANTE,
+      event: "lead_black2026", event_id: lead.event_id, variante_ab: VARIANTE, variante_headline: window.HEADLINE,
       pais: lead.pais, utm_source: lead.utm_source, utm_campaign: lead.utm_campaign,
       eventCallback: irParaObrigado, eventTimeout: 2000
     });

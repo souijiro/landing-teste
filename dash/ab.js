@@ -1,7 +1,7 @@
-// Aba "Teste A/B". Teste 1: formulário com e-mail x só nome e telefone, alternando a cada 10 minutos.
+// Aba "Teste A/B": compara as versões A e B do teste escolhido (TESTES_AB em trafego.js).
 // Usa AB, noTeste, versaoEm, fracHora, ATRIB, ADS, TRAF, CONTA_DOCIS (trafego.js) e UNICOS, fmt, brl, esc, dataBR, horaSP, tipoOrigem, $ (dash.js).
 
-const AB_TESTE1 = { a: "com_email", b: "sem_email" };
+// as versões A e B (ids, nomes e descrições) vêm do teste escolhido em TESTES_AB (trafego.js)
 let gAbCusto = null;
 
 // teste de duas proporções (bicaudal): confiança de que a diferença é real (0 a 1)
@@ -18,7 +18,8 @@ function confiancaDiferenca(x1, n1, x2, n2) {
 // qual versão está no ar agora no teste escolhido e até quando
 function versaoAgora() {
   const t = TESTE_AB, agora = Date.now();
-  if (agora < t.ini) return { v: "com_email", ate: new Date(t.ini), antes: true };
+  if (agora < t.ini) return { v: null, ate: new Date(t.ini), antes: true };
+  if (t.sorteio && agora < t.fim) return { sorteio: true, ate: new Date(t.fim) };
   if (agora >= t.fim) return { fim: true };
   const v = versaoEm(agora);
   let ate = agora - (agora % 60000) + 60000;
@@ -32,9 +33,10 @@ async function escolherTeste(id) {
   $("#ab-conteudo").innerHTML = `<p class="t-nota">Carregando…</p>`;
   try { AB = await rpc("dash_ab_black2026", periodoAB()); } catch (e) { AB = null; }
   renderAB();
+  if (typeof montarFiltroAB === "function") montarFiltroAB();
   if (typeof renderTrafego === "function" && TRAF.ads.length) renderTrafego();
 }
-const periodoAB = () => ({ p_token: lerToken(), p_ini: new Date(TESTE_AB.ini).toISOString(), p_fim: new Date(TESTE_AB.fim).toISOString() });
+const periodoAB = () => ({ p_token: lerToken(), p_ini: new Date(TESTE_AB.ini).toISOString(), p_fim: new Date(TESTE_AB.fim).toISOString(), p_campo: TESTE_AB.campo || "email" });
 
 // visitantes vindos dos anúncios (Docis e Felipe, as duas contas têm gasto por hora)
 const ehPagoDocis = (us, um, uc) => tipoOrigem({ utm_source: us, utm_medium: um, utm_campaign: uc }) === "Tráfego";
@@ -58,7 +60,7 @@ function metricasVariante(v, corte) {
     r.visitantes += +vis || 0; r.popups += +pop || 0;
   });
   UNICOS.forEach((l) => {
-    if (l.ab !== v || !noTeste(l)) return;
+    if (varianteDoLead(l) !== v || !noTeste(l)) return;
     r.cadastros++;
     // funil de custo: só cadastros de anúncios em horas fechadas
     if (Date.parse(l.criado_em) >= corte) return;
@@ -96,7 +98,7 @@ function renderAB() {
   }
   const ini = abInicioDia();
   const corte = corteFunil();
-  const A = metricasVariante(AB_TESTE1.a, corte), B = metricasVariante(AB_TESTE1.b, corte);
+  const A = metricasVariante(TESTE_AB.a, corte), B = metricasVariante(TESTE_AB.b, corte);
   const horaTxt = (ms) => horaSP.format(new Date(ms));
   const corteFim = Math.min(corte, AB.fim ? Date.parse(AB.fim) : corte);
   const funilVazio = corteFim <= Date.parse(AB.inicio);
@@ -121,7 +123,7 @@ function renderAB() {
     if (a == null || b == null || a === b) return "";
     return (x === "a" ? (menorMelhor ? a < b : a > b) : (menorMelhor ? b < a : b > a)) ? " abc--melhor" : "";
   };
-  let g = `<div class="abc__cab" style="grid-column:2 / 5;color:#2a78d6">A · Com e-mail</div><div class="abc__cab" style="grid-column:5 / 8;color:#eb6834">B · Sem e-mail</div>`;
+  let g = `<div class="abc__cab" style="grid-column:2 / 5;color:#2a78d6">${TESTE_AB.nomeA}</div><div class="abc__cab" style="grid-column:5 / 8;color:#eb6834">${TESTE_AB.nomeB}</div>`;
   etapas.forEach(([nome, k, f, custo, w], i) => {
     const lin = i * 2 + 2;
     const bar = (x, R) => `<div class="abc__cel" style="grid-row:${lin};grid-column:${x === "a" ? 3 : 6}">
@@ -156,19 +158,19 @@ function renderAB() {
   if (A.visitantes + B.visitantes < 200 || A.cadastros + B.cadastros < 20) veredito = { cls: "espera", txt: `Ainda poucos dados (${fmt(A.visitantes + B.visitantes)} visitantes, ${fmt(A.cadastros + B.cadastros)} cadastros). Espere pelo menos 200 visitantes e 20 cadastros em cada lado antes de decidir.` };
   else if (conf != null && conf >= 0.95) {
     const ganhaB = B.conv > A.conv;
-    veredito = { cls: "vence", txt: `<b>${ganhaB ? "Sem e-mail" : "Com e-mail"} converte mais</b>: ${pc(ganhaB ? B.conv : A.conv)} contra ${pc(ganhaB ? A.conv : B.conv)}, com ${pc(conf)} de confiança.${ganhaB ? " Lembre que sem e-mail você perde o canal de e-mail com esses leads." : ""}` };
-  } else veredito = { cls: "empate", txt: `Até agora sem diferença confiável na conversão (${pc(A.conv)} com e-mail × ${pc(B.conv)} sem e-mail; confiança ${conf == null ? "—" : pc(conf)}, o ideal é 95%). Continue rodando.` };
+    veredito = { cls: "vence", txt: `<b>${ganhaB ? TESTE_AB.nomeB : TESTE_AB.nomeA} converte mais</b>: ${pc(ganhaB ? B.conv : A.conv)} contra ${pc(ganhaB ? A.conv : B.conv)}, com ${pc(conf)} de confiança.${ganhaB && TESTE_AB.campo === "email" ? " Lembre que sem e-mail você perde o canal de e-mail com esses leads." : ""}` };
+  } else veredito = { cls: "empate", txt: `Até agora sem diferença confiável na conversão (${pc(A.conv)} na A × ${pc(B.conv)} na B; confiança ${conf == null ? "—" : pc(conf)}, o ideal é 95%). Continue rodando.` };
   if (Date.now() >= TESTE_AB.fim) {
     veredito.txt = "<b>Resultado final:</b> " + veredito.txt.replace("Até agora sem", "sem").replace(" Continue rodando.", "").replace("Espere pelo menos 200 visitantes e 20 cadastros em cada lado antes de decidir.", "Dados insuficientes para decidir.");
   }
 
   // ---------- por dia ----------
   const dias = new Map();
-  const gd = (d) => { if (!dias.has(d)) dias.set(d, { com_email: { vis: 0, cad: 0 }, sem_email: { vis: 0, cad: 0 } }); return dias.get(d); };
-  (AB.dias || []).forEach(([d, v, , , , vis]) => { gd(d)[v].vis += +vis || 0; });
-  UNICOS.forEach((l) => { if (l.ab && noTeste(l)) gd(l.dia)[l.ab].cad++; });
+  const gd = (d) => { if (!dias.has(d)) dias.set(d, { [TESTE_AB.a]: { vis: 0, cad: 0 }, [TESTE_AB.b]: { vis: 0, cad: 0 } }); return dias.get(d); };
+  (AB.dias || []).forEach(([d, v, , , , vis]) => { if (gd(d)[v]) gd(d)[v].vis += +vis || 0; });
+  UNICOS.forEach((l) => { const v = varianteDoLead(l); if (v && noTeste(l) && gd(l.dia)[v]) gd(l.dia)[v].cad++; });
   const linhasDia = [...dias.keys()].sort().reverse().map((d) => {
-    const x = dias.get(d), ca = x.com_email, sb = x.sem_email;
+    const x = dias.get(d), ca = x[TESTE_AB.a], sb = x[TESTE_AB.b];
     const c1 = ca.vis ? ca.cad / ca.vis : null, c2 = sb.vis ? sb.cad / sb.vis : null;
     return `<tr><td>${dataBR(d)}</td><td class="n">${fmt(ca.vis)}</td><td class="n">${fmt(ca.cad)}</td><td class="n ${c1 != null && c2 != null && c1 > c2 ? "ab-melhor" : ""}">${pc(c1)}</td>
       <td class="n">${fmt(sb.vis)}</td><td class="n">${fmt(sb.cad)}</td><td class="n ${c1 != null && c2 != null && c2 > c1 ? "ab-melhor" : ""}">${pc(c2)}</td></tr>`;
@@ -180,25 +182,25 @@ function renderAB() {
       <div><label class="ab-escolha">Ver <select id="ab-teste" aria-label="Teste exibido">${TESTES_AB.map((t) => `<option value="${t.id}"${t.id === TESTE_AB.id ? " selected" : ""}>${t.nome}${t === TESTES_AB[0] ? " (atual)" : ""}</option>`).join("")}</select></label>
         <p class="rotulo">${agora && agora.fim ? "Encerrado" : agora && agora.antes ? "Começa em breve" : "Em andamento"}</p><h3>${TESTE_AB.nome}</h3>
         <p class="t-nota">${TESTE_AB.desc}</p>
-        ${agora ? (agora.fim ? `<p class="ab-agora">Teste encerrado</p>` : `<p class="ab-agora">${agora.antes ? "Antes do teste, no ar:" : "No ar agora:"} <b class="ab-agora--${agora.v}">${agora.v === "sem_email" ? "B · Sem e-mail" : "A · Com e-mail"}</b> até ${horaSP.format(agora.ate)}${agora.antes ? " (aí começa o teste)" : ""}</p>`) : ""}</div>
-      <div class="ab-versoes"><span class="ab-tag ab-tag--a">A · Com e-mail<small>nome, e-mail e WhatsApp</small></span><span class="ab-tag ab-tag--b">B · Sem e-mail<small>só nome e WhatsApp</small></span></div>
+        ${agora ? (agora.fim ? `<p class="ab-agora">Teste encerrado</p>` : agora.sorteio ? `<p class="ab-agora">No ar: as duas versões, 50/50 por visitante, até ${horaSP.format(agora.ate)}</p>` : agora.antes && TESTE_AB.sorteio ? `<p class="ab-agora">A divisão 50/50 já está no ar; a contagem começa em ${horaSP.format(agora.ate)}</p>` : `<p class="ab-agora">${agora.antes ? "Antes do teste, no ar:" : "No ar agora:"} <b class="ab-agora--${agora.v === TESTE_AB.b ? "sem_email" : "com_email"}">${AB_NOMES[agora.v] || "—"}</b> até ${horaSP.format(agora.ate)}${agora.antes ? " (aí começa o teste)" : ""}</p>`) : ""}</div>
+      <div class="ab-versoes"><span class="ab-tag ab-tag--a">${TESTE_AB.nomeA}<small>${TESTE_AB.subA}</small></span><span class="ab-tag ab-tag--b">${TESTE_AB.nomeB}<small>${TESTE_AB.subB}</small></span></div>
     </div>
     <p class="ab-veredito ab-veredito--${veredito.cls}">${veredito.txt}</p>
     <h3 class="ab-sub">Funil de custo · ${funilVazio ? "aguardando a 1ª hora fechada" : `horas fechadas, de ${horaTxt(Date.parse(AB.inicio))} a ${horaTxt(corteFim)}`}</h3>
     ${funilVazio ? `<p class="t-nota">O teste começa em ${horaTxt(TESTE_AB.ini)}. A primeira hora fecha e a Meta entrega o custo uns 10 minutos depois da hora cheia. Até lá, acompanhe a conversão abaixo.</p>` : `<div class="abc" role="img" aria-label="Funil de custo e conversão das duas versões">${g}</div>`}
-    <p class="t-nota ab-nota">Funil dos anúncios das contas Docis e Felipe Russo. Investimento, impressões, cliques e page views vêm da Meta hora a hora (cada dia do teste pertence inteiro a uma versão). "Abriram o formulário" é contado pela própria página, só de quem veio de anúncio. Cadastros = leads ligados aos anúncios. A hora em andamento só entra no funil quando fecha e a Meta entrega o custo das duas contas (por volta de 10 min depois da hora cheia).</p>
+    <p class="t-nota ab-nota">Funil dos anúncios das contas Docis e Felipe Russo. Investimento, impressões, cliques e page views vêm da Meta hora a hora (${TESTE_AB.sorteio ? "com o sorteio 50/50, cada hora do teste conta metade para cada versão" : "cada hora do teste pertence inteira a uma versão"}). "Abriram o formulário" é contado pela própria página, só de quem veio de anúncio. Cadastros = leads ligados aos anúncios. A hora em andamento só entra no funil quando fecha e a Meta entrega o custo das duas contas (por volta de 10 min depois da hora cheia).</p>
     <h3 class="ab-sub">Custo de cada etapa</h3>
     <div class="ab-grafico"><canvas id="g-ab-custo" role="img" aria-label="Barras: CPM ÷ 10, CPC, custo por page view e CPL das versões A e B"></canvas></div>
     <h3 class="ab-sub">Todos os visitantes contados pela página (inclui orgânico) · base do resultado do teste</h3>
     <div class="tabela-wrap"><table class="tabela">
       <thead><tr><th>Versão</th><th class="n">Visitantes</th><th class="n">Abriram o formulário</th><th class="n">Cadastros</th><th class="n">Conversão</th></tr></thead>
       <tbody>
-        <tr><td><b style="color:#2a78d6">A · Com e-mail</b></td><td class="n">${fmt(A.visitantes)}</td><td class="n">${fmt(A.popups)}</td><td class="n">${fmt(A.cadastros)}</td><td class="n${melhor("conv", "a") ? " ab-melhor" : ""}">${pc(A.conv)}</td></tr>
-        <tr><td><b style="color:#eb6834">B · Sem e-mail</b></td><td class="n">${fmt(B.visitantes)}</td><td class="n">${fmt(B.popups)}</td><td class="n">${fmt(B.cadastros)}</td><td class="n${melhor("conv", "b") ? " ab-melhor" : ""}">${pc(B.conv)}</td></tr>
+        <tr><td><b style="color:#2a78d6">${TESTE_AB.nomeA}</b></td><td class="n">${fmt(A.visitantes)}</td><td class="n">${fmt(A.popups)}</td><td class="n">${fmt(A.cadastros)}</td><td class="n${melhor("conv", "a") ? " ab-melhor" : ""}">${pc(A.conv)}</td></tr>
+        <tr><td><b style="color:#eb6834">${TESTE_AB.nomeB}</b></td><td class="n">${fmt(B.visitantes)}</td><td class="n">${fmt(B.popups)}</td><td class="n">${fmt(B.cadastros)}</td><td class="n${melhor("conv", "b") ? " ab-melhor" : ""}">${pc(B.conv)}</td></tr>
       </tbody></table></div>
     <h3 class="ab-sub">Por dia</h3>
     <div class="tabela-wrap"><table class="tabela">
-      <thead><tr><th rowspan="2">Data</th><th class="n" colspan="3">A · Com e-mail</th><th class="n" colspan="3">B · Sem e-mail</th></tr>
+      <thead><tr><th rowspan="2">Data</th><th class="n" colspan="3">${TESTE_AB.nomeA}</th><th class="n" colspan="3">${TESTE_AB.nomeB}</th></tr>
       <tr><th class="n">Visitantes</th><th class="n">Cadastros</th><th class="n">Conversão</th><th class="n">Visitantes</th><th class="n">Cadastros</th><th class="n">Conversão</th></tr></thead>
       <tbody>${linhasDia || '<tr><td colspan="7" class="vazio">Sem visitas ainda.</td></tr>'}</tbody></table></div>`;
 
@@ -210,8 +212,8 @@ function renderAB() {
   gAbCusto = new Chart($("#g-ab-custo"), {
     type: "bar",
     data: { labels: ["CPM ÷ 10", "CPC", "Custo por page view", "CPL"],
-      datasets: [{ label: "A · Com e-mail", data: val(A), backgroundColor: "#2a78d6", borderRadius: 4 },
-        { label: "B · Sem e-mail", data: val(B), backgroundColor: "#eb6834", borderRadius: 4 }] },
+      datasets: [{ label: TESTE_AB.nomeA, data: val(A), backgroundColor: "#2a78d6", borderRadius: 4 },
+        { label: TESTE_AB.nomeB, data: val(B), backgroundColor: "#eb6834", borderRadius: 4 }] },
     options: { responsive: true, maintainAspectRatio: false, animation: { duration: 300 },
       plugins: { legend: { labels: { font: { family: "Montserrat", weight: 600 }, boxWidth: 12 } },
         tooltip: { backgroundColor: "#0b0b0b", callbacks: { label: (c) => ` ${c.dataset.label}: ${c.label === "CPM ÷ 10" ? "CPM " + brl(c.parsed.y * 10) : brl(c.parsed.y)}` } } },

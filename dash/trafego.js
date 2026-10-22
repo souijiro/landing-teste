@@ -127,26 +127,39 @@ const diaPassa = (d, f) => (!f.de || d >= f.de) && (!f.ate || d <= f.ate);
 // (gasto/impressões/cliques/page views da Meta hora a hora, contas Docis e Felipe).
 let AB = null;          // dados de dash_ab_black2026
 let VIS = { insights: [], horas: [], unicos: [] };
-const AB_NOMES = { com_email: "Com e-mail", sem_email: "Sem e-mail" };
 function abInicioDia() { return AB && AB.inicio ? diaSP.format(new Date(AB.inicio)) : null; }
-const noTeste = (l) => !!versaoEm(Date.parse(l.criado_em));
-// Testes A/B (o mais recente primeiro). Cada um tem a janela e a regra de qual versão estava no ar em cada instante.
+// Testes A/B (o mais recente primeiro). Cada um diz o campo que separa as versões, os nomes, a janela
+// e a regra de qual versão estava no ar em cada instante (no sorteio por visitante, as duas ficam no ar juntas).
 const TESTES_AB = [
-  { id: 2, nome: "Teste 2 · Dia sem e-mail × dia com e-mail",
+  { id: 3, nome: "Teste 3 · Headline atual × nova", campo: "headline", a: "atual", b: "nova", sorteio: true,
+    nomeA: "A · Headline atual", nomeB: "B · Headline nova",
+    subA: "“Todos os cursos… Acesso para sempre.”", subB: "“Compre uma vez. Aprenda para sempre.”",
+    desc: "22/10 das 15h à meia-noite · cada visitante é sorteado 50/50 e vê sempre a mesma versão (e-mail pedido nas duas)",
+    ini: Date.parse("2026-10-22T15:00:00-03:00"), fim: Date.parse("2026-10-23T00:00:00-03:00"),
+    versao: () => "sorteio" },
+  { id: 2, nome: "Teste 2 · Dia sem e-mail × dia com e-mail", campo: "email", a: "com_email", b: "sem_email",
+    nomeA: "A · Com e-mail", nomeB: "B · Sem e-mail", subA: "nome, e-mail e WhatsApp", subB: "só nome e WhatsApp",
     desc: "20/10 o dia todo SEM e-mail · 21/10 o dia todo COM e-mail, com a mesma copy nova nos dois dias",
     ini: Date.parse("2026-10-20T00:00:00-03:00"), fim: Date.parse("2026-10-22T00:00:00-03:00"),
     versao: (ms) => (ms < Date.parse("2026-10-21T00:00:00-03:00") ? "sem_email" : "com_email") },
-  { id: 1, nome: "Teste 1 · E-mail no formulário, trocando a cada hora",
+  { id: 1, nome: "Teste 1 · E-mail no formulário, trocando a cada hora", campo: "email", a: "com_email", b: "sem_email",
+    nomeA: "A · Com e-mail", nomeB: "B · Sem e-mail", subA: "nome, e-mail e WhatsApp", subB: "só nome e WhatsApp",
     desc: "19/10 das 13h às 23h: a versão mudava a cada hora cheia (13h sem e-mail, 14h com, 15h sem…), copy antiga",
     ini: Date.parse("2026-10-19T13:00:00-03:00"), fim: Date.parse("2026-10-19T23:00:00-03:00"),
     versao: (ms) => (Math.floor((ms - Date.parse("2026-10-19T13:00:00-03:00")) / 3600000) % 2 === 0 ? "sem_email" : "com_email") }
 ];
 let TESTE_AB = TESTES_AB[0];
+// nomes das versões do teste escolhido (A e B)
+const AB_NOMES = new Proxy({}, { get: (_, k) => (k === TESTE_AB.a ? TESTE_AB.nomeA : k === TESTE_AB.b ? TESTE_AB.nomeB : undefined) });
+// versão em que o lead se cadastrou, no campo do teste escolhido
+const varianteDoLead = (l) => (TESTE_AB.campo === "headline" ? l.hl : l.ab);
+const noTeste = (l) => !!versaoEm(Date.parse(l.criado_em));
 function versaoEm(ms) {
   const t = TESTE_AB;
   return ms >= t.ini && ms < t.fim ? t.versao(ms) : null;
 }
 // fração do gasto da hora (dia, hora em Brasília) que pertence à versão v
+// (sorteio 50/50: metade de cada minuto da hora que está dentro do teste)
 const _frac = new Map();
 function fracHora(dia, hora, v) {
   const k = `${TESTE_AB.id}|${dia}|${hora}|${v}`;
@@ -157,7 +170,8 @@ function fracHora(dia, hora, v) {
     const t = ini + m * 60000 + 30000;
     if (t > agora) break;
     dentro++;
-    if (versaoEm(t) === v) daV++;
+    const x = versaoEm(t);
+    if (x === v) daV++; else if (x === "sorteio" && (v === TESTE_AB.a || v === TESTE_AB.b)) daV += 0.5;
   }
   const f = dentro ? daV / dentro : 0;
   if (ini + 3600000 < agora) _frac.set(k, f); // hora fechada não muda
@@ -184,7 +198,7 @@ function aplicarAB() {
     horas.push([d, h, ad, (+inv || 0) * x, (+imp || 0) * x, (+cl || 0) * x, (+lpv || 0) * x]);
     insights.push({ dia: d, ad_id: ad, investimento: (+inv || 0) * x, impressoes: (+imp || 0) * x, cliques: (+cl || 0) * x, page_views: (+lpv || 0) * x, leads_meta: 0, alcance: 0 });
   });
-  VIS = { insights, horas, unicos: UNICOS.filter((l) => l.ab === v && noTeste(l)) };
+  VIS = { insights, horas, unicos: UNICOS.filter((l) => varianteDoLead(l) === v && noTeste(l)) };
 }
 
 // ---------- Agregação ----------
@@ -444,6 +458,13 @@ function renderRanking() {
 
 ["#t-de", "#t-ate"].forEach((s) => $(s).addEventListener("input", renderTrafego));
 $("#t-ab").addEventListener("change", () => renderTrafego());
+// opções do filtro "Teste A/B" seguem o teste escolhido na aba Teste A/B
+function montarFiltroAB() {
+  const sel = $("#t-ab"), atual = sel.value;
+  sel.innerHTML = `<option value="todos">Todas as versões (${TESTE_AB.nome.split(" · ")[0]})</option><option value="${TESTE_AB.a}">Só ${TESTE_AB.nomeA}</option><option value="${TESTE_AB.b}">Só ${TESTE_AB.nomeB}</option>`;
+  sel.value = [TESTE_AB.a, TESTE_AB.b].includes(atual) ? atual : "todos";
+}
+montarFiltroAB();
 $("#t-limpar").addEventListener("click", () => {
   $("#t-de").value = ""; $("#t-ate").value = "";
   document.querySelectorAll("#t-selects select").forEach((s) => { s.value = "__todos"; });

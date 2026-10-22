@@ -20,6 +20,17 @@
   <script>
     // domínio do Felipe: cursos dele primeiro e copy com "Felipe Russo e Docis" (troca feita por CSS, sem piscar)
     if (location.hostname === "black.confeitaria5estrelas.com") document.documentElement.classList.add("dom-felipe");
+    // Teste A/B 3 (headline): sorteio 50/50 por visitante, fica fixo no aparelho. ?hl=a ou ?hl=b força (e não conta visita).
+    (function () {
+      var forc = new URLSearchParams(location.search).get("hl"), v;
+      if (forc === "a" || forc === "b") { v = forc; window.HEADLINE_FORCADA = true; }
+      else {
+        try { v = localStorage.getItem("black2026_hl"); if (v !== "a" && v !== "b") { v = Math.random() < 0.5 ? "a" : "b"; localStorage.setItem("black2026_hl", v); } }
+        catch (e) { v = Math.random() < 0.5 ? "a" : "b"; }
+      }
+      window.HEADLINE = v === "b" ? "nova" : "atual";
+      if (v === "b") document.documentElement.classList.add("hl-b");
+    })();
   </script>
   <script>
     window.carregarDepois = function (fn) {
@@ -157,6 +168,7 @@ img { max-width: 100%; display: block; }
 .acc .acc__corpo { padding: 0 16px 16px; font-size: .92rem; color: #333; }
 .acc ul { margin: 6px 0 0; padding-left: 20px; }
 /* troca por domínio */
+html:not(.hl-b) .so-hlb, html.hl-b .so-hla { display: none !important; }
 .so-felipe { display: none; }
 .dom-felipe .so-felipe { display: block; }
 .dom-felipe .so-docis { display: none; }
@@ -236,15 +248,19 @@ img { max-width: 100%; display: block; }
         <img class="hero__cabeca" src="img/cabeca-felipe.webp" alt="Felipe Russo" width="71" height="96">
       </div>
 
-      <h1 class="so-docis">Todos os cursos da Docis e do Felipe Russo. Uma única oferta. <em>Acesso para sempre.</em></h1>
-      <h1 class="so-felipe">Todos os cursos do Felipe Russo e da Docis. Uma única oferta. <em>Acesso para sempre.</em></h1>
-
-      <p>Receitas que vendem e estratégias de delivery para fazer sua confeitaria crescer, por <strong>muito menos</strong> do que comprar cada curso separadamente.</p>
+      <!-- A · headline atual -->
+      <h1 class="so-docis so-hla">Todos os cursos da Docis e do Felipe Russo. Uma única oferta. <em>Acesso para sempre.</em></h1>
+      <h1 class="so-felipe so-hla">Todos os cursos do Felipe Russo e da Docis. Uma única oferta. <em>Acesso para sempre.</em></h1>
+      <p class="so-hla">Receitas que vendem e estratégias de delivery para fazer sua confeitaria crescer, por <strong>muito menos</strong> do que comprar cada curso separadamente.</p>
+      <!-- B · headline nova -->
+      <h1 class="so-docis so-hlb"><em>Compre uma vez. Aprenda para sempre.</em> Todos os cursos da Docis e do Felipe Russo em uma única oferta.</h1>
+      <h1 class="so-felipe so-hlb"><em>Compre uma vez. Aprenda para sempre.</em> Todos os cursos do Felipe Russo e da Docis em uma única oferta.</h1>
+      <p class="so-hlb">Domine as receitas que dão vontade de comprar e as estratégias de delivery que fazem o cliente voltar. Tudo com <strong>acesso para sempre</strong>, por muito menos do que você pagaria em cada curso separado.</p>
 
       <p class="hero__vip">Cadastre-se grátis e entre no grupo VIP para receber a oferta</p>
 
 
-      <button type="button" class="btn btn--pulse" data-abrir id="cta-hero">Quero participar da Black</button>
+      <button type="button" class="btn btn--pulse" data-abrir id="cta-hero"><span class="so-hla">Quero participar da Black</span><span class="so-hlb">Quero entrar no grupo VIP e receber a oferta</span></button>
     </div>
   </header>
 
@@ -334,7 +350,7 @@ img { max-width: 100%; display: block; }
       </div>
       </div>
 
-      <button type="button" class="btn" data-abrir>Quero participar da Black</button>
+      <button type="button" class="btn" data-abrir><span class="so-hla">Quero participar da Black</span><span class="so-hlb">Quero entrar no grupo VIP e receber a oferta</span></button>
     </div>
   </section>
 
@@ -343,7 +359,7 @@ img { max-width: 100%; display: block; }
   <footer class="rodape">Copyright © 2026 · Docis · Todos os direitos reservados</footer>
 
   <div class="cta-fixo" id="cta-fixo">
-    <button type="button" class="btn" data-abrir>Quero participar da Black</button>
+    <button type="button" class="btn" data-abrir><span class="so-hla">Quero participar da Black</span><span class="so-hlb">Quero entrar no grupo VIP e receber a oferta</span></button>
   </div>
 
   <!-- Popup de captação -->
@@ -373,6 +389,6 @@ img { max-width: 100%; display: block; }
     </div>
   </div>
 
-  <script type="module" src="script.js?v=12"></script>
+  <script type="module" src="script.js?v=13"></script>
 </body>
 </html>
