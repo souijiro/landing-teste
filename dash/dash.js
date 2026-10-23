@@ -117,14 +117,15 @@ async function carregar() {
     preparar(linhas || []);
     if (traf) { prepararTrafego(traf); TRAF.horas = horas || []; registrarConjuntosHora(); }
     guardarBase(); aplicarContaGlobal();
+    // grupos e alunos vêm de consultas próprias: carregam mesmo se outra parte do dash der erro
+    carregarBases(token);
+    if (typeof carregarGrupos === "function") carregarGrupos(token);
     renderPainel();
     montarFiltros();
     renderLeads();
-    if (traf) { montarFiltrosTrafego(); renderTrafego(); }
-    if (traf && typeof renderAB === "function") renderAB();
+    if (traf) { try { montarFiltrosTrafego(); renderTrafego(); } catch (e) { console.error("tráfego", e); } }
+    if (traf && typeof renderAB === "function") { try { renderAB(); } catch (e) { console.error("teste A/B", e); } }
     if (typeof carregarAnalise === "function") carregarAnalise();
-    carregarBases(token);
-    if (typeof carregarGrupos === "function") carregarGrupos(token);
     $("#atualizado").textContent = "Atualizado " + horaSP.format(new Date()) + " · atualiza sozinho a cada 1 min";
   } catch (err) {
     if (err.code === "28000") { apagarToken(); return mostrarLogin(); }

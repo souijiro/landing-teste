@@ -233,6 +233,7 @@ function comCplHoje(grupos, f, dim) {
 function celula(col, r) {
   const def = COLUNAS.find((c) => c[0] === col);
   if (fmtDerivada[col]) return fmtDerivada[col](r[col]);
+  if (!def) return r[col] == null ? "—" : fmt(r[col]);
   return def[2](r[col], r);
 }
 
@@ -411,7 +412,7 @@ function renderDiaTrafego(f) {
         ref = media.impressoes ? media.alcance * (mediaAteHora.impressoes || 0) / media.impressoes : null;
       } else { valor = ateHora.get(d)?.[col] || 0; ref = mediaAteHora[col]; }
     }
-    if (d < INICIO_CAPTACAO || !completos.length || (!parcial && completos.length < 1)) return `<td class="n">${celula(col, r)}</td>`;
+    if (d < INICIO_CAPTACAO || !completos.length || (!parcial && completos.length < 1)) return `<td class="n">${col === "org" || col === "traf" ? fmt(r[col] || 0) : celula(col, r)}</td>`;
     const attr = corDe(col, valor, ref);
     return attr ? `<td${attr}>${col === "org" || col === "traf" ? fmt(r[col]) : celula(col, r)}</td>` : `<td class="n">${col === "org" || col === "traf" ? fmt(r[col]) : celula(col, r)}</td>`;
   };
