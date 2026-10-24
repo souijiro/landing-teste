@@ -87,6 +87,7 @@ function preparar(linhas) {
     l.variante = r[14] || (l.email ? "com_email" : "sem_email");
     l.ab = r[14] || null; // só cadastros feitos durante o teste
     l.hl = r[15] || null; // Teste A/B 3: "atual" ou "nova" (headline)
+    l.tema = r[16] || null; // Teste A/B 4: "preto" ou "branco" (fundo da página)
     l.pessoa = l.email || "tel:" + (l.telefone || "").replace(/\D/g, "");
     l.dia = diaSP.format(new Date(l.criado_em));
     l.minuto = minutoSP(new Date(l.criado_em));

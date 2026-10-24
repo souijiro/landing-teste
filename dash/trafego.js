@@ -131,6 +131,11 @@ function abInicioDia() { return AB && AB.inicio ? diaSP.format(new Date(AB.inici
 // Testes A/B (o mais recente primeiro). Cada um diz o campo que separa as versões, os nomes, a janela
 // e a regra de qual versão estava no ar em cada instante (no sorteio por visitante, as duas ficam no ar juntas).
 const TESTES_AB = [
+  { id: 4, nome: "Teste 4 · Fundo preto × branco", campo: "tema", a: "preto", b: "branco", sorteio: true,
+    nomeA: "A · Fundo preto", nomeB: "B · Fundo branco", subA: "página original", subB: "mesma copy, fundo branco",
+    desc: "24/10 das 14h à meia-noite · copy C nas duas · cada visitante é sorteado 50/50 e vê sempre o mesmo fundo",
+    ini: Date.parse("2026-10-24T14:00:00-03:00"), fim: Date.parse("2026-10-25T00:00:00-03:00"),
+    versao: () => "sorteio" },
   { id: 3, nome: "Teste 3 · Headline A × B × C", campo: "headline", a: "atual", b: "nova", sorteio: true,
     nomeA: "A · Headline atual", nomeB: "B · Compre uma vez",
     subA: "“Todos os cursos… Acesso para sempre.”", subB: "“Compre uma vez. Aprenda para sempre.”",
@@ -159,7 +164,7 @@ const AB_NOMES = new Proxy({}, { get: (_, k) => (TESTE_AB.variantes ? (TESTE_AB.
   : k === TESTE_AB.a ? TESTE_AB.nomeA : k === TESTE_AB.b ? TESTE_AB.nomeB : undefined) });
 const idsVariantes = () => (TESTE_AB.variantes ? TESTE_AB.variantes.map((x) => x.id) : [TESTE_AB.a, TESTE_AB.b]);
 // versão em que o lead se cadastrou, no campo do teste escolhido
-const varianteDoLead = (l) => (TESTE_AB.campo === "headline" ? l.hl : l.ab);
+const varianteDoLead = (l) => (TESTE_AB.campo === "headline" ? l.hl : TESTE_AB.campo === "tema" ? l.tema : l.ab);
 const noTeste = (l) => !!versaoEm(Date.parse(l.criado_em));
 function versaoEm(ms) {
   const t = TESTE_AB;

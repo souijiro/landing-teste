@@ -20,18 +20,19 @@
   <script>
     // domínio do Felipe: cursos dele primeiro e copy com "Felipe Russo e Docis" (troca feita por CSS, sem piscar)
     if (location.hostname === "black.confeitaria5estrelas.com") document.documentElement.classList.add("dom-felipe");
-    // Teste A/B 3 (headline): sorteio 1/3 para cada versão (A atual, B nova, C sonho), fixo no aparelho.
-    // ?hl=a, ?hl=b ou ?hl=c força a versão (e não conta visita).
+    // Copy C é a padrão (registrada como "sonho").
+    window.HEADLINE = "sonho";
+    // Teste A/B 4 (fundo): sorteio 50/50 por visitante (preto original × branco), fixo no aparelho.
+    // ?tema=preto ou ?tema=branco força a versão (e não conta visita).
     (function () {
-      var ops = ["a", "b", "c"], forc = new URLSearchParams(location.search).get("hl"), v;
-      var sortear = function () { return ops[Math.floor(Math.random() * 3)]; };
-      if (ops.indexOf(forc) >= 0) { v = forc; window.HEADLINE_FORCADA = true; }
+      var ops = ["preto", "branco"], forc = new URLSearchParams(location.search).get("tema"), v;
+      if (ops.indexOf(forc) >= 0) { v = forc; window.TEMA_FORCADO = true; }
       else {
-        try { v = localStorage.getItem("black2026_hl3"); if (ops.indexOf(v) < 0) { v = sortear(); localStorage.setItem("black2026_hl3", v); } }
-        catch (e) { v = sortear(); }
+        try { v = localStorage.getItem("black2026_tema"); if (ops.indexOf(v) < 0) { v = Math.random() < 0.5 ? "preto" : "branco"; localStorage.setItem("black2026_tema", v); } }
+        catch (e) { v = Math.random() < 0.5 ? "preto" : "branco"; }
       }
-      window.HEADLINE = { a: "atual", b: "nova", c: "sonho" }[v];
-      if (v !== "a") document.documentElement.classList.add("hl-" + v);
+      window.TEMA = v;
+      if (v === "branco") document.documentElement.classList.add("tema-branco");
     })();
   </script>
   <script>
@@ -169,8 +170,26 @@ img { max-width: 100%; display: block; }
 .acc details[open] summary::after { content: "−"; color: #111; }
 .acc .acc__corpo { padding: 0 16px 16px; font-size: .92rem; color: #333; }
 .acc ul { margin: 6px 0 0; padding-left: 20px; }
+/* ---------- Teste A/B 4: tema branco ---------- */
+.tema-branco body { background: #fff; color: #1a1a1a; }
+.tema-branco .hero { background: radial-gradient(120% 60% at 50% 0%, #fff8cc 0%, #fff 70%); }
+.tema-branco .hero__marca { background: #0b0b0b; border-radius: 22px; padding: 14px 12px; }
+.tema-branco .hero h1, .tema-branco .hero h1 strong, .tema-branco .hero strong { color: #111; }
+.tema-branco .hero h1 em { color: #111; background: linear-gradient(transparent 55%, var(--amarelo) 55%); box-decoration-break: clone; -webkit-box-decoration-break: clone; padding: 0 2px; }
+.tema-branco .hero p { color: #4a4540; }
+.tema-branco .hero__vip { display: inline-block; color: #111 !important; background: var(--amarelo); padding: 6px 12px; border-radius: 10px; }
+.tema-branco .expert, .tema-branco.dom-felipe .expert--felipe { background: #f6f3ee; }
+.tema-branco .expert--b, .tema-branco.dom-felipe .expert--docis { background: #fff; }
+.tema-branco .expert h2 { color: #111; }
+.tema-branco .expert__tag { display: table; margin: 0 auto 18px; color: #111; background: var(--amarelo); padding: 4px 12px; border-radius: 999px; }
+.tema-branco .expert__card { background: #fff; border-color: #e7e2db; box-shadow: 0 6px 24px rgba(0,0,0,.06); }
+.tema-branco .acc details { background: #fff; color: #111; border: 1px solid #e7e2db; }
+.tema-branco .acc summary::after { color: #111; }
+.tema-branco .acc__grupo { color: #5c5650; }
+.tema-branco .rodape { color: #6b6560; background: #fff; }
+.tema-branco .cta-fixo { background: linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,.96) 35%); }
+
 /* troca por domínio */
-html:not(.hl-b) .so-hlb, html:not(.hl-c) .so-hlc, html.hl-b .so-hla, html.hl-c .so-hla { display: none !important; }
 .so-felipe { display: none; }
 .dom-felipe .so-felipe { display: block; }
 .dom-felipe .so-docis { display: none; }
@@ -250,23 +269,14 @@ html:not(.hl-b) .so-hlb, html:not(.hl-c) .so-hlc, html.hl-b .so-hla, html.hl-c .
         <img class="hero__cabeca" src="img/cabeca-felipe.webp" alt="Felipe Russo" width="71" height="96">
       </div>
 
-      <!-- A · headline atual -->
-      <h1 class="so-docis so-hla">Todos os cursos da Docis e do Felipe Russo. Uma única oferta. <em>Acesso para sempre.</em></h1>
-      <h1 class="so-felipe so-hla">Todos os cursos do Felipe Russo e da Docis. Uma única oferta. <em>Acesso para sempre.</em></h1>
-      <p class="so-hla">Receitas que vendem e estratégias de delivery para fazer sua confeitaria crescer, por <strong>muito menos</strong> do que comprar cada curso separadamente.</p>
-      <!-- B · headline nova -->
-      <h1 class="so-docis so-hlb"><em>Compre uma vez. Aprenda para sempre.</em> Todos os cursos da Docis e do Felipe Russo em uma única oferta.</h1>
-      <h1 class="so-felipe so-hlb"><em>Compre uma vez. Aprenda para sempre.</em> Todos os cursos do Felipe Russo e da Docis em uma única oferta.</h1>
-      <p class="so-hlb">Domine as receitas que dão vontade de comprar e as estratégias de delivery que fazem o cliente voltar. Tudo com <strong>acesso para sempre</strong>, por muito menos do que você pagaria em cada curso separado.</p>
-      <!-- C · headline "sonho" -->
-      <h1 class="so-hlc">Seu sonho de viver da confeitaria merece mais que uma chance. <em>Merece conhecimento para a vida inteira.</em></h1>
-      <p class="so-hlc so-docis">Todos os cursos da Docis e do Felipe Russo para transformar suas receitas em desejo e suas vendas em clientes que voltam. Uma única oferta, com <strong>acesso para sempre</strong>, por muito menos do que comprar cada curso separadamente.</p>
-      <p class="so-hlc so-felipe">Todos os cursos do Felipe Russo e da Docis para transformar suas receitas em desejo e suas vendas em clientes que voltam. Uma única oferta, com <strong>acesso para sempre</strong>, por muito menos do que comprar cada curso separadamente.</p>
+      <h1>Seu sonho de viver da confeitaria merece mais que uma chance. <em>Merece conhecimento para a vida inteira.</em></h1>
+      <p class="so-docis">Todos os cursos da Docis e do Felipe Russo para transformar suas receitas em desejo e suas vendas em clientes que voltam. Uma única oferta, com <strong>acesso para sempre</strong>, por muito menos do que comprar cada curso separadamente.</p>
+      <p class="so-felipe">Todos os cursos do Felipe Russo e da Docis para transformar suas receitas em desejo e suas vendas em clientes que voltam. Uma única oferta, com <strong>acesso para sempre</strong>, por muito menos do que comprar cada curso separadamente.</p>
 
       <p class="hero__vip">Cadastre-se grátis e entre no grupo VIP para receber a oferta</p>
 
 
-      <button type="button" class="btn btn--pulse" data-abrir id="cta-hero"><span class="so-hla">Quero participar da Black</span><span class="so-hlb">Quero entrar no grupo VIP e receber a oferta</span><span class="so-hlc">Quero entrar no grupo VIP e mudar de vida</span></button>
+      <button type="button" class="btn btn--pulse" data-abrir id="cta-hero">Quero entrar no grupo VIP e mudar de vida</button>
     </div>
   </header>
 
@@ -356,7 +366,7 @@ html:not(.hl-b) .so-hlb, html:not(.hl-c) .so-hlc, html.hl-b .so-hla, html.hl-c .
       </div>
       </div>
 
-      <button type="button" class="btn" data-abrir><span class="so-hla">Quero participar da Black</span><span class="so-hlb">Quero entrar no grupo VIP e receber a oferta</span><span class="so-hlc">Quero entrar no grupo VIP e mudar de vida</span></button>
+      <button type="button" class="btn" data-abrir>Quero entrar no grupo VIP e mudar de vida</button>
     </div>
   </section>
 
@@ -365,7 +375,7 @@ html:not(.hl-b) .so-hlb, html:not(.hl-c) .so-hlc, html.hl-b .so-hla, html.hl-c .
   <footer class="rodape">Copyright © 2026 · Docis · Todos os direitos reservados</footer>
 
   <div class="cta-fixo" id="cta-fixo">
-    <button type="button" class="btn" data-abrir><span class="so-hla">Quero participar da Black</span><span class="so-hlb">Quero entrar no grupo VIP e receber a oferta</span><span class="so-hlc">Quero entrar no grupo VIP e mudar de vida</span></button>
+    <button type="button" class="btn" data-abrir>Quero entrar no grupo VIP e mudar de vida</button>
   </div>
 
   <!-- Popup de captação -->
@@ -395,6 +405,6 @@ html:not(.hl-b) .so-hlb, html:not(.hl-c) .so-hlc, html.hl-b .so-hla, html.hl-c .
     </div>
   </div>
 
-  <script type="module" src="script.js?v=13"></script>
+  <script type="module" src="script.js?v=14"></script>
 </body>
 </html>
