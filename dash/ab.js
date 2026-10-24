@@ -116,7 +116,7 @@ function renderAB() {
     ["Investimento", "investimento", rs, null, 100],
     ["Impressões", "impressoes", fmt, ["CPM", "cpm"], 88],
     ["Cliques", "cliques", fmt, ["CPC", "cpc"], 76],
-    [TESTE_AB.sorteio ? "Visitantes de anúncio" : "Page views", "page_views", fmt, ["por visitante", "cpv"], 64],
+    [TESTE_AB.sorteio ? "Visitantes" : "Page views", "page_views", fmt, ["por visitante", "cpv"], 64],
     ["Abriram o formulário", "pop_pago", fmt, null, 54],
     ["Cadastros", "cad_pago", n1, ["CPL", "cpl"], 44]
   ];
