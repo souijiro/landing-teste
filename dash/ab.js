@@ -84,7 +84,7 @@ function metricasVariante(v, corte) {
   Object.assign(r, {
     conv: div(r.cadastros, r.visitantes),
     // mesmas definições da aba Tráfego: CTR, carregamento (page views ÷ cliques), conversão da página (cadastros ÷ page views)
-    ctr: div(r.cliques, r.impressoes), tx_lp: div(r.page_views, r.cliques), tx_popup: div(r.pop_pago, r.page_views),
+    ctr: div(r.cliques, r.impressoes), tx_lp: TESTE_AB.sorteio ? null : div(r.page_views, r.cliques), // no sorteio os cliques são metade estimada: não dá para comparar tx_popup: div(r.pop_pago, r.page_views),
     conv_popup: div(r.cad_pago, r.pop_pago), conv_lp: div(r.cad_pago, r.page_views),
     cpm: r.impressoes ? r.investimento / r.impressoes * 1000 : null, cpc: div(r.investimento, r.cliques),
     cpv: div(r.investimento, r.page_views), cpl: div(r.investimento, r.cad_pago)
