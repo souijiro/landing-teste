@@ -77,6 +77,9 @@ function metricasVariante(v, corte) {
     if (!x) return;
     r.investimento += (+inv || 0) * x; r.impressoes += (+imp || 0) * x; r.cliques += (+cl || 0) * x; r.page_views += (+lpv || 0) * x;
   });
+  // no sorteio a Meta não sabe qual versão cada pessoa viu: investimento, impressões e cliques ficam 1/N (iguais),
+  // mas page views passam a ser os visitantes de anúncio que a própria página contou em cada versão
+  if (TESTE_AB.sorteio) r.page_views = r.vis_pago;
   const div = (a, b) => (b ? a / b : null);
   Object.assign(r, {
     conv: div(r.cadastros, r.visitantes),
@@ -113,7 +116,7 @@ function renderAB() {
     ["Investimento", "investimento", rs, null, 100],
     ["Impressões", "impressoes", fmt, ["CPM", "cpm"], 88],
     ["Cliques", "cliques", fmt, ["CPC", "cpc"], 76],
-    ["Page views", "page_views", fmt, ["por page view", "cpv"], 64],
+    [TESTE_AB.sorteio ? "Visitantes de anúncio" : "Page views", "page_views", fmt, ["por visitante", "cpv"], 64],
     ["Abriram o formulário", "pop_pago", fmt, null, 54],
     ["Cadastros", "cad_pago", n1, ["CPL", "cpl"], 44]
   ];
@@ -189,7 +192,7 @@ function renderAB() {
     <p class="ab-veredito ab-veredito--${veredito.cls}">${veredito.txt}</p>
     <h3 class="ab-sub">Funil de custo · ${funilVazio ? "aguardando a 1ª hora fechada" : `horas fechadas, de ${horaTxt(Date.parse(AB.inicio))} a ${horaTxt(corteFim)}`}</h3>
     ${funilVazio ? `<p class="t-nota">O teste começa em ${horaTxt(TESTE_AB.ini)}. A primeira hora fecha e a Meta entrega o custo uns 10 minutos depois da hora cheia. Até lá, acompanhe a conversão abaixo.</p>` : `<div class="abc" role="img" aria-label="Funil de custo e conversão das duas versões">${g}</div>`}
-    <p class="t-nota ab-nota">Funil dos anúncios das contas Docis e Felipe Russo. Investimento, impressões, cliques e page views vêm da Meta hora a hora (${TESTE_AB.sorteio ? "com o sorteio 50/50, cada hora do teste conta metade para cada versão" : "cada hora do teste pertence inteira a uma versão"}). "Abriram o formulário" é contado pela própria página, só de quem veio de anúncio. Cadastros = leads ligados aos anúncios. A hora em andamento só entra no funil quando fecha e a Meta entrega o custo das duas contas (por volta de 10 min depois da hora cheia).</p>
+    <p class="t-nota ab-nota">Funil dos anúncios das contas Docis e Felipe Russo. Investimento, impressões, cliques e page views vêm da Meta hora a hora (${TESTE_AB.sorteio ? "no sorteio 50/50 a Meta não sabe qual fundo cada pessoa viu, então investimento, impressões, cliques, CPM, CPC e CTR são <b>iguais nos dois lados por definição</b>: metade de cada hora para cada versão. A diferença real começa nos visitantes de anúncio, contados pela própria página em cada versão" : "cada hora do teste pertence inteira a uma versão"}). "Abriram o formulário" é contado pela própria página, só de quem veio de anúncio. Cadastros = leads ligados aos anúncios. A hora em andamento só entra no funil quando fecha e a Meta entrega o custo das duas contas (por volta de 10 min depois da hora cheia).</p>
     <h3 class="ab-sub">Custo de cada etapa</h3>
     <div class="ab-grafico"><canvas id="g-ab-custo" role="img" aria-label="Barras: CPM ÷ 10, CPC, custo por page view e CPL das versões A e B"></canvas></div>
     <h3 class="ab-sub">Todos os visitantes contados pela página (inclui orgânico) · base do resultado do teste</h3>
@@ -260,10 +263,10 @@ function renderABMulti() {
     ["Taxa de abertura do formulário", (m) => (m.visitantes ? m.popups / m.visitantes : null), pc, true, "abriram ÷ visitantes"],
     ["Conversão do formulário", (m) => (m.popups ? m.cadastros / m.popups : null), pc, true, "cadastros ÷ quem abriu"],
     ["Investimento ≈", "investimento", rs, null, "1/3 de cada hora fechada do teste (sorteio)"],
-    ["Page views (Meta)", "page_views", fmt, null, "1/3 de cada hora fechada"],
+    ["Visitantes de anúncio", "page_views", fmt, null, "contados pela página, horas fechadas"],
     ["Cadastros de anúncio", "cad_pago", n1, null, "horas fechadas"],
     ["CPL ≈", "cpl", rs, false, "investimento ÷ cadastros de anúncio (horas fechadas)"],
-    ["Conversão da página (anúncios)", "conv_lp", pc, true, "cadastros de anúncio ÷ page views"]
+    ["Conversão da página (anúncios)", "conv_lp", pc, true, "cadastros de anúncio ÷ visitantes de anúncio"]
   ];
   const val = (m, k) => (typeof k === "function" ? k(m) : m[k]);
   const corpo = linhas.map(([nome, k, f, maiorMelhor, dica, principal]) => {
