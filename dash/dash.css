@@ -80,6 +80,7 @@ body { min-height: 100dvh; }
 .legenda { display: flex; flex-wrap: wrap; gap: 12px; font-size: .78rem; color: var(--texto-2); }
 .legenda span { display: inline-flex; align-items: center; gap: 6px; }
 .legenda i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.legenda .leg-cabeca { width: 16px; height: 16px; border-radius: 50%; margin-left: -3px; }
 
 /* listas de quebra */
 .quebra { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }

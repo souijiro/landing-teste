@@ -202,6 +202,35 @@ try { const a = localStorage.getItem("dash_aba"); if (a) document.querySelector(
 
 // ---------- Aba Dashboard ----------
 let gDia = null;
+// ordem fixa das barras empilhadas (de baixo para cima) e da legenda; cor forte = tráfego, clara = orgânico
+const GRUPOS_DIA = [
+  { id: "docis_traf", nome: "Docis · tráfego", cor: "#eda100", cabeca: "ci" },
+  { id: "docis_org", nome: "Docis · orgânico", cor: "#f6d47f", cabeca: "ci" },
+  { id: "felipe_traf", nome: "Felipe · tráfego", cor: "#4a3aa7", cabeca: "fe" },
+  { id: "felipe_org", nome: "Felipe · orgânico", cor: "#a69ddb", cabeca: "fe" }
+];
+const imgCabeca = (k) => (k === "fe" ? (typeof CABECA_FELIPE !== "undefined" ? CABECA_FELIPE : null) : (typeof CABECA_CI !== "undefined" ? CABECA_CI : null));
+// carinha dentro de cada pedaço da barra (só quando cabe)
+const pluginCabecaBarra = {
+  id: "cabecaBarra",
+  afterDatasetsDraw(chart) {
+    const { ctx } = chart;
+    chart.data.datasets.forEach((ds, i) => {
+      if (!ds.$cabeca || !chart.isDatasetVisible(i)) return;
+      const img = imgCabeca(ds.$cabeca);
+      if (!img || !img.complete || !img.naturalWidth) return;
+      chart.getDatasetMeta(i).data.forEach((el) => {
+        const h = Math.abs(el.base - el.y), lado = Math.min(h - 4, el.width - 4, 20);
+        if (!(lado >= 11)) return;
+        const cx = el.x, cy = (el.y + el.base) / 2;
+        ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, lado / 2, 0, Math.PI * 2); ctx.closePath();
+        ctx.fillStyle = "#fff"; ctx.fill(); ctx.clip();
+        ctx.drawImage(img, cx - lado / 2, cy - lado / 2, lado, lado);
+        ctx.restore();
+      });
+    });
+  }
+};
 
 function serieDias() {
   const hoje = diaSP.format(new Date());
@@ -210,13 +239,20 @@ function serieDias() {
   for (let d = inicio; d <= hoje; d = somaDias(d, 1)) dias.push(d);
   const porDia = Object.fromEntries(dias.map((d) => [d, { "Tráfego": 0, "Orgânico": 0, "Sem UTM": 0 }]));
   UNICOS.forEach((l) => { if (porDia[l.dia]) porDia[l.dia][l.tipo]++; });
+  // barras do gráfico: conta (Docis/Felipe) × tráfego/orgânico (orgânico inclui sem UTM)
+  const porGrupo = Object.fromEntries(dias.map((d) => [d, Object.fromEntries(GRUPOS_DIA.map((g) => [g.id, 0]))]));
+  UNICOS.forEach((l) => {
+    if (!porGrupo[l.dia]) return;
+    const c = (l.conta || contaDoLead(l)) === "Felipe Russo" ? "felipe" : "docis";
+    porGrupo[l.dia][`${c}_${l.tipo === "Tráfego" ? "traf" : "org"}`]++;
+  });
   const antes = UNICOS.filter((l) => l.dia < inicio).length; // cadastros de teste antes da captação
-  return { dias, porDia, hoje, antes };
+  return { dias, porDia, porGrupo, hoje, antes };
 }
 
 function renderPainel() {
   const n = UNICOS.length;
-  const { dias, porDia, hoje, antes } = serieDias();
+  const { dias, porDia, porGrupo, hoje, antes } = serieDias();
   const tot = (d) => (porDia[d] ? TIPOS.reduce((s, t) => s + porDia[d][t], 0) : 0);
   const ontem = somaDias(hoje, -1);
 
@@ -276,14 +312,14 @@ function renderPainel() {
   const labels = diasAte.map(dataBR);
   const maxY2 = Math.max(META, ...serieProj.filter((v) => v != null)) * 1.08;
   const maxY = Math.max(10, ...dias.map(tot)) * 1.25;
-  $("#legenda-dia").innerHTML = TIPOS.map((t) => `<span><i style="background:${COR[t]}"></i>${t}</span>`).join("")
+  $("#legenda-dia").innerHTML = GRUPOS_DIA.map((g) => `<span><i style="background:${g.cor}"></i><img class="leg-cabeca" src="/black2026/img/${g.cabeca === "fe" ? "cabeca-felipe" : "cabeca-cilaine"}.webp" alt="">${g.nome}</span>`).join("")
     + `<span><i style="background:#0b0b0b;height:3px"></i>Acumulado</span>
        <span><i style="background:rgba(87,83,78,.4);height:3px"></i>Projeção (${fmt(media7)}/dia)</span>
        <span><i style="background:#c9a800;height:3px"></i>Meta 10.000</span><span>🚀 5/11</span>`;
   $("#nota-captacao").textContent = `Captação de 16/10 a 5/11. Barras: leads únicos do dia (eixo da esquerda). Linhas: total acumulado, projeção no ritmo da média diária e meta (eixo da direita).${antes ? ` O acumulado inclui ${fmt(antes)} cadastro${antes > 1 ? "s" : ""} de teste antes de 16/10.` : ""}`;
-  const barras = TIPOS.map((t) => ({
-    type: "bar", label: t, yAxisID: "y", stack: "s", order: 2,
-    data: diasAte.map((d) => (porDia[d] ? porDia[d][t] : null)), backgroundColor: COR[t],
+  const barras = GRUPOS_DIA.map((g) => ({
+    type: "bar", label: g.nome, yAxisID: "y", stack: "s", order: 2, $cabeca: g.cabeca,
+    data: diasAte.map((d) => (porGrupo[d] ? porGrupo[d][g.id] : null)), backgroundColor: g.cor,
     borderColor: "#fff", borderWidth: { top: 2 }, borderRadius: 4, borderSkipped: "bottom", maxBarThickness: 30
   }));
   const linhasGraf = [
@@ -316,7 +352,7 @@ function renderPainel() {
       type: "bar",
       data: { labels, datasets: [...barras, ...linhasGraf] },
       options: o,
-      plugins: [{
+      plugins: [pluginCabecaBarra, {
         id: "foguete",
         afterDatasetsDraw(chart) {
           const { ctx, chartArea, scales } = chart;
@@ -332,6 +368,8 @@ function renderPainel() {
       }]
     });
   }
+
+  ["ci", "fe"].forEach((k) => { const img = imgCabeca(k); if (img && !img.complete) img.addEventListener("load", () => gDia && gDia.draw(), { once: true }); });
 
   // tabela por dia (mais recente em cima), com seta vs. média dos dias anteriores da captação
   // dia parcial (hoje): compara com a média dos dias anteriores ATÉ O MESMO HORÁRIO
