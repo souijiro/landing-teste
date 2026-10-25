@@ -220,8 +220,9 @@ const pluginCabecaBarra = {
       const img = imgCabeca(ds.$cabeca);
       if (!img || !img.complete || !img.naturalWidth) return;
       chart.getDatasetMeta(i).data.forEach((el) => {
-        const h = Math.abs(el.base - el.y), lado = Math.min(h - 4, el.width - 4, 20);
-        if (!(lado >= 11)) return;
+        // em tela estreita a barra fica fina: a carinha (mín. 12px) pode passar um pouco das bordas
+        const h = Math.abs(el.base - el.y), lado = Math.min(h - 3, Math.max(el.width - 4, 12), 20);
+        if (!(lado >= 12)) return;
         const cx = el.x, cy = (el.y + el.base) / 2;
         ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, lado / 2, 0, Math.PI * 2); ctx.closePath();
         ctx.fillStyle = "#fff"; ctx.fill(); ctx.clip();
