@@ -131,6 +131,11 @@ function abInicioDia() { return AB && AB.inicio ? diaSP.format(new Date(AB.inici
 // Testes A/B (o mais recente primeiro). Cada um diz o campo que separa as versões, os nomes, a janela
 // e a regra de qual versão estava no ar em cada instante (no sorteio por visitante, as duas ficam no ar juntas).
 const TESTES_AB = [
+  { id: 5, nome: "Teste 5 · Fotinhos no topo", campo: "tema", a: "sem_fotos", b: "fotos", sorteio: true,
+    nomeA: "A · Sem fotinhos", nomeB: "B · Com fotinhos", subA: "página original (fundo branco)", subB: "brigadeiro, bolo de pote, iFood e 99",
+    desc: "25/10 às 14h até 28/10 à meia-noite · fundo branco nas duas · cada visitante é sorteado 50/50 e vê sempre a mesma versão",
+    ini: Date.parse("2026-10-25T14:00:00-03:00"), fim: Date.parse("2026-10-28T00:00:00-03:00"),
+    versao: () => "sorteio" },
   { id: 4, nome: "Teste 4 · Fundo preto × branco", campo: "tema", a: "preto", b: "branco", sorteio: true,
     nomeA: "A · Fundo preto", nomeB: "B · Fundo branco", subA: "página original", subB: "mesma copy, fundo branco",
     desc: "24/10 das 14h à meia-noite · copy C nas duas · cada visitante é sorteado 50/50 e vê sempre o mesmo fundo",
