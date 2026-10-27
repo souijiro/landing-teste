@@ -104,7 +104,10 @@
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
 /* Arial ajustada às medidas da Montserrat: o texto não "pula" quando a fonte chega.
    Android e Linux não têm Arial: Arimo/Liberation Sans têm as mesmas medidas; Roboto (Android) é bem próxima. */
-@font-face { font-family: "Montserrat Fallback"; src: local("Arial"), local("ArialMT"), local("Helvetica"), local("Arimo"), local("Liberation Sans"), local("Roboto"), local("Roboto-Regular"); size-adjust: 112.83%; ascent-override: 85.79%; descent-override: 22.25%; line-gap-override: 0%; }
+/* medidas da Montserrat por peso (regular, 700 e 800), com o negrito de verdade da fonte reserva, para o título não mudar de linha */
+@font-face { font-family: "Montserrat Fallback"; font-weight: 100 600; src: local("Arial"), local("ArialMT"), local("Helvetica"), local("Arimo"), local("Liberation Sans"), local("Roboto"), local("Roboto-Regular"); size-adjust: 110.71%; ascent-override: 87.44%; descent-override: 22.67%; line-gap-override: 0%; }
+@font-face { font-family: "Montserrat Fallback"; font-weight: 700; src: local("Arial Bold"), local("Arial-BoldMT"), local("Helvetica Bold"), local("Arimo Bold"), local("Liberation Sans Bold"), local("Roboto Bold"), local("Roboto-Bold"); size-adjust: 108.31%; ascent-override: 89.37%; descent-override: 23.17%; line-gap-override: 0%; }
+@font-face { font-family: "Montserrat Fallback"; font-weight: 800 900; src: local("Arial Bold"), local("Arial-BoldMT"), local("Helvetica Bold"), local("Arimo Bold"), local("Liberation Sans Bold"), local("Roboto Bold"), local("Roboto-Bold"); size-adjust: 111.31%; ascent-override: 86.96%; descent-override: 22.55%; line-gap-override: 0%; }
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
 body {
