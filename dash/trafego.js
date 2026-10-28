@@ -133,8 +133,8 @@ function abInicioDia() { return AB && AB.inicio ? diaSP.format(new Date(AB.inici
 const TESTES_AB = [
   { id: 5, nome: "Teste 5 · Fotinhos no topo", campo: "tema", a: "sem_fotos", b: "fotos", sorteio: true,
     nomeA: "A · Sem fotinhos", nomeB: "B · Com fotinhos", subA: "página original (fundo branco)", subB: "brigadeiro, bolo de pote, iFood e 99",
-    desc: "25/10 às 14h até 28/10 à meia-noite · fundo branco nas duas · cada visitante é sorteado 50/50 e vê sempre a mesma versão",
-    ini: Date.parse("2026-10-25T14:00:00-03:00"), fim: Date.parse("2026-10-28T00:00:00-03:00"),
+    desc: "25/10 às 14h até 27/10 às 23h (encerrado antes; venceu a página sem fotinhos) · fundo branco nas duas · cada visitante é sorteado 50/50 e vê sempre a mesma versão",
+    ini: Date.parse("2026-10-25T14:00:00-03:00"), fim: Date.parse("2026-10-27T23:00:00-03:00"),
     versao: () => "sorteio" },
   { id: 4, nome: "Teste 4 · Fundo preto × branco", campo: "tema", a: "preto", b: "branco", sorteio: true,
     nomeA: "A · Fundo preto", nomeB: "B · Fundo branco", subA: "página original", subB: "mesma copy, fundo branco",

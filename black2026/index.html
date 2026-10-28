@@ -24,19 +24,6 @@
     window.HEADLINE = "sonho";
     // Fundo branco venceu o Teste 4 e é o padrão.
     document.documentElement.classList.add("tema-branco");
-    // Teste A/B 5 (fotinhos no topo): sorteio 50/50 por visitante, fixo no aparelho. Gravado no campo variante_tema.
-    // "sem_fotos" = página original · "fotos" = brigadeiro e bolo de pote + iFood e 99 abaixo do logo.
-    // ?versao=sem_fotos ou ?versao=fotos força a versão (e não conta visita).
-    (function () {
-      var ops = ["sem_fotos", "fotos"], forc = new URLSearchParams(location.search).get("versao"), v;
-      if (ops.indexOf(forc) >= 0) { v = forc; window.TEMA_FORCADO = true; }
-      else {
-        try { v = localStorage.getItem("black2026_fotos"); if (ops.indexOf(v) < 0) { v = Math.random() < 0.5 ? "sem_fotos" : "fotos"; localStorage.setItem("black2026_fotos", v); } }
-        catch (e) { v = Math.random() < 0.5 ? "sem_fotos" : "fotos"; }
-      }
-      window.TEMA = v;
-      if (v === "fotos") document.documentElement.classList.add("com-fotos");
-    })();
   </script>
   <script>
     window.carregarDepois = function (fn) {
@@ -131,11 +118,6 @@ img { max-width: 100%; display: block; }
 .hero__logo { flex: 1 1 auto; min-width: 0; width: 100%; max-width: 300px; height: auto; }
 .hero__cabeca { flex: none; height: 66px; width: auto; filter: drop-shadow(0 4px 10px rgba(0,0,0,.5)); }
 .hero__cabeca--cilaine { height: 79px; } /* 20% maior */
-/* Teste A/B 5: fotinhos abaixo do logo (só na versão "fotos") */
-.hero__provas { display: none; justify-content: center; align-items: center; gap: 8px; margin: -12px auto 24px; }
-.com-fotos .hero__provas { display: flex; }
-.hero__provas img { width: 64px; height: 64px; border-radius: 14px; object-fit: cover; box-shadow: 0 4px 14px rgba(0,0,0,.12); }
-.hero__provas .vao { width: 18px; }
 .hero h1 { font-size: 1.6rem; line-height: 1.22; margin: 0 0 18px; font-weight: 800; letter-spacing: -.01em; }
 .hero h1 em { font-style: normal; color: var(--amarelo); }
 .hero p { margin: 0 0 14px; color: var(--texto-suave); }
@@ -259,7 +241,6 @@ img { max-width: 100%; display: block; }
   .hero { padding-top: 40px; }
   .hero__logo { max-width: 380px; }
   .hero__cabeca { height: 90px; }
-  .hero__provas img { width: 80px; height: 80px; }
   .hero__cabeca--cilaine { height: 108px; }
   .hero h1 { font-size: 2.1rem; }
   .modal { align-items: center; }
@@ -280,13 +261,6 @@ img { max-width: 100%; display: block; }
         <img class="hero__cabeca hero__cabeca--cilaine" src="img/cabeca-cilaine.webp" alt="Cilaine Rodrigues" width="69" height="87">
         <img class="hero__logo" src="img/logo-escuro-600.webp" srcset="img/logo-escuro-400.webp 400w, img/logo-escuro-600.webp 600w, img/logo-escuro-900.webp 900w" sizes="300px" alt="Black Vitalícia — Docis + Felipe Russo" width="1200" height="600" fetchpriority="high">
         <img class="hero__cabeca" src="img/cabeca-felipe.webp" alt="Felipe Russo" width="71" height="96">
-      </div>
-      <div class="hero__provas">
-        <img src="img/prova-brigadeiro.webp" alt="Brigadeiro Docis" width="200" height="200" loading="lazy">
-        <img src="img/prova-bolo-pote.webp" alt="Bolo de pote de brownie Docis" width="200" height="200" loading="lazy">
-        <span class="vao"></span>
-        <img src="img/prova-ifood.webp" alt="iFood" width="200" height="200" loading="lazy">
-        <img src="img/prova-99.webp" alt="99" width="200" height="200" loading="lazy">
       </div>
 
       <h1>Seu sonho de viver da confeitaria merece mais que uma chance. <em>Merece conhecimento para a vida inteira.</em></h1>
@@ -425,6 +399,6 @@ img { max-width: 100%; display: block; }
     </div>
   </div>
 
-  <script type="module" src="script.js?v=15"></script>
+  <script type="module" src="script.js?v=16"></script>
 </body>
 </html>

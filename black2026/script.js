@@ -173,7 +173,7 @@ form.addEventListener("submit", async (e) => {
     event_id: uuid(),
     variante_ab: VARIANTE,
     variante_headline: window.HEADLINE || null, // copy da página (hoje "sonho")
-    variante_tema: window.TEMA || null // Teste A/B 5: "sem_fotos" ou "fotos"
+    variante_tema: window.TEMA || null // sem teste de layout no ar (fica vazio)
   };
 
   btn.disabled = true;
