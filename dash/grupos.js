@@ -53,6 +53,9 @@ async function carregarGrupos(token) {
       <p class="t-nota">Classificado pelo telefone de quem está nos grupos (${fmt(u.com_telefone)} com número visível). Ao lado, quantos leads daquele perfil existem.</p>
     </div>`;
 
+  // ---- Por grupo (última contagem) + totais ----
+  renderPorGrupo(d?.grupos || [], u);
+
   // ---- Gráfico por horário ----
   const rot = R.map((r) => fmtDiaHora.format(r.col));
   const dados = {
@@ -89,3 +92,34 @@ function compLinha(nome, cor, n, total, leads) {
 }
 
 function corNivel(p) { return p >= 90 ? "#146c3a" : p >= 80 ? "#7ccf8f" : p >= 70 ? "#f08c2e" : "#e5484d"; }
+
+// capacidade de cada grupo do WhatsApp; acima de 90% fica em vermelho
+const CAPACIDADE_GRUPO = 1000, ALERTA_CAPACIDADE = 0.9;
+function renderPorGrupo(G, u) {
+  const alvo = $("#t-grupos-cada");
+  if (!alvo) return;
+  const num = (g) => +((g.grupo_nome || "").match(/#(\d+)/) || [])[1] || g.grupo_id;
+  G = [...G].sort((a, b) => num(a) - num(b));
+  const temBlack = G.some((g) => g.alunos_felipe_black != null);
+  const nb = (v) => (v == null ? "—" : fmt(v));
+  const cel = (g) => {
+    const oc = g.membros / CAPACIDADE_GRUPO, cheio = oc >= ALERTA_CAPACIDADE;
+    return `<tr${cheio ? ' class="g-cheio"' : ""}><td><b>#${num(g)}</b>${cheio ? ' <span class="g-cheio__tag">quase cheio</span>' : ""}</td>
+      <td class="n"><b>${fmt(g.membros)}</b></td>
+      <td class="g-ocup"><span class="trilho"><b style="width:${Math.min(100, oc * 100)}%"></b></span><small>${pctTxt(oc * 100)}</small></td>
+      <td class="n">${fmt(g.alunos_docis)}</td><td class="n">${fmt(g.alunos_felipe)}</td><td class="n">${fmt(g.alunos_ambos)}</td>
+      <td class="n">${nb(g.alunos_felipe_black)}</td><td class="n">${fmt(g.nao_alunos)}</td></tr>`;
+  };
+  const soma = (k) => G.reduce((s, g) => s + (+g[k] || 0), 0);
+  const tot = { membros: soma("membros"), cap: G.length * CAPACIDADE_GRUPO };
+  const cheios = G.filter((g) => g.membros / CAPACIDADE_GRUPO >= ALERTA_CAPACIDADE).length;
+  alvo.querySelector("tbody").innerHTML = G.map(cel).join("") || '<tr><td colspan="8" class="vazio">Sem contagem ainda.</td></tr>';
+  alvo.querySelector("tfoot").innerHTML = G.length ? `<tr><td>Total · ${G.length} grupos</td><td class="n">${fmt(tot.membros)}</td>
+    <td class="g-ocup"><small>${pctTxt(tot.membros / tot.cap * 100)} de ${fmt(tot.cap)} vagas</small></td>
+    <td class="n">${fmt(soma("alunos_docis"))}</td><td class="n">${fmt(soma("alunos_felipe"))}</td><td class="n">${fmt(soma("alunos_ambos"))}</td>
+    <td class="n">${temBlack ? fmt(soma("alunos_felipe_black")) : "—"}</td><td class="n">${fmt(soma("nao_alunos"))}</td></tr>` : "";
+  $("#grupos-cada-nota").textContent = `Contagem de ${fmtDiaHora.format(u.col)}. Capacidade de ${fmt(CAPACIDADE_GRUPO)} membros por grupo; em vermelho os que passaram de ${ALERTA_CAPACIDADE * 100}%`
+    + (cheios ? ` (${cheios} agora).` : " (nenhum agora).")
+    + " Docis, Felipe e Dos dois somam os alunos de cada perfil; Black Felipe é quem está na lista de compradores da Black do Felipe (já incluído em Felipe ou Dos dois)"
+    + (temBlack ? "." : ", e começa a aparecer na próxima contagem.");
+}

@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/dash/dash.css?v=36">
+  <link rel="stylesheet" href="/dash/dash.css?v=37">
 </head>
 <body>
 
@@ -265,6 +265,14 @@
     <main class="aba-conteudo" id="aba-grupos" hidden>
       <section class="g-topo" id="grupos-hero"><p class="t-nota">Carregando…</p></section>
       <section class="cartao">
+        <div class="cartao__topo"><h2>Por grupo</h2><span class="t-nota">última contagem</span></div>
+        <div class="tabela-wrap"><table class="tabela" id="t-grupos-cada">
+          <thead><tr><th>Grupo</th><th class="n">Membros</th><th>Ocupação</th><th class="n">Docis</th><th class="n">Felipe</th><th class="n">Dos dois</th><th class="n">Black Felipe</th><th class="n">Não alunos</th></tr></thead>
+          <tbody></tbody><tfoot></tfoot>
+        </table></div>
+        <p class="t-nota" id="grupos-cada-nota"></p>
+      </section>
+      <section class="cartao">
         <div class="cartao__topo"><h2>Leads × pessoas nos grupos, por horário</h2><span class="t-nota">1 contagem de manhã (até 12h) e 1 à noite (18h–20h)</span></div>
         <div class="grafico grafico--alto"><canvas id="g-grupos" aria-label="Leads únicos (linha) e pessoas nos grupos (barras coloridas pela porcentagem) a cada contagem"></canvas></div>
         <p class="tabela-legenda"><span><span class="selo-nivel nivel--ruim">&lt; 70%</span></span><span><span class="selo-nivel nivel--atencao">70–80%</span></span><span><span class="selo-nivel nivel--bom">80–90%</span></span><span><span class="selo-nivel nivel--otimo">&gt; 90%</span></span><span>% = pessoas nos grupos ÷ leads únicos até a hora da contagem</span></p>
@@ -334,6 +342,6 @@
   <script src="/dash/criativos.js?v=1"></script>
   <script src="/dash/trafego.js?v=37"></script>
   <script src="/dash/ab.js?v=19"></script>
-  <script src="/dash/grupos.js?v=3"></script>
+  <script src="/dash/grupos.js?v=4"></script>
 </body>
 </html>

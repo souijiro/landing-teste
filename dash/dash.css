@@ -518,3 +518,14 @@ td:first-child .delta { display: inline; margin-left: 4px; }
 .tabela td.rank-inativo { color: var(--texto-3); font-style: italic; }
 
 .btn-notificar.ativo { border-color: #25d366; color: #25d366; }
+
+/* Grupos: tabela por grupo */
+#t-grupos-cada tfoot td { font-weight: 800; border-top: 2px solid var(--borda, #e7e2db); }
+#t-grupos-cada .g-ocup { min-width: 120px; }
+#t-grupos-cada .g-ocup .trilho { display: inline-block; vertical-align: middle; width: 70px; height: 8px; border-radius: 99px; background: #eee9e2; overflow: hidden; margin-right: 6px; }
+#t-grupos-cada .g-ocup .trilho b { display: block; height: 100%; background: #9a948c; border-radius: 99px; }
+#t-grupos-cada .g-ocup small { font-size: .78rem; color: var(--texto-2); }
+#t-grupos-cada tr.g-cheio td { background: #fde8e8; color: #9b1c1c; }
+#t-grupos-cada tr.g-cheio .trilho b { background: #e5484d; }
+#t-grupos-cada tr.g-cheio small { color: #9b1c1c; font-weight: 700; }
+.g-cheio__tag { display: inline-block; margin-left: 4px; padding: 1px 7px; border-radius: 99px; background: #e5484d; color: #fff; font-size: .7rem; font-weight: 800; white-space: nowrap; }
