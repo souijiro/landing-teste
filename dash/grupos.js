@@ -102,10 +102,13 @@ function renderPorGrupo(G, u) {
   G = [...G].sort((a, b) => num(a) - num(b));
   const temBlack = G.some((g) => g.alunos_felipe_black != null);
   const nb = (v) => (v == null ? "—" : fmt(v));
+  // lista de telefones cortada: perfis escalados ao total do grupo (estimativa, marcada com ≈)
   const cel = (g) => {
     const oc = g.membros / CAPACIDADE_GRUPO, cheio = oc >= ALERTA_CAPACIDADE;
+    const fmt0 = fmt, est = g.estimado ? "≈" : "";
+    const fmt = (v) => est + fmt0(v);
     return `<tr${cheio ? ' class="g-cheio"' : ""}><td><b>#${num(g)}</b>${cheio ? ' <span class="g-cheio__tag">quase cheio</span>' : ""}</td>
-      <td class="n"><b>${fmt(g.membros)}</b></td>
+      <td class="n"><b>${fmt0(g.membros)}</b></td>
       <td class="g-ocup"><span class="trilho"><b style="width:${Math.min(100, oc * 100)}%"></b></span><small>${pctTxt(oc * 100)}</small></td>
       <td class="n">${fmt(g.alunos_docis)}</td><td class="n">${fmt(g.alunos_felipe)}</td><td class="n">${fmt(g.alunos_ambos)}</td>
       <td class="n">${nb(g.alunos_felipe_black)}</td><td class="n">${fmt(g.nao_alunos)}</td></tr>`;
@@ -121,5 +124,6 @@ function renderPorGrupo(G, u) {
   $("#grupos-cada-nota").textContent = `Contagem de ${fmtDiaHora.format(u.col)}. Capacidade de ${fmt(CAPACIDADE_GRUPO)} membros por grupo; em vermelho os que passaram de ${ALERTA_CAPACIDADE * 100}%`
     + (cheios ? ` (${cheios} agora).` : " (nenhum agora).")
     + " Docis, Felipe e Dos dois somam os alunos de cada perfil; Black Felipe é quem está na lista de compradores da Black do Felipe (já incluído em Felipe ou Dos dois)"
-    + (temBlack ? "." : ", e começa a aparecer na próxima contagem.");
+    + (temBlack ? "." : ", e começa a aparecer na próxima contagem.")
+    + (G.some((g) => g.estimado) ? " ≈ = grupo com a lista de telefones cortada: perfis estimados na mesma proporção dos telefones lidos." : "");
 }
