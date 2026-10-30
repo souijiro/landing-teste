@@ -105,13 +105,12 @@ function renderPorGrupo(G, u) {
   // lista de telefones cortada: perfis escalados ao total do grupo (estimativa, marcada com ≈)
   const cel = (g) => {
     const oc = g.membros / CAPACIDADE_GRUPO, cheio = oc >= ALERTA_CAPACIDADE;
-    const fmt0 = fmt, est = g.estimado ? "≈" : "";
-    const fmt = (v) => est + fmt0(v);
+    const est = g.estimado ? "≈" : "", fe = (v) => est + fmt(v);
     return `<tr${cheio ? ' class="g-cheio"' : ""}><td><b>#${num(g)}</b>${cheio ? ' <span class="g-cheio__tag">quase cheio</span>' : ""}</td>
-      <td class="n"><b>${fmt0(g.membros)}</b></td>
+      <td class="n"><b>${fmt(g.membros)}</b></td>
       <td class="g-ocup"><span class="trilho"><b style="width:${Math.min(100, oc * 100)}%"></b></span><small>${pctTxt(oc * 100)}</small></td>
-      <td class="n">${fmt(g.alunos_docis)}</td><td class="n">${fmt(g.alunos_felipe)}</td><td class="n">${fmt(g.alunos_ambos)}</td>
-      <td class="n">${nb(g.alunos_felipe_black)}</td><td class="n">${fmt(g.nao_alunos)}</td></tr>`;
+      <td class="n">${fe(g.alunos_docis)}</td><td class="n">${fe(g.alunos_felipe)}</td><td class="n">${fe(g.alunos_ambos)}</td>
+      <td class="n">${nb(g.alunos_felipe_black)}</td><td class="n">${fe(g.nao_alunos)}</td></tr>`;
   };
   const soma = (k) => G.reduce((s, g) => s + (+g[k] || 0), 0);
   const tot = { membros: soma("membros"), cap: G.length * CAPACIDADE_GRUPO };
