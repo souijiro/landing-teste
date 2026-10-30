@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>TVs Docis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --fundo: #F4EFE9; --cartao: #fff; --texto: #3B1E2B; --suave: #7a6470; --linha: #eadfd8; --rosa: #B03A62; --rosa-claro: #F6D7E1; --verde: #2f7d55; --laranja: #c26a1b; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fundo); color: var(--texto); font: 500 15px/1.4 Montserrat, Arial, sans-serif; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  [hidden] { display: none !important; }
+  .login { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .login form { background: var(--cartao); padding: 28px; border-radius: 16px; width: 100%; max-width: 340px; display: grid; gap: 12px; box-shadow: 0 6px 24px rgba(59,30,43,.08); }
+  .login h1 { margin: 0 0 4px; font-size: 22px; }
+  input[type=text], input[type=password], input[type=datetime-local], select, textarea { width: 100%; border: 1px solid var(--linha); border-radius: 10px; padding: 10px 12px; background: #fff; }
+  textarea { resize: vertical; min-height: 64px; }
+  .btn { border: 0; border-radius: 10px; padding: 10px 16px; font-weight: 700; background: var(--rosa); color: #fff; }
+  .btn.sec { background: #fff; color: var(--texto); border: 1px solid var(--linha); }
+  .btn.peq { padding: 6px 10px; font-size: 13px; }
+  .btn.perigo { background: #fff; color: #b3261e; border: 1px solid #f0c9c6; }
+  .erro { color: #b3261e; font-size: 14px; margin: 0; }
+
+  header { position: sticky; top: 0; z-index: 3; background: var(--fundo); border-bottom: 1px solid var(--linha); }
+  .topo { max-width: 1100px; margin: 0 auto; padding: 12px 16px 0; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+  .topo h1 { font-size: 20px; margin: 0; }
+  .topo .acoes { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .abas { max-width: 1100px; margin: 0 auto; padding: 10px 16px 0; display: flex; gap: 4px; overflow-x: auto; }
+  .aba { border: 0; background: none; padding: 10px 14px; font-weight: 700; color: var(--suave); border-bottom: 3px solid transparent; white-space: nowrap; }
+  .aba.ativa { color: var(--rosa); border-color: var(--rosa); }
+  main { max-width: 1100px; margin: 0 auto; padding: 16px; }
+  .dica { color: var(--suave); font-size: 14px; margin: 0 0 14px; }
+  .status { font-size: 13px; color: var(--suave); }
+
+  .lista { display: grid; gap: 12px; }
+  .cartao { background: var(--cartao); border-radius: 14px; padding: 14px; box-shadow: 0 2px 10px rgba(59,30,43,.05); }
+  .cartao.desligado { opacity: .62; }
+  .midia { display: grid; grid-template-columns: 132px 1fr; gap: 14px; }
+  .thumb { width: 132px; aspect-ratio: 16/9; border-radius: 10px; background: #2a1a22 center/cover no-repeat; display: flex; align-items: center; justify-content: center; text-align: center; overflow: hidden; font-size: 11px; font-weight: 800; padding: 6px; position: relative; }
+  .thumb .tipo { position: absolute; left: 6px; bottom: 6px; background: rgba(0,0,0,.65); color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 6px; }
+  .midia h3 { margin: 0; font-size: 15px; word-break: break-word; }
+  .linha-topo { display: flex; gap: 10px; align-items: flex-start; justify-content: space-between; }
+  .ordem { display: flex; gap: 4px; flex-shrink: 0; }
+  .selo { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 99px; background: #f1e9e4; color: var(--suave); margin-top: 4px; }
+  .selo.ok { background: #e2f2e9; color: var(--verde); }
+  .selo.alerta { background: #fbecd9; color: var(--laranja); }
+  .campos { display: grid; gap: 10px; margin-top: 10px; }
+  .rotulo { font-size: 12px; font-weight: 700; color: var(--suave); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { border: 1px solid var(--linha); background: #fff; border-radius: 99px; padding: 5px 12px; font-size: 13px; font-weight: 600; }
+  .chip.on { background: var(--rosa); border-color: var(--rosa); color: #fff; }
+  .chip.unid.on { background: var(--texto); border-color: var(--texto); }
+  .grade2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+  .cores { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .cor { width: 30px; height: 30px; border-radius: 8px; border: 2px solid #fff; box-shadow: 0 0 0 1px var(--linha); padding: 0; }
+  .cor.on { box-shadow: 0 0 0 2px var(--rosa); }
+  .chave { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 13px; }
+  .chave input { width: 38px; height: 22px; appearance: none; -webkit-appearance: none; background: #d9cdc6; border-radius: 99px; position: relative; margin: 0; cursor: pointer; transition: background .15s; }
+  .chave input::after { content: ""; position: absolute; left: 3px; top: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: left .15s; }
+  .chave input:checked { background: var(--verde); }
+  .chave input:checked::after { left: 19px; }
+  .abrir { background: none; border: 0; color: var(--rosa); font-weight: 700; padding: 0; font-size: 13px; }
+
+  /* posição da TV */
+  .posicoes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .pos { border: 2px solid var(--linha); background: #fff; border-radius: 12px; padding: 10px 6px 8px; display: grid; justify-items: center; gap: 6px; font-size: 12px; font-weight: 700; text-align: center; line-height: 1.25; }
+  .pos.on { border-color: var(--rosa); background: #fff6f9; color: var(--rosa); }
+  .pos svg { width: 64px; height: 64px; }
+  .tv-nova { border: 2px dashed var(--rosa); }
+  .codigo { font-size: 22px; font-weight: 800; letter-spacing: .08em; color: var(--rosa); }
+  .on-line { color: var(--verde); font-weight: 700; }
+
+  .vazio { text-align: center; color: var(--suave); padding: 30px 10px; background: var(--cartao); border-radius: 14px; }
+  .unidade-linha { display: flex; gap: 8px; align-items: center; }
+  .toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--texto); color: #fff; padding: 10px 18px; border-radius: 10px; font-size: 14px; z-index: 9; max-width: calc(100% - 32px); }
+  @media (max-width: 560px) {
+    .midia { grid-template-columns: 1fr; }
+    .thumb { width: 100%; }
+    .posicoes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+</style>
+</head>
+<body>
+<section class="login" id="login" hidden>
+  <form id="login-form">
+    <h1>TVs Docis</h1>
+    <label for="senha" class="rotulo">Senha</label>
+    <input type="password" id="senha" autocomplete="current-password" required autofocus>
+    <button class="btn" type="submit">Entrar</button>
+    <p class="erro" id="login-erro" hidden>Senha incorreta.</p>
+  </form>
+</section>
+
+<div id="app" hidden>
+  <header>
+    <div class="topo">
+      <h1>TVs Docis</h1>
+      <div class="acoes">
+        <span class="status" id="status"></span>
+        <a class="btn sec peq" id="l-pasta" target="_blank" rel="noopener" hidden>Abrir pasta do Drive</a>
+        <button class="btn sec peq" id="b-drive">Atualizar do Drive</button>
+      </div>
+    </div>
+    <nav class="abas">
+      <button class="aba ativa" data-aba="midias">O que passa</button>
+      <button class="aba" data-aba="tvs">TVs</button>
+      <button class="aba" data-aba="unidades">Unidades</button>
+    </nav>
+  </header>
+  <main>
+    <section id="aba-midias">
+      <p class="dica">Vídeos e fotos vêm da pasta "TVs Docis" do Drive. Marque onde cada um passa; as TVs pegam a mudança em até 15 segundos. A ordem daqui é a ordem na TV.</p>
+      <div style="margin-bottom:12px"><button class="btn" id="b-msg">+ Nova mensagem</button></div>
+      <div class="lista" id="l-midias"></div>
+    </section>
+    <section id="aba-tvs" hidden>
+      <p class="dica">TV nova: abra o app "TV Docis" nela. Aparece um código na tela e a TV surge aqui; dê um nome, escolha a unidade e a posição.</p>
+      <div class="lista" id="l-tvs"></div>
+    </section>
+    <section id="aba-unidades" hidden>
+      <div class="cartao" style="margin-bottom:12px">
+        <div class="unidade-linha"><input type="text" id="nova-unidade" placeholder="Nome da unidade (ex.: Moema)"><button class="btn" id="b-unidade">Adicionar</button></div>
+      </div>
+      <div class="lista" id="l-unidades"></div>
+    </section>
+  </main>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var SUPA = "https://eoqyoeohbcpdjxghfwua.supabase.co";
+  var CHAVE = "sb_publishable_cv-1jB60ZGb1hJHYQi0qPA_LwF9DS98";
+  var COOKIE = "tvs_token";
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var D = { unidades: [], aparelhos: [], midias: [] };
+  var abertos = {}; // cartões de mídia com os detalhes abertos
+
+  function lerToken() { var m = document.cookie.match(new RegExp("(?:^|; )" + COOKIE + "=([^;]+)")); return m ? decodeURIComponent(m[1]) : null; }
+  function rpc(nome, corpo) {
+    return fetch(SUPA + "/rest/v1/rpc/" + nome, { method: "POST", headers: { apikey: CHAVE, "Content-Type": "application/json" }, body: JSON.stringify(corpo) })
+      .then(function (r) { return r.json().then(function (j) {
+        if (!r.ok) { if (r.status === 403 || /sem acesso/.test(j.message || "")) sair(); throw new Error(j.message || r.status); }
+        return j; }); });
+  }
+  function toast(t) { var e = document.createElement("div"); e.className = "toast"; e.textContent = t; document.body.appendChild(e); setTimeout(function () { e.remove(); }, 3000); }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function sair() { document.cookie = COOKIE + "=; Max-Age=0; path=/"; $("#app").hidden = true; $("#login").hidden = false; }
+
+  // ---------- login ----------
+  $("#login-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    rpc("dash_login", { p_painel: "tvs", p_senha: $("#senha").value }).then(function (t) {
+      if (!t) { $("#login-erro").hidden = false; return; }
+      document.cookie = COOKIE + "=" + t + "; Max-Age=" + 90 * 86400 + "; path=/; SameSite=Lax; Secure";
+      iniciar();
+    }).catch(function () { $("#login-erro").hidden = false; });
+  });
+
+  // ---------- abas ----------
+  document.querySelectorAll(".aba").forEach(function (b) {
+    b.addEventListener("click", function () {
+      document.querySelectorAll(".aba").forEach(function (x) { x.classList.toggle("ativa", x === b); });
+      ["midias", "tvs", "unidades"].forEach(function (n) { $("#aba-" + n).hidden = n !== b.dataset.aba; });
+      try { localStorage.setItem("tvs_aba", b.dataset.aba); } catch (e) {}
+    });
+  });
+  try { var a = localStorage.getItem("tvs_aba"); if (a) $('.aba[data-aba="' + a + '"]').click(); } catch (e) {}
+
+  // ---------- dados ----------
+  function carregar() {
+    return rpc("tvs_estado", { p_token: lerToken() }).then(function (d) {
+      D = d; desenhar();
+      $("#status").textContent = "Atualizado " + new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+    }).catch(function (e) { $("#status").textContent = "Erro: " + e.message; });
+  }
+  function desenhar() {
+    // não redesenha um cartão enquanto alguém digita nele
+    var ativo = document.activeElement;
+    if (ativo && /INPUT|TEXTAREA|SELECT/.test(ativo.tagName) && ativo.closest(".cartao")) return;
+    desenharMidias(); desenharTvs(); desenharUnidades();
+  }
+  function salvarMidia(id, dados, alvos) {
+    return rpc("tvs_salvar_midia", { p_token: lerToken(), p_id: id, p_dados: dados || {}, p_alvos: alvos === undefined ? null : alvos })
+      .then(function (r) { return carregar().then(function () { return r; }); })
+      .catch(function (e) { toast("Não salvou: " + e.message); });
+  }
+  function salvarTv(id, dados, apagar) {
+    return rpc("tvs_salvar_aparelho", { p_token: lerToken(), p_id: id, p_dados: dados || {}, p_apagar: !!apagar })
+      .then(carregar).catch(function (e) { toast("Não salvou: " + e.message); });
+  }
+
+  function nomeUnidade(id) { var u = D.unidades.filter(function (x) { return x.id === id; })[0]; return u ? u.nome : "?"; }
+  function nomeTv(id) { var a = D.aparelhos.filter(function (x) { return x.id === id; })[0]; return a ? (a.nome || "TV sem nome") : "?"; }
+  function ondePassa(m) {
+    if (!m.alvos.length) return null;
+    if (m.alvos.some(function (x) { return !x.unidade_id && !x.aparelho_id; })) return "Todas as TVs";
+    return m.alvos.map(function (x) { return x.unidade_id ? nomeUnidade(x.unidade_id) : nomeTv(x.aparelho_id); }).join(", ");
+  }
+
+  // ---------- mídias ----------
+  var CORES = [["#F6D7E1", "#3B1E2B"], ["#3B1E2B", "#FFFFFF"], ["#B03A62", "#FFFFFF"], ["#F4EFE9", "#3B1E2B"], ["#FFFFFF", "#B03A62"], ["#1F4D3A", "#FFFFFF"]];
+  function desenharMidias() {
+    var l = $("#l-midias");
+    if (!D.midias.length) { l.innerHTML = '<div class="vazio">Nada aqui ainda. Coloque vídeos ou fotos na pasta do Drive e clique em "Atualizar do Drive", ou crie uma mensagem.</div>'; return; }
+    l.innerHTML = "";
+    D.midias.forEach(function (m, i) {
+      var c = document.createElement("div");
+      var onde = ondePassa(m);
+      var foraDrive = m.tipo !== "mensagem" && !m.no_drive;
+      var agora = new Date(D.agora);
+      var foraPeriodo = (m.inicio && new Date(m.inicio) > agora) || (m.fim && new Date(m.fim) <= agora);
+      c.className = "cartao" + (!m.ativo || !onde || foraDrive ? " desligado" : "");
+      var thumb = m.tipo === "mensagem"
+        ? '<div class="thumb" style="background:' + esc(m.cor_fundo) + ";color:" + esc(m.cor_texto) + '">' + esc((m.texto || "").slice(0, 60)) + '<span class="tipo">mensagem</span></div>'
+        : '<div class="thumb" style="background-image:url(https://drive.google.com/thumbnail?id=' + encodeURIComponent(m.drive_id) + '&sz=w320)"><span class="tipo">' + (m.tipo === "video" ? "vídeo" : "foto") + "</span></div>";
+      var selo = foraDrive ? '<span class="selo alerta">Saiu da pasta do Drive</span>'
+        : !m.ativo ? '<span class="selo">Desligado</span>'
+        : !onde ? '<span class="selo alerta">Não passa em nenhuma TV</span>'
+        : foraPeriodo ? '<span class="selo alerta">Fora do período · ' + esc(onde) + "</span>"
+        : '<span class="selo ok">Passa em: ' + esc(onde) + "</span>";
+      c.innerHTML = '<div class="midia">' + thumb + "<div>" +
+        '<div class="linha-topo"><div><h3>' + esc(m.tipo === "mensagem" ? (m.texto || "Mensagem nova").split("\n")[0] : m.nome) + "</h3>" + selo + "</div>" +
+        '<div class="ordem"><button class="btn sec peq" data-a="sobe" title="Passar antes"' + (i === 0 ? " disabled" : "") + '>↑</button><button class="btn sec peq" data-a="desce" title="Passar depois"' + (i === D.midias.length - 1 ? " disabled" : "") + ">↓</button></div></div>" +
+        '<div class="campos">' +
+        '<div><div class="rotulo">Onde passa</div><div class="chips">' +
+        '<button class="chip' + (m.alvos.some(function (x) { return !x.unidade_id && !x.aparelho_id; }) ? " on" : "") + '" data-alvo="todas">Todas as TVs</button>' +
+        D.unidades.map(function (u) { return '<button class="chip unid' + (m.alvos.some(function (x) { return x.unidade_id === u.id; }) ? " on" : "") + '" data-alvo="u' + u.id + '">' + esc(u.nome) + " (todas)</button>"; }).join("") +
+        D.aparelhos.filter(function (a) { return a.nome; }).map(function (a) { return '<button class="chip' + (m.alvos.some(function (x) { return x.aparelho_id === a.id; }) ? " on" : "") + '" data-alvo="a' + a.id + '">' + esc(a.nome) + (a.unidade_id ? " · " + esc(nomeUnidade(a.unidade_id)) : "") + "</button>"; }).join("") +
+        "</div></div>" +
+        '<div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap"><label class="chave"><input type="checkbox" data-a="ativo"' + (m.ativo ? " checked" : "") + "> Ligado</label>" +
+        '<button class="abrir" data-a="abrir">' + (abertos[m.id] ? "Menos opções ▲" : "Mais opções ▼") + "</button></div>" +
+        (abertos[m.id] ? detalhes(m) : "") +
+        "</div></div></div>";
+      ligarMidia(c, m, i);
+      l.appendChild(c);
+    });
+  }
+  function dataLocal(iso) { if (!iso) return ""; var d = new Date(iso); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 16); }
+  function detalhes(m) {
+    var h = "";
+    if (m.tipo === "mensagem") {
+      h += '<div><div class="rotulo">Texto grande</div><textarea data-c="texto" rows="2">' + esc(m.texto) + "</textarea></div>" +
+        '<div><div class="rotulo">Texto menor (opcional)</div><textarea data-c="subtexto" rows="2">' + esc(m.subtexto) + "</textarea></div>" +
+        '<div><div class="rotulo">Cores</div><div class="cores">' +
+        CORES.map(function (p) { return '<button class="cor' + (p[0].toLowerCase() === (m.cor_fundo || "").toLowerCase() && p[1].toLowerCase() === (m.cor_texto || "").toLowerCase() ? " on" : "") + '" data-cor="' + p[0] + "|" + p[1] + '" style="background:' + p[0] + ";box-shadow:inset 0 -9px 0 " + p[1] + ',0 0 0 1px #eadfd8"></button>'; }).join("") +
+        ' <label class="status">Fundo <input type="color" data-c="cor_fundo" value="' + esc(m.cor_fundo) + '"></label>' +
+        ' <label class="status">Letra <input type="color" data-c="cor_texto" value="' + esc(m.cor_texto) + '"></label></div></div>';
+    }
+    h += '<div class="grade2">';
+    if (m.tipo !== "video") h += '<div><div class="rotulo">Segundos na tela</div><input type="text" inputmode="numeric" data-c="duracao_s" value="' + m.duracao_s + '"></div>';
+    h += '<div><div class="rotulo">Começa (opcional)</div><input type="datetime-local" data-c="inicio" value="' + dataLocal(m.inicio) + '"></div>' +
+      '<div><div class="rotulo">Termina (opcional)</div><input type="datetime-local" data-c="fim" value="' + dataLocal(m.fim) + '"></div></div>';
+    if (m.tipo === "mensagem") h += '<div><button class="btn perigo peq" data-a="apagar">Apagar mensagem</button></div>';
+    else h += '<div class="status">Arquivo no Drive: ' + esc(m.nome) + " · " + esc(m.mime || "") + "</div>";
+    return h;
+  }
+  function ligarMidia(c, m, i) {
+    c.querySelectorAll("[data-alvo]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var k = b.dataset.alvo, alvos;
+        if (k === "todas") alvos = b.classList.contains("on") ? [] : [{}];
+        else {
+          alvos = m.alvos.filter(function (x) { return x.unidade_id || x.aparelho_id; }).map(function (x) { return x.unidade_id ? { unidade_id: x.unidade_id } : { aparelho_id: x.aparelho_id }; });
+          var id = +k.slice(1), campo = k[0] === "u" ? "unidade_id" : "aparelho_id";
+          var tem = alvos.some(function (x) { return x[campo] === id; });
+          alvos = tem ? alvos.filter(function (x) { return x[campo] !== id; }) : alvos.concat([(function () { var o = {}; o[campo] = id; return o; })()]);
+        }
+        salvarMidia(m.id, {}, alvos);
+      });
+    });
+    c.querySelectorAll("[data-a]").forEach(function (b) {
+      var a = b.dataset.a;
+      if (a === "ativo") b.addEventListener("change", function () { salvarMidia(m.id, { ativo: b.checked }); });
+      if (a === "abrir") b.addEventListener("click", function () { abertos[m.id] = !abertos[m.id]; desenharMidias(); });
+      if (a === "sobe" || a === "desce") b.addEventListener("click", function () {
+        var j = a === "sobe" ? i - 1 : i + 1, o = D.midias[j];
+        if (!o) return;
+        // troca as posições; se a ordem for igual, abre espaço
+        var om = m.ordem, oo = o.ordem;
+        if (om === oo) { om = a === "sobe" ? oo - 1 : oo + 1; }
+        Promise.all([rpc("tvs_salvar_midia", { p_token: lerToken(), p_id: m.id, p_dados: { ordem: oo }, p_alvos: null }),
+          rpc("tvs_salvar_midia", { p_token: lerToken(), p_id: o.id, p_dados: { ordem: om }, p_alvos: null })]).then(carregar);
+      });
+      if (a === "apagar") b.addEventListener("click", function () {
+        if (confirm("Apagar esta mensagem?")) rpc("tvs_salvar_midia", { p_token: lerToken(), p_id: m.id, p_dados: {}, p_alvos: null, p_apagar: true }).then(carregar);
+      });
+    });
+    c.querySelectorAll("[data-cor]").forEach(function (b) {
+      b.addEventListener("click", function () { var p = b.dataset.cor.split("|"); salvarMidia(m.id, { cor_fundo: p[0], cor_texto: p[1] }); });
+    });
+    c.querySelectorAll("[data-c]").forEach(function (inp) {
+      inp.addEventListener("change", function () {
+        var k = inp.dataset.c, v = inp.value, d = {};
+        if (k === "duracao_s") { v = parseInt(v, 10); if (!(v >= 3 && v <= 600)) { toast("Use de 3 a 600 segundos"); return; } }
+        if (k === "inicio" || k === "fim") v = v ? new Date(v).toISOString() : null;
+        d[k] = v;
+        inp.blur();
+        salvarMidia(m.id, d).then(function () { toast("Salvo"); });
+      });
+    });
+  }
+  $("#b-msg").addEventListener("click", function () {
+    salvarMidia(null, { texto: "Bem-vindos à Docis!" }, []).then(function (id) {
+      if (!id) return; abertos[id] = true;
+      try { localStorage.setItem("tvs_aba", "midias"); } catch (e) {}
+      desenharMidias(); toast("Mensagem criada no topo: escreva o texto e marque onde passa");
+    });
+  });
+
+  // ---------- TVs ----------
+  // rotacao = quanto a imagem gira (sentido horário) para ficar em pé com a TV naquela posição
+  var POSICOES = [
+    { r: 0, nome: "Normal", sub: "deitada, base embaixo" },
+    { r: 180, nome: "De cabeça pra baixo", sub: "base em cima" },
+    { r: 90, nome: "Em pé", sub: "base à direita" },
+    { r: 270, nome: "Em pé", sub: "base à esquerda" }
+  ];
+  function desenhoTv(r) {
+    // TV vista de frente na parede: moldura, base (faixa grossa = lado de baixo da TV) e a seta de como a imagem vai aparecer (sempre pra cima)
+    var deitada = r === 0 || r === 180;
+    var w = deitada ? 56 : 34, h = deitada ? 34 : 56, x = (64 - w) / 2, y = (64 - h) / 2;
+    var base = r === 0 ? [x, y + h - 5, w, 5] : r === 180 ? [x, y, w, 5] : r === 90 ? [x + w - 5, y, 5, h] : [x, y, 5, h];
+    return '<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="3" fill="#2a1a22"/>' +
+      '<rect x="' + base[0] + '" y="' + base[1] + '" width="' + base[2] + '" height="' + base[3] + '" rx="1.5" fill="#B03A62"/>' +
+      '<path d="M32 22 L38 30 H34.5 V40 H29.5 V30 H26 Z" fill="#fff"/></svg>';
+  }
+  function haQuanto(iso) {
+    if (!iso) return "nunca ligou";
+    var s = (Date.now() - new Date(iso)) / 1000;
+    if (s < 60) return '<span class="on-line">ligada agora</span>';
+    if (s < 3600) return "vista há " + Math.round(s / 60) + " min";
+    if (s < 86400) return "vista há " + Math.round(s / 3600) + " h";
+    return "vista há " + Math.round(s / 86400) + " dias";
+  }
+  function desenharTvs() {
+    var l = $("#l-tvs");
+    if (!D.aparelhos.length) { l.innerHTML = '<div class="vazio">Nenhuma TV ainda. Abra o app "TV Docis" na TV e ela aparece aqui.</div>'; return; }
+    l.innerHTML = "";
+    D.aparelhos.forEach(function (a) {
+      var c = document.createElement("div");
+      var nova = !a.nome;
+      c.className = "cartao" + (nova ? " tv-nova" : "") + (a.ativo ? "" : " desligado");
+      var info = a.info || {};
+      c.innerHTML =
+        '<div class="linha-topo"><div>' + (nova ? '<div class="rotulo">TV nova esperando cadastro</div>' : "<h3>" + esc(a.nome) + "</h3>") +
+        '<div class="status">Código <b class="' + (nova ? "codigo" : "") + '">' + esc(a.codigo.slice(0, 4) + "-" + a.codigo.slice(4)) + "</b> · " + haQuanto(a.visto_em) +
+        (info.modelo ? " · " + esc(info.modelo) : "") + (info.ip ? " · IP " + esc(info.ip) : "") + "</div></div>" +
+        (nova ? "" : '<label class="chave"><input type="checkbox" data-a="ativo"' + (a.ativo ? " checked" : "") + "> Ligada</label>") + "</div>" +
+        '<div class="campos">' +
+        '<div class="grade2"><div><div class="rotulo">Nome</div><input type="text" data-c="nome" value="' + esc(a.nome) + '" placeholder="Ex.: Recepção, Vitrine, Cozinha"></div>' +
+        '<div><div class="rotulo">Unidade</div><select data-c="unidade_id"><option value="">Escolha…</option>' +
+        D.unidades.map(function (u) { return '<option value="' + u.id + '"' + (u.id === a.unidade_id ? " selected" : "") + ">" + esc(u.nome) + "</option>"; }).join("") +
+        "</select></div></div>" +
+        '<div><div class="rotulo">Posição da TV na parede</div><div class="posicoes">' +
+        POSICOES.map(function (p) { return '<button class="pos' + (p.r === a.rotacao ? " on" : "") + '" data-rot="' + p.r + '">' + desenhoTv(p.r) + "<span>" + p.nome + '<br><span class="status">' + p.sub + "</span></span></button>"; }).join("") +
+        "</div>" +
+        '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px"><button class="btn sec peq" data-a="seta">Mostrar seta na TV</button>' +
+        '<span class="status">Ao escolher, a TV mostra uma seta "CIMA" por 1 minuto e meio. Se ela apontar pra cima, está certo.</span></div></div>' +
+        '<div><button class="btn perigo peq" data-a="remover">Remover esta TV</button></div>' +
+        "</div>";
+      c.querySelectorAll("[data-rot]").forEach(function (b) {
+        b.addEventListener("click", function () { salvarTv(a.id, { rotacao: +b.dataset.rot }).then(function () { toast("Olhe a TV: a seta tem que apontar pra cima"); }); });
+      });
+      c.querySelectorAll("[data-c]").forEach(function (inp) {
+        inp.addEventListener("change", function () {
+          var d = {}; d[inp.dataset.c] = inp.value === "" && inp.dataset.c === "unidade_id" ? null : inp.value;
+          inp.blur(); salvarTv(a.id, d).then(function () { toast("Salvo"); });
+        });
+      });
+      c.querySelectorAll("[data-a]").forEach(function (b) {
+        var k = b.dataset.a;
+        if (k === "ativo") b.addEventListener("change", function () { salvarTv(a.id, { ativo: b.checked }); });
+        if (k === "seta") b.addEventListener("click", function () { salvarTv(a.id, { seta: true }).then(function () { toast("A seta aparece na TV em até 15 segundos"); }); });
+        if (k === "remover") b.addEventListener("click", function () {
+          if (confirm("Remover " + (a.nome || "esta TV") + "? Se o app continuar aberto nela, ela volta como TV nova.")) salvarTv(a.id, {}, true);
+        });
+      });
+      l.appendChild(c);
+    });
+  }
+
+  // ---------- unidades ----------
+  function desenharUnidades() {
+    var l = $("#l-unidades");
+    l.innerHTML = "";
+    D.unidades.forEach(function (u) {
+      var n = D.aparelhos.filter(function (a) { return a.unidade_id === u.id; }).length;
+      var c = document.createElement("div");
+      c.className = "cartao";
+      c.innerHTML = '<div class="unidade-linha"><input type="text" value="' + esc(u.nome) + '"><span class="status" style="white-space:nowrap">' + n + " TV" + (n === 1 ? "" : "s") + '</span><button class="btn perigo peq">Apagar</button></div>';
+      $("input", c).addEventListener("change", function (e) {
+        rpc("tvs_salvar_unidade", { p_token: lerToken(), p_id: u.id, p_nome: e.target.value }).then(carregar).then(function () { toast("Salvo"); });
+      });
+      $("button", c).addEventListener("click", function () {
+        if (confirm("Apagar a unidade " + u.nome + "? As TVs dela ficam sem unidade.")) rpc("tvs_salvar_unidade", { p_token: lerToken(), p_id: u.id, p_nome: u.nome, p_apagar: true }).then(carregar);
+      });
+      l.appendChild(c);
+    });
+  }
+  $("#b-unidade").addEventListener("click", function () {
+    var n = $("#nova-unidade").value.trim();
+    if (!n) return;
+    rpc("tvs_salvar_unidade", { p_token: lerToken(), p_id: null, p_nome: n }).then(function () { $("#nova-unidade").value = ""; return carregar(); })
+      .catch(function (e) { toast("Não salvou: " + e.message); });
+  });
+
+  // ---------- Drive ----------
+  function atualizarDrive(avisar) {
+    var b = $("#b-drive"); b.disabled = true; b.textContent = "Lendo o Drive…";
+    return fetch(SUPA + "/functions/v1/tvs-drive", { method: "POST", headers: { apikey: CHAVE, "Content-Type": "application/json" }, body: "{}" })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (j.pasta) { $("#l-pasta").href = j.pasta; $("#l-pasta").hidden = false; }
+        if (!j.ok) throw new Error(j.erro || "erro");
+        if (avisar || j.novos) toast(j.novos ? j.novos + " arquivo(s) novo(s) do Drive. Marque onde passam." : "Drive em dia: " + j.arquivos + " arquivo(s)");
+        return carregar();
+      })
+      .catch(function (e) { toast("Drive: " + e.message); })
+      .then(function () { b.disabled = false; b.textContent = "Atualizar do Drive"; });
+  }
+  $("#b-drive").addEventListener("click", function () { atualizarDrive(true); });
+
+  function iniciar() {
+    $("#login").hidden = true; $("#app").hidden = false;
+    carregar().then(function () { atualizarDrive(false); });
+    setInterval(function () { if (!document.hidden) carregar(); }, 20000);
+  }
+  if (lerToken()) iniciar(); else $("#login").hidden = false;
+})();
+</script>
+</body>
+</html>
