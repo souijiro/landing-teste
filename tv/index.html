@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1920, height=1080">
+<meta name="robots" content="noindex, nofollow">
+<title>Painel TV Black 2026</title>
+<!-- Painel da TV do escritório: telas girando com o resumo da Black Vitalícia 2026.
+     Token vem no endereço (#t=...) e fica guardado no aparelho. Dados: RPC tv_black2026 (só números). -->
+<style>
+  :root { --fundo: #0d0b0a; --texto: #f6efe6; --suave: #a89c8f; --ouro: #e8b04b; --verde: #3ccf8e; --vermelho: #ff6b5b; --azul: #5aa9ff; --linha: #2a2420; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; background: var(--fundo); color: var(--texto); overflow: hidden;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+  .tela { position: absolute; inset: 0; padding: 70px 110px 120px; display: flex; flex-direction: column; opacity: 0; transition: opacity .8s; }
+  .tela.ativa { opacity: 1; }
+  .rotulo { font-size: 34px; letter-spacing: 6px; text-transform: uppercase; color: var(--ouro); font-weight: 700; }
+  .titulo { font-size: 64px; font-weight: 800; margin-top: 10px; }
+  .gigante { font-size: 300px; font-weight: 900; line-height: 1; letter-spacing: -8px; }
+  .grande { font-size: 150px; font-weight: 900; line-height: 1; letter-spacing: -4px; }
+  .medio { font-size: 46px; color: var(--suave); }
+  .medio b { color: var(--texto); }
+  .meio { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+  .barra { height: 64px; background: var(--linha); border-radius: 32px; overflow: hidden; margin: 40px 0 24px; }
+  .barra > div { height: 100%; background: linear-gradient(90deg, #c98a2b, var(--ouro)); border-radius: 32px; transition: width 1.5s; }
+  .cols { display: flex; gap: 80px; margin-top: 50px; }
+  .cols > div { flex: 1; }
+  .cols .num { font-size: 110px; font-weight: 900; line-height: 1.05; }
+  .cols .leg { font-size: 36px; color: var(--suave); margin-top: 8px; }
+  .verde { color: var(--verde); } .vermelho { color: var(--vermelho); } .ouro { color: var(--ouro); } .azul { color: var(--azul); }
+  svg text { font-family: inherit; }
+  #rodape { position: absolute; left: 110px; right: 110px; bottom: 44px; display: flex; justify-content: space-between; align-items: center; font-size: 28px; color: var(--suave); }
+  #pontos span { display: inline-block; width: 18px; height: 18px; border-radius: 50%; background: var(--linha); margin-left: 14px; }
+  #pontos span.on { background: var(--ouro); }
+  #aviso { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; text-align: center; font-size: 52px; padding: 100px; }
+  .lado { display: flex; align-items: flex-end; gap: 70px; }
+</style>
+</head>
+<body>
+
+<section class="tela" id="t-meta">
+  <div class="rotulo">Black Vitalícia 2026</div>
+  <div class="titulo">Rumo aos 10 mil leads</div>
+  <div class="meio">
+    <div class="lado"><div class="gigante" id="m-total">–</div><div class="medio" style="padding-bottom:40px">de <b>10.000</b></div></div>
+    <div class="barra"><div id="m-barra" style="width:0"></div></div>
+    <div class="medio" id="m-falta"></div>
+  </div>
+</section>
+
+<section class="tela" id="t-hoje">
+  <div class="rotulo">Hoje</div>
+  <div class="titulo">Leads novos hoje</div>
+  <div class="meio">
+    <div class="lado"><div class="gigante" id="h-hoje">–</div><div class="medio" style="padding-bottom:40px" id="h-comp"></div></div>
+    <div id="h-graf" style="margin-top:40px"></div>
+  </div>
+</section>
+
+<section class="tela" id="t-dias">
+  <div class="rotulo">Dia a dia</div>
+  <div class="titulo">Leads por dia</div>
+  <div class="meio"><div id="d-graf"></div></div>
+</section>
+
+<section class="tela" id="t-trafego">
+  <div class="rotulo">Tráfego pago</div>
+  <div class="titulo">Investimento e custo por lead</div>
+  <div class="meio">
+    <div class="cols">
+      <div><div class="num ouro" id="r-inv-hoje">–</div><div class="leg">investido hoje</div></div>
+      <div><div class="num" id="r-cpl-hoje">–</div><div class="leg">custo por lead hoje</div></div>
+    </div>
+    <div class="cols">
+      <div><div class="num ouro" id="r-inv-total">–</div><div class="leg">investido na captação</div></div>
+      <div><div class="num" id="r-cpl-total">–</div><div class="leg">custo por lead médio</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="tela" id="t-grupos">
+  <div class="rotulo">WhatsApp</div>
+  <div class="titulo">Leads que estão nos grupos</div>
+  <div class="meio">
+    <div class="gigante" id="g-pct">–</div>
+    <div class="barra"><div id="g-barra" style="width:0"></div></div>
+    <div class="medio" id="g-txt"></div>
+  </div>
+</section>
+
+<section class="tela" id="t-perfil">
+  <div class="rotulo">Quem se cadastrou</div>
+  <div class="titulo">Alunos × novos</div>
+  <div class="meio"><div id="p-graf"></div></div>
+</section>
+
+<div id="rodape"><div id="atualizado"></div><div id="pontos"></div></div>
+<div id="aviso"></div>
+
+<script>
+var SUPABASE_URL = "https://eoqyoeohbcpdjxghfwua.supabase.co";
+var SUPABASE_KEY = "sb_publishable_cv-1jB60ZGb1hJHYQi0qPA_LwF9DS98";
+var META = 10000, FIM = "2026-11-05", TROCA = 20000, ATUALIZA = 60000;
+
+var $ = function (id) { return document.getElementById(id); };
+var fmt = function (n) { return Math.round(n).toLocaleString("pt-BR"); };
+var reais = function (n) { return "R$ " + n.toLocaleString("pt-BR", { maximumFractionDigits: n >= 1000 ? 0 : 2, minimumFractionDigits: n >= 1000 ? 0 : 2 }); };
+var hojeSP = function () { return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date()); };
+var difDias = function (a, b) { return Math.round((new Date(b + "T12:00:00Z") - new Date(a + "T12:00:00Z")) / 86400000); };
+
+// token: #t=... no endereço → guarda no aparelho
+var token = (location.hash.match(/t=([0-9a-f-]{36})/) || [])[1];
+try { if (token) localStorage.setItem("tv_token", token); else token = localStorage.getItem("tv_token"); } catch (e) {}
+var DEMO = /demo=1/.test(location.search);
+
+function aviso(t) { $("aviso").style.display = t ? "flex" : "none"; $("aviso").textContent = t || ""; }
+
+function buscar() {
+  if (DEMO) return Promise.resolve(window.DADOS_DEMO);
+  return fetch(SUPABASE_URL + "/rest/v1/rpc/tv_black2026", {
+    method: "POST", headers: { apikey: SUPABASE_KEY, "Content-Type": "application/json" },
+    body: JSON.stringify({ p_token: token })
+  }).then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j && j.message || "erro"); return j; }); });
+}
+
+// gráfico de barras em SVG (sem bibliotecas — o navegador da TV é fraco)
+function barras(vals, rotulos, opc) {
+  opc = opc || {};
+  var W = 1700, H = opc.h || 480, base = H - 60, n = vals.length, gap = opc.gap || 14;
+  var max = Math.max.apply(null, vals.concat(opc.fantasma || [], [1]));
+  var bw = (W - gap * (n - 1)) / n, s = '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '">';
+  for (var i = 0; i < n; i++) {
+    var x = i * (bw + gap);
+    if (opc.fantasma) { var hf = opc.fantasma[i] / max * (base - 50); s += '<rect x="' + x + '" y="' + (base - hf) + '" width="' + bw + '" height="' + hf + '" rx="6" fill="#2a2420"/>'; }
+    var h = vals[i] / max * (base - 50), cor = (opc.cores && opc.cores[i]) || "#e8b04b";
+    if (vals[i] > 0) s += '<rect x="' + (x + (opc.fantasma ? bw * 0.18 : 0)) + '" y="' + (base - h) + '" width="' + (opc.fantasma ? bw * 0.64 : bw) + '" height="' + h + '" rx="6" fill="' + cor + '"/>';
+    if (opc.valores && vals[i] > 0) s += '<text x="' + (x + bw / 2) + '" y="' + (base - h - 14) + '" text-anchor="middle" font-size="' + (opc.fv || 34) + '" font-weight="800" fill="#f6efe6">' + fmt(vals[i]) + '</text>';
+    if (rotulos[i]) s += '<text x="' + (x + bw / 2) + '" y="' + (H - 14) + '" text-anchor="middle" font-size="30" fill="#a89c8f">' + rotulos[i] + '</text>';
+  }
+  return s + '</svg>';
+}
+
+function desenhar(d) {
+  var hoje = hojeSP(), dias = Math.max(1, difDias(hoje, FIM) + 1), falta = Math.max(0, META - d.total);
+
+  // 1. meta
+  $("m-total").textContent = fmt(d.total);
+  $("m-barra").style.width = Math.min(100, d.total / META * 100) + "%";
+  $("m-falta").innerHTML = falta
+    ? "Faltam <b>" + fmt(falta) + "</b> · " + (dias === 1 ? "último dia" : "<b>" + dias + "</b> dias até 05/11") + " · precisa de <b class='ouro'>" + fmt(Math.ceil(falta / dias)) + "</b> por dia"
+    : "<b class='verde'>Meta batida! 🎉</b>";
+
+  // 2. hoje × ontem até a mesma hora
+  $("h-hoje").textContent = fmt(d.hoje);
+  var dif = d.ontem_mesma_hora ? (d.hoje / d.ontem_mesma_hora - 1) * 100 : 0;
+  $("h-comp").innerHTML = "ontem até esta hora: <b>" + fmt(d.ontem_mesma_hora) + "</b><br>" +
+    (d.ontem_mesma_hora ? "<b class='" + (dif >= 0 ? "verde" : "vermelho") + "'>" + (dif >= 0 ? "▲ " : "▼ ") + Math.abs(dif).toFixed(0) + "%</b>" : "");
+  var horaAgora = Number(new Intl.DateTimeFormat("en-GB", { timeZone: "America/Sao_Paulo", hour: "2-digit", hourCycle: "h23" }).format(new Date()));
+  var rotH = d.por_hora_hoje.map(function (_, h) { return h % 3 === 0 ? h + "h" : ""; });
+  var vh = d.por_hora_hoje.map(function (v, h) { return h <= horaAgora ? v : 0; });
+  $("h-graf").innerHTML = barras(vh, rotH, { h: 380, fantasma: d.por_hora_ontem, gap: 10 }) +
+    '<div class="medio" style="font-size:30px;margin-top:6px"><b class="ouro">■</b> hoje &nbsp; <span style="color:#3a322c">■</span> ontem, por hora</div>';
+
+  // 3. dia a dia
+  var pd = d.por_dia;
+  $("d-graf").innerHTML = barras(pd.map(function (x) { return x[1]; }),
+    pd.map(function (x) { return x[0].slice(8, 10) + "/" + x[0].slice(5, 7); }),
+    { h: 700, valores: true, cores: pd.map(function (x) { return x[0] === hoje ? "#5aa9ff" : "#e8b04b"; }) });
+
+  // 4. tráfego
+  $("r-inv-hoje").textContent = reais(d.invest_hoje);
+  $("r-cpl-hoje").textContent = d.hoje_trafego ? reais(d.invest_hoje / d.hoje_trafego) : "–";
+  $("r-inv-total").textContent = reais(d.invest_total);
+  $("r-cpl-total").textContent = d.total_trafego ? reais(d.invest_total / d.total_trafego) : "–";
+
+  // 5. grupos (mesma régua do /dash: <70 vermelho, 70–90 ouro, >90 verde)
+  if (d.grupos_membros && d.grupos_leads) {
+    var p = d.grupos_membros / d.grupos_leads * 100;
+    $("g-pct").textContent = p.toFixed(0) + "%";
+    $("g-pct").className = "gigante " + (p < 70 ? "vermelho" : p < 90 ? "ouro" : "verde");
+    $("g-barra").style.width = Math.min(100, p) + "%";
+    var em = new Date(d.grupos_em).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+    $("g-txt").innerHTML = "<b>" + fmt(d.grupos_membros) + "</b> pessoas nos grupos · <b>" + fmt(d.grupos_leads) + "</b> leads · contagem de " + em;
+  }
+
+  // 6. perfil
+  var pf = d.perfil, tot = pf.docis + pf.felipe + pf.ambos + pf.nao_aluno || 1;
+  var itens = [["Alunos Docis", pf.docis, "#e8b04b"], ["Alunos Felipe", pf.felipe, "#5aa9ff"], ["Alunos dos dois", pf.ambos, "#3ccf8e"], ["Ainda não são alunos", pf.nao_aluno, "#f6efe6"]];
+  $("p-graf").innerHTML = itens.map(function (it) {
+    var w = it[1] / tot * 100;
+    return '<div style="display:flex;align-items:center;margin:26px 0;font-size:44px">' +
+      '<div style="width:520px">' + it[0] + '</div>' +
+      '<div style="flex:1;height:70px;background:#2a2420;border-radius:12px;overflow:hidden"><div style="height:100%;width:' + w + '%;background:' + it[2] + '"></div></div>' +
+      '<div style="width:330px;text-align:right;font-weight:800">' + fmt(it[1]) + ' <span style="color:#a89c8f;font-weight:400">' + w.toFixed(0) + '%</span></div></div>';
+  }).join("");
+
+  $("atualizado").textContent = "Atualizado às " + new Date().toLocaleTimeString("pt-BR", { timeZone: "America/Sao_Paulo", hour: "2-digit", minute: "2-digit" });
+}
+
+function atualizar() {
+  if (!token && !DEMO) { aviso("Painel sem chave de acesso. Abra pelo app da TV."); return; }
+  buscar().then(function (d) { aviso(""); desenhar(d); })
+    .catch(function (e) { if (/nao_autorizado/.test(e.message)) aviso("A chave de acesso da TV expirou."); else $("atualizado").textContent = "Sem conexão — tentando de novo…"; });
+}
+
+// rotação das telas
+var telas = Array.prototype.slice.call(document.querySelectorAll(".tela")), atual = 0;
+$("pontos").innerHTML = telas.map(function () { return "<span></span>"; }).join("");
+function mostrar(i) {
+  telas.forEach(function (t, k) { t.classList.toggle("ativa", k === i); });
+  Array.prototype.forEach.call($("pontos").children, function (s, k) { s.className = k === i ? "on" : ""; });
+}
+var fixa = DEMO && location.search.match(/tela=(\d)/);  // ?demo=1&tela=N pra testar uma tela parada
+mostrar(fixa ? +fixa[1] : 0);
+if (!fixa) setInterval(function () { atual = (atual + 1) % telas.length; mostrar(atual); }, TROCA);
+
+// escala 1920×1080 para qualquer tela
+function escalar() { var s = Math.min(innerWidth / 1920, innerHeight / 1080); document.body.style.cssText = "width:1920px;height:1080px;transform-origin:0 0;transform:scale(" + s + ")"; }
+addEventListener("resize", escalar); escalar();
+
+if (DEMO) {
+  window.DADOS_DEMO = {"total":5475,"hoje":105,"ontem_mesma_hora":156,"ontem":213,"hoje_trafego":76,"total_trafego":3184,"por_hora_hoje":[2,2,3,0,0,3,7,13,9,10,8,5,23,11,9,0,0,0,0,0,0,0,0,0],"por_hora_ontem":[3,6,1,1,2,3,17,15,21,20,15,15,12,11,14,8,10,6,3,4,7,4,10,5],"por_dia":[["2026-10-17",89],["2026-10-18",130],["2026-10-19",344],["2026-10-20",426],["2026-10-21",298],["2026-10-22",570],["2026-10-23",346],["2026-10-24",440],["2026-10-25",459],["2026-10-26",303],["2026-10-27",762],["2026-10-28",770],["2026-10-29",213],["2026-10-30",105]],"perfil":{"docis":1619,"felipe":978,"ambos":167,"nao_aluno":2711},"invest_hoje":825.63,"invest_total":24834.15,"grupos_membros":3316,"grupos_leads":5338,"grupos_em":"2026-10-29T21:10:01.848445+00:00"};
+}
+atualizar();
+setInterval(atualizar, ATUALIZA);
+// recarrega a página de madrugada pra pegar versões novas e limpar memória
+setInterval(function () { if (new Date().getHours() === 4 && new Date().getMinutes() < 2) location.reload(); }, 60000);
+</script>
+</body>
+</html>
