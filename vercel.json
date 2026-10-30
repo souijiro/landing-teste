@@ -10,6 +10,7 @@
     { "src": "/lancamento/?", "has": [{ "type": "host", "value": "c.canaga.com.br" }], "dest": "/canaga/index.html" },
     { "src": "/dash/manifest.webmanifest", "dest": "/dash/manifest.webmanifest", "headers": { "Content-Type": "application/manifest+json" } },
     { "src": "/dash/?", "dest": "/dash/index.html", "headers": { "X-Robots-Tag": "noindex, nofollow", "Cache-Control": "no-store" } },
+    { "src": "/dash/tv/?", "dest": "/dash/index.html", "headers": { "X-Robots-Tag": "noindex, nofollow", "Cache-Control": "no-store" } },
     { "src": "/tv/?", "dest": "/tv/index.html", "headers": { "X-Robots-Tag": "noindex, nofollow", "Cache-Control": "no-store" } },
     { "src": "/black2026/?", "dest": "/black2026/index.html" },
     { "src": "/black2026/obrigado/?", "dest": "/black2026/obrigado/index.html", "headers": { "X-Robots-Tag": "noindex, nofollow" } },

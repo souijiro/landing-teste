@@ -31,7 +31,7 @@ function somaDias(iso, n) { const d = new Date(iso + "T12:00:00Z"); d.setUTCDate
 function difDias(a, b) { return Math.round((new Date(b + "T12:00:00Z") - new Date(a + "T12:00:00Z")) / 86400000); }
 
 // ---------- Cookie / login ----------
-function lerToken() { const m = document.cookie.match(new RegExp("(?:^|; )" + COOKIE + "=([^;]+)")); return m ? decodeURIComponent(m[1]) : null; }
+function lerToken() { if (window.TV_TOKEN) return window.TV_TOKEN; const m = document.cookie.match(new RegExp("(?:^|; )" + COOKIE + "=([^;]+)")); return m ? decodeURIComponent(m[1]) : null; }
 function salvarToken(t) { document.cookie = `${COOKIE}=${encodeURIComponent(t)}; max-age=${90 * 86400}; path=/dash; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`; }
 function apagarToken() { document.cookie = `${COOKIE}=; max-age=0; path=/dash`; }
 

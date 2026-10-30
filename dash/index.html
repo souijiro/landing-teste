@@ -17,6 +17,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/dash/dash.css?v=37">
+  <script>
+    // Modo TV (/dash/tv ou ?tv=1): telas grandes que trocam pelas setas do controle; chave da TV vem em #t=
+    window.MODO_TV = /^\/dash\/tv/.test(location.pathname) || /[?&]tv=1/.test(location.search);
+    if (window.MODO_TV) {
+      document.documentElement.classList.add("modo-tv");
+      window.TV_TOKEN = (location.hash.match(/t=([0-9a-f-]{36})/) || [])[1] || null;
+    }
+  </script>
 </head>
 <body>
 
@@ -337,11 +345,12 @@
   <img class="previa-hover" id="previa-hover" alt="" hidden>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-  <script src="/dash/dash.js?v=29"></script>
+  <script src="/dash/dash.js?v=30"></script>
   <script src="/dash/alunos.js?v=3"></script>
   <script src="/dash/criativos.js?v=1"></script>
   <script src="/dash/trafego.js?v=37"></script>
   <script src="/dash/ab.js?v=19"></script>
   <script src="/dash/grupos.js?v=6"></script>
+  <script src="/dash/tv.js?v=1"></script>
 </body>
 </html>
