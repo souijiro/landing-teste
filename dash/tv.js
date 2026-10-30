@@ -62,6 +62,8 @@
       font: 600 13px Montserrat, sans-serif; color: #8a857f; }
     #tv-pontos span { display: inline-block; width: 11px; height: 11px; border-radius: 50%; background: #d8d1c8; margin-left: 9px; }
     #tv-pontos span.on { background: #0b0b0b; }
+    #tv-aviso { position: fixed; left: 50%; top: 42%; width: 420px; margin-left: -210px; padding: 18px 0; border-radius: 16px; text-align: center;
+      background: rgba(11,11,11,.88); color: #ffd60a; font: 800 28px Montserrat, sans-serif; pointer-events: none; transition: opacity .4s; }
   `;
   document.head.appendChild(css);
 
@@ -91,7 +93,8 @@
       <h1 class="tv-titulo">CPM hora a hora · hoje<small>custo por mil impressões · só horas fechadas</small></h1>
       <div class="tv-corpo"><div class="cartao tv-cpm" id="tv-cpm"><p class="t-nota taxas-legenda"><img src="/black2026/img/cabeca-cilaine.webp" alt=""> Docis &nbsp; <img src="/black2026/img/cabeca-felipe.webp" alt=""> Felipe Russo</p></div></div>
     </section>
-    <div id="tv-rodape"><span id="tv-info">Carregando…</span><span>◀ ▶ troca de tela<span id="tv-pontos"></span></span></div>`;
+    <div id="tv-rodape"><span id="tv-info">Carregando…</span><span><span id="tv-dica"></span><span id="tv-pontos"></span></span></div>
+    <div id="tv-aviso"></div>`;
   document.body.appendChild(raiz);
 
   // move os cartões do dash para as telas (os scripts do dash continuam atualizando os mesmos elementos)
@@ -143,10 +146,24 @@
   }
   const fixa = location.search.match(/[?&]tela=(\d)/);
   mostrar(fixa ? +fixa[1] : 0);
-  if (!fixa) setInterval(() => { if (Date.now() - ultimaManual > PAUSA_MANUAL) mostrar(atual + 1); }, TROCA);
+  // OK do controle pausa na tela atual (fica parado até apertar OK de novo; vale mesmo depois de recarregar)
+  let pausado = false;
+  try { pausado = localStorage.getItem("tv_pausado") === "1"; } catch (e) {}
+  let avisoTimer = null;
+  function pausar(sim) {
+    pausado = sim;
+    try { localStorage.setItem("tv_pausado", sim ? "1" : "0"); } catch (e) {}
+    $("#tv-dica").innerHTML = sim ? "<b style='color:#0b0b0b'>⏸ Pausado</b> · OK continua · ◀ ▶ troca de tela" : "OK pausa · ◀ ▶ troca de tela";
+    const av = $("#tv-aviso");
+    av.textContent = sim ? "⏸ Pausado nesta tela" : "▶ Girando as telas";
+    av.style.opacity = 1; clearTimeout(avisoTimer); avisoTimer = setTimeout(() => { av.style.opacity = 0; }, 2000);
+  }
+  pausar(pausado); $("#tv-aviso").style.opacity = 0;
+  if (!fixa) setInterval(() => { if (!pausado && Date.now() - ultimaManual > PAUSA_MANUAL) mostrar(atual + 1); }, TROCA);
   function tecla(cod) {
     if (cod === 39) { ultimaManual = Date.now(); mostrar(atual + 1); return true; }       // ▶
     if (cod === 37) { ultimaManual = Date.now(); mostrar(atual - 1); return true; }       // ◀
+    if (cod === 13) { pausar(!pausado); return true; }                                   // OK
     return false;
   }
   document.addEventListener("keydown", (e) => { if (tecla(e.keyCode)) e.preventDefault(); });
