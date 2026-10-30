@@ -12,7 +12,7 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { width: 100%; height: 100%; background: var(--fundo); color: var(--texto); overflow: hidden;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
-  .tela { position: absolute; inset: 0; padding: 70px 110px 120px; display: flex; flex-direction: column; opacity: 0; transition: opacity .8s; }
+  .tela { position: absolute; top: 0; left: 0; right: 0; bottom: 0; padding: 70px 110px 120px; display: flex; flex-direction: column; opacity: 0; transition: opacity .8s; }
   .tela.ativa { opacity: 1; }
   .rotulo { font-size: 34px; letter-spacing: 6px; text-transform: uppercase; color: var(--ouro); font-weight: 700; }
   .titulo { font-size: 64px; font-weight: 800; margin-top: 10px; }
@@ -32,7 +32,7 @@
   #rodape { position: absolute; left: 110px; right: 110px; bottom: 44px; display: flex; justify-content: space-between; align-items: center; font-size: 28px; color: var(--suave); }
   #pontos span { display: inline-block; width: 18px; height: 18px; border-radius: 50%; background: var(--linha); margin-left: 14px; }
   #pontos span.on { background: var(--ouro); }
-  #aviso { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; text-align: center; font-size: 52px; padding: 100px; }
+  #aviso { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: none; align-items: center; justify-content: center; text-align: center; font-size: 52px; padding: 100px; }
   .lado { display: flex; align-items: flex-end; gap: 70px; }
 </style>
 </head>
@@ -94,7 +94,7 @@
   <div class="meio"><div id="p-graf"></div></div>
 </section>
 
-<div id="rodape"><div id="atualizado"></div><div id="pontos"></div></div>
+<div id="rodape"><div id="atualizado">Carregando…</div><div id="pontos"></div></div>
 <div id="aviso"></div>
 
 <script>
@@ -105,13 +105,24 @@ var META = 10000, FIM = "2026-11-05", TROCA = 20000, ATUALIZA = 60000;
 var $ = function (id) { return document.getElementById(id); };
 var fmt = function (n) { return Math.round(n).toLocaleString("pt-BR"); };
 var reais = function (n) { return "R$ " + n.toLocaleString("pt-BR", { maximumFractionDigits: n >= 1000 ? 0 : 2, minimumFractionDigits: n >= 1000 ? 0 : 2 }); };
-var hojeSP = function () { return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date()); };
+var hojeSP = function () {  // AAAA-MM-DD em São Paulo (sem depender do formato en-CA, que muda entre versões)
+  var p = {}; new Intl.DateTimeFormat("en-US", { timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit" })
+    .formatToParts(new Date()).forEach(function (x) { p[x.type] = x.value; });
+  return p.year + "-" + p.month + "-" + p.day;
+};
 var difDias = function (a, b) { return Math.round((new Date(b + "T12:00:00Z") - new Date(a + "T12:00:00Z")) / 86400000); };
 
 // token: #t=... no endereço → guarda no aparelho
-var token = (location.hash.match(/t=([0-9a-f-]{36})/) || [])[1];
+// (no app da TV a chave vem em window.TV_TOKEN, injetada na hora de empacotar)
+var token = window.TV_TOKEN || (location.hash.match(/t=([0-9a-f-]{36})/) || [])[1];
 try { if (token) localStorage.setItem("tv_token", token); else token = localStorage.getItem("tv_token"); } catch (e) {}
 var DEMO = /demo=1/.test(location.search);
+
+// erros aparecem no rodapé (na TV não tem console)
+window.onerror = function (msg, src, linha) { var a = $("atualizado"); if (a) a.textContent = "Erro: " + msg + " (linha " + linha + ")"; };
+// dentro do app da TV: não deixa a tela apagar; Voltar fecha o app
+try { tizen.power.request("SCREEN", "SCREEN_NORMAL"); } catch (e) {}
+document.addEventListener("keydown", function (e) { if (e.keyCode === 10009) { try { tizen.application.getCurrentApplication().exit(); } catch (x) {} } });
 
 function aviso(t) { $("aviso").style.display = t ? "flex" : "none"; $("aviso").textContent = t || ""; }
 
@@ -200,7 +211,7 @@ function desenhar(d) {
 function atualizar() {
   if (!token && !DEMO) { aviso("Painel sem chave de acesso. Abra pelo app da TV."); return; }
   buscar().then(function (d) { aviso(""); desenhar(d); })
-    .catch(function (e) { if (/nao_autorizado/.test(e.message)) aviso("A chave de acesso da TV expirou."); else $("atualizado").textContent = "Sem conexão — tentando de novo…"; });
+    .catch(function (e) { if (/nao_autorizado/.test(e.message)) aviso("A chave de acesso da TV expirou."); else $("atualizado").textContent = "Sem conexão — tentando de novo… (" + e.message + ")"; });
 }
 
 // rotação das telas
