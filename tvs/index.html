@@ -361,7 +361,7 @@
         POSICOES.map(function (p) { return '<button class="pos' + (p.r === a.rotacao ? " on" : "") + '" data-rot="' + p.r + '">' + desenhoTv(p.r) + "<span>" + p.nome + '<br><span class="status">' + p.sub + "</span></span></button>"; }).join("") +
         "</div>" +
         '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px"><button class="btn sec peq" data-a="seta">Mostrar seta na TV</button>' +
-        '<span class="status">Ao escolher, a TV mostra uma seta "CIMA" por 1 minuto e meio. Se ela apontar pra cima, está certo.</span></div></div>' +
+        '<span class="status">Ao escolher, a TV mostra uma seta "CIMA" por 1 minuto e meio. Se ela apontar pra cima, está certo. A Frame em pé já gira sozinha: se a seta ficar de ponta-cabeça, escolha "De cabeça pra baixo".</span></div></div>' +
         '<div><button class="btn perigo peq" data-a="remover">Remover esta TV</button></div>' +
         "</div>";
       c.querySelectorAll("[data-rot]").forEach(function (b) {

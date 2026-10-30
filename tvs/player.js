@@ -9,7 +9,7 @@
   window.TV_PLAYER = { carregando: true };
   var SUPA = "https://eoqyoeohbcpdjxghfwua.supabase.co";
   var CHAVE = "sb_publishable_cv-1jB60ZGb1hJHYQi0qPA_LwF9DS98";
-  var VERSAO = "1.0.0";
+  var VERSAO = "1.1.0";
   var BUSCA_MS = 15000;
   var LOG = window.TV_LOG || (location.search.match(/[?&]log=([^&]+)/) || [])[1]; // endereço que recebe eventos para depurar
   var temTizen = typeof tizen !== "undefined";
@@ -176,6 +176,11 @@
   var tocandoId = null, geracao = 0; // geracao: cada vídeo novo (ou parada) invalida os avisos do anterior
   var video = {
     tocando: false,
+    // área do vídeo: a TV em pé (Frame com o app marcado como "all" no config.xml) entrega a tela como 1080x1920
+    area: function () {
+      var empe = screen.height > screen.width;
+      try { webapis.avplay.setDisplayRect(0, 0, empe ? 1080 : 1920, empe ? 1920 : 1080); } catch (e) { log("area " + e.message); }
+    },
     girar: function () {
       var r = (estado && estado.rotacao) || 0;
       try { webapis.avplay.setDisplayRotation(r ? "PLAYER_DISPLAY_ROTATION_" + r : "PLAYER_DISPLAY_ROTATION_NONE"); } catch (e) { log("girar " + e.message); }
@@ -195,7 +200,7 @@
       } catch (e) {}
       try {
         p.open(fonte);
-        p.setDisplayRect(0, 0, 1920, 1080);
+        video.area();
         try { p.setDisplayMethod("PLAYER_DISPLAY_MODE_LETTER_BOX"); } catch (e) {}
         video.girar();
         p.setListener({
@@ -306,6 +311,11 @@
     if (h === 4 && m < 2 && Date.now() - inicio > 3 * 3600000) location.reload();
   }, 60000);
   var inicio = Date.now();
+
+  // TV que gira (Frame em pé): a tela muda de 1920x1080 para 1080x1920; o vídeo que está tocando acompanha
+  function mudouTela() { log("tela " + screen.width + "x" + screen.height); if (video.tocando) video.area(); }
+  try { screen.orientation.addEventListener("change", mudouTela); } catch (e) {}
+  window.addEventListener("resize", mudouTela);
 
   telaInfo(["Carregando…"]);
   function posicao() {
