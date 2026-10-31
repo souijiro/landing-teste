@@ -115,6 +115,11 @@
   <main>
     <section id="aba-midias">
       <p class="dica">Vídeos e fotos vêm da pasta "TVs Docis" do Drive. Marque onde cada um passa; as TVs pegam a mudança em até 15 segundos. A ordem daqui é a ordem na TV.</p>
+      <div class="cartao" style="margin-bottom:12px">
+        <div class="rotulo">Pasta do Drive</div>
+        <div class="unidade-linha"><input type="text" id="pasta-link" placeholder="Cole aqui o link da pasta do Google Drive"><button class="btn" id="b-pasta">Salvar</button></div>
+        <p class="status" style="margin:6px 0 0">A pasta precisa estar compartilhada como "Qualquer pessoa com o link". Trocar a pasta tira das TVs os arquivos da pasta antiga.</p>
+      </div>
       <div style="margin-bottom:12px"><button class="btn" id="b-msg">+ Nova mensagem</button></div>
       <div class="lista" id="l-midias"></div>
     </section>
@@ -426,9 +431,27 @@
   }
   $("#b-drive").addEventListener("click", function () { atualizarDrive(true); });
 
+  // ---------- pasta do Drive ----------
+  function carregarPasta() {
+    return rpc("tvs_pasta", { p_token: lerToken() }).then(function (p) {
+      if (p && p.link && document.activeElement !== $("#pasta-link")) $("#pasta-link").value = p.link;
+    }).catch(function () {});
+  }
+  $("#b-pasta").addEventListener("click", function () {
+    var link = $("#pasta-link").value.trim();
+    if (!link) { toast("Cole o link da pasta"); return; }
+    var b = $("#b-pasta"); b.disabled = true;
+    rpc("tvs_salvar_pasta", { p_token: lerToken(), p_link: link })
+      .then(function () { toast("Pasta salva. Lendo os arquivos…"); return atualizarDrive(true); })
+      .then(carregarPasta)
+      .catch(function (e) { toast("Não salvou: " + e.message); })
+      .then(function () { b.disabled = false; });
+  });
+
   function iniciar() {
     $("#login").hidden = true; $("#app").hidden = false;
     carregar().then(function () { atualizarDrive(false); });
+    carregarPasta();
     setInterval(function () { if (!document.hidden) carregar(); }, 20000);
   }
   if (lerToken()) iniciar(); else $("#login").hidden = false;
