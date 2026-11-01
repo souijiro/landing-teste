@@ -101,6 +101,38 @@ function renderDisparos() {
     ["Última leitura da Meta", DISP.sync?.em ? horaSP.format(new Date(DISP.sync.em)) : "—", DISP.sync?.ok === false ? "falhou: " + (DISP.sync.erro || "") : "atualiza de hora em hora"]
   ].map(([r, n, s]) => `<div class="kpi"><p class="rotulo">${r}</p><p class="kpi__num">${n}</p><p class="kpi__sub">${esc(s)}</p></div>`).join("");
 
+  // ---- funil dos convites: enviado → entregue → lido → clique → lead ----
+  // envios por modelo somam os dois números; com uma conta só, usa a parte dela no volume de convites cobrado
+  const convVolTot = dias.reduce((s, d) => { const t = D.get(d)?._tot; const g = envDiaGrupo.get(d); return s + (t ? Math.max(0, t.vol - (g ? g.insc + g.outros : 0)) : 0); }, 0);
+  const fatorConta = CONTA_SEL === "todas" || !convVolTot ? 1 : Math.min(1, tot.envios / convVolTot);
+  const F = { env: somaG(conv, "env") * fatorConta, ent: somaG(conv, "ent") * fatorConta, lid: somaG(conv, "lid") * fatorConta, cli: somaG(conv, "cli") * fatorConta, leads: tot.leads };
+  const etapasF = [
+    { nome: "Convites enviados", v: F.env, cor: "#1d4f91", w: 100 },
+    { nome: "Entregues", v: F.ent, cor: "#2a78d6", w: 84 },
+    { nome: "Lidos", v: F.lid, cor: "#4f95e6", w: 68 },
+    { nome: "Cliques", v: F.cli, cor: "#7fb2ee", w: 54 },
+    { nome: "Leads full_funnel", v: F.leads, cor: "#2fa84f", w: 42 }
+  ];
+  const conF = [
+    { nome: "entrega", a: F.ent, b: F.env, dica: "entregues ÷ enviados" },
+    { nome: "leitura", a: F.lid, b: F.ent, dica: "lidos ÷ entregues" },
+    { nome: "clique", a: F.cli, b: F.lid, dica: "cliques ÷ lidos" },
+    { nome: "clique → lead", a: F.leads, b: F.cli, dica: "leads ÷ cliques" }
+  ];
+  let fh = "";
+  etapasF.forEach((e, k) => {
+    fh += `<div class="funil__etapa" style="grid-row:${k * 2 + 1}"><div class="funil__barra" style="width:${e.w}%;background:${e.cor}"><b>${fmt(e.v)}</b><span>${e.nome}</span></div></div>`;
+    if (conF[k]) fh += `<div class="funil__vao" style="grid-row:${k * 2 + 2}"></div><div class="funil__chave funil__chave--esq" style="grid-row:${k * 2 + 1} / ${k * 2 + 4}" title="${conF[k].dica}"><span><b>${pct1(conF[k].a, conF[k].b)}</b>${conF[k].nome}</span></div>`;
+  });
+  fh += `<div class="funil__chave" style="grid-row:1 / 10" title="leads ÷ convites enviados"><span><b>${pct1(F.leads, F.env)}</b>enviado → lead</span></div>`;
+  $("#disp-funil").innerHTML = fh;
+  $("#disp-funil-lado").innerHTML = `
+    <div class="kpi kpi--destaque kpi--largo kpi--grande"><p class="rotulo">Custo dos convites</p><p class="kpi__num">${brl(tot.custo)}</p></div>
+    <div class="kpi kpi--destaque"><p class="rotulo">Custo por lead</p><p class="kpi__num">${F.leads ? brl(tot.custo / F.leads) : "—"}</p></div>
+    <div class="kpi"><p class="rotulo">Custo por clique</p><p class="kpi__num">${F.cli ? brl(tot.custo / F.cli) : "—"}</p></div>
+    <div class="kpi kpi--largo kpi--pequeno"><p class="rotulo">Custo por mil enviados</p><p class="kpi__num">${F.env ? brl(tot.custo / F.env * 1000) : "—"}</p></div>
+    <div class="kpi kpi--largo kpi--pequeno"><p class="rotulo">Lidos que viraram lead</p><p class="kpi__num">${pct1(F.leads, F.lid)}</p></div>`;
+
   // ---- tabelas de modelos ----
   const linhaModelo = (m) => `<tr><td><b>${esc(m.nome)}</b><small class="delta">${m.cat === "MARKETING" ? "Marketing" : m.cat === "UTILITY" ? "Utilidade" : esc(m.cat || "")}${m.st !== "APPROVED" ? " · " + esc(m.st) : ""}</small></td>
     <td class="n">${fmt(m.env)}</td><td class="n">${pct1(m.ent, m.env)}</td><td class="n">${pct1(m.lid, m.ent)}</td><td class="n">${pct1(m.cli, m.ent)}</td>

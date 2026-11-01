@@ -304,6 +304,14 @@
     <!-- ===== Aba Disparos (WhatsApp API oficial × leads full_funnel) ===== -->
     <main class="aba-conteudo" id="aba-disparos" hidden>
       <section class="kpis kpis--trafego" id="disp-kpis"><p class="t-nota">Carregando…</p></section>
+      <section class="cartao funil-cartao">
+        <div class="cartao__topo"><h2>Funil dos convites</h2><span class="t-nota">16/10 até agora</span></div>
+        <div class="funil-corpo">
+          <div class="funil" id="disp-funil" role="img" aria-label="Funil dos convites de WhatsApp: enviados, entregues, lidos, cliques e leads"></div>
+          <div class="funil-lado" id="disp-funil-lado"></div>
+        </div>
+        <p class="t-nota">Enviados, entregues, lidos e cliques vêm da Meta (modelos de convite); leads = cadastros com utm_medium=full_funnel. Com uma conta só no filtro, as etapas da Meta usam a parte daquela conta no volume de convites.</p>
+      </section>
       <section class="cartao">
         <div class="cartao__topo"><h2>Gasto com convites por dia</h2><span class="t-nota">custo estimado das mensagens cobradas</span></div>
         <div class="grafico"><canvas id="g-disp-gasto-dia" aria-label="Gasto com convites de WhatsApp por dia, por conta"></canvas></div>
@@ -397,7 +405,7 @@
   <script src="/dash/trafego.js?v=37"></script>
   <script src="/dash/ab.js?v=19"></script>
   <script src="/dash/grupos.js?v=6"></script>
-  <script src="/dash/disparos.js?v=2"></script>
+  <script src="/dash/disparos.js?v=3"></script>
   <script src="/dash/tv.js?v=2"></script>
 </body>
 </html>
