@@ -54,6 +54,7 @@
         <button role="tab" class="aba" data-aba="trafego" aria-selected="false">Tráfego</button>
         <button role="tab" class="aba" data-aba="alunos" aria-selected="false">Alunos</button>
         <button role="tab" class="aba" data-aba="grupos" aria-selected="false">Grupos</button>
+        <button role="tab" class="aba" data-aba="disparos" aria-selected="false">Disparos</button>
         <button role="tab" class="aba" data-aba="ab" aria-selected="false">Teste A/B</button>
         <button role="tab" class="aba" data-aba="leads" aria-selected="false">Leads</button>
       </nav>
@@ -300,6 +301,51 @@
       </section>
     </main>
 
+    <!-- ===== Aba Disparos (WhatsApp API oficial × leads full_funnel) ===== -->
+    <main class="aba-conteudo" id="aba-disparos" hidden>
+      <section class="kpis kpis--trafego" id="disp-kpis"><p class="t-nota">Carregando…</p></section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Gasto com convites por dia</h2><span class="t-nota">custo estimado das mensagens cobradas</span></div>
+        <div class="grafico"><canvas id="g-disp-gasto-dia" aria-label="Gasto com convites de WhatsApp por dia, por conta"></canvas></div>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Custo por lead por dia</h2><span class="t-nota">convites ÷ leads full_funnel</span></div>
+        <div class="grafico"><canvas id="g-disp-cpl-dia" aria-label="Custo por lead dos disparos por dia"></canvas></div>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Conversão por dia</h2><span class="t-nota">convites enviados × inscrições</span></div>
+        <div class="grafico grafico--alto"><canvas id="g-disp-conv-dia" aria-label="Convites enviados e inscrições por dia, com a taxa de conversão"></canvas></div>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Hora a hora</h2><label class="t-nota">Dia <select id="disp-dia" aria-label="Dia mostrado nos gráficos por hora"></select></label></div>
+        <h3 class="ab-sub">Gasto com convites</h3>
+        <div class="grafico"><canvas id="g-disp-gasto-hora" aria-label="Gasto com convites por hora do dia escolhido"></canvas></div>
+        <h3 class="ab-sub">Custo por lead</h3>
+        <div class="grafico"><canvas id="g-disp-cpl-hora" aria-label="Custo por lead por hora do dia escolhido"></canvas></div>
+        <h3 class="ab-sub">Convites enviados × inscrições</h3>
+        <div class="grafico grafico--alto"><canvas id="g-disp-conv-hora" aria-label="Convites enviados e inscrições por hora, com a taxa de conversão"></canvas></div>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Convites</h2><span class="t-nota">modelos com "template" no nome, somados</span></div>
+        <div class="tabela-wrap"><table class="tabela" id="t-disp-conv">
+          <thead><tr><th>Modelo</th><th class="n">Envios</th><th class="n">Entregues</th><th class="n">Lidos</th><th class="n">Cliques</th><th class="n">Custo</th><th class="n">Último</th></tr></thead><tbody></tbody><tfoot></tfoot>
+        </table></div>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Inscrição confirmada</h2><span class="t-nota">mensagem logo depois do cadastro</span></div>
+        <div class="tabela-wrap"><table class="tabela" id="t-disp-insc">
+          <thead><tr><th>Modelo</th><th class="n">Envios</th><th class="n">Entregues</th><th class="n">Lidos</th><th class="n">Cliques</th><th class="n">Custo</th><th class="n">Último</th></tr></thead><tbody></tbody><tfoot></tfoot>
+        </table></div>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Por dia</h2></div>
+        <div class="tabela-wrap"><table class="tabela" id="t-disp-dia">
+          <thead><tr><th>Dia</th><th class="n">Convites</th><th class="n">Custo</th><th class="n">Leads full_funnel</th><th class="n">Custo por lead</th><th class="n">Conversão</th></tr></thead><tbody></tbody>
+        </table></div>
+        <p class="t-nota">Envios e custo vêm da Meta (API oficial, conta WABA 3: número da Docis e do Felipe). O custo é estimado: mensagens cobradas × preço da Meta por categoria (marketing US$ 0,0625 · utilidade US$ 0,0068) × dólar PTAX do dia; não inclui taxa do Full Funnel nem IOF. Convites = custo cobrado menos as mensagens de inscrição confirmada e de follow-up (utilidade). Lidos e cliques em % dos entregues. Envios por modelo somam os dois números (a Meta não separa por número) e contam o dia em horário UTC. Leads = cadastros únicos com utm_medium=full_funnel; o filtro de conta usa a campanha (blf26_organico_docis / _felipe) e o número que enviou.</p>
+      </section>
+    </main>
+
     <main class="aba-conteudo" id="aba-leads" hidden>
       <section class="cartao filtros">
         <div class="filtros__linha">
@@ -351,6 +397,7 @@
   <script src="/dash/trafego.js?v=37"></script>
   <script src="/dash/ab.js?v=19"></script>
   <script src="/dash/grupos.js?v=6"></script>
+  <script src="/dash/disparos.js?v=1"></script>
   <script src="/dash/tv.js?v=2"></script>
 </body>
 </html>

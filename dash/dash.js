@@ -121,6 +121,7 @@ async function carregar() {
     // grupos e alunos vêm de consultas próprias: carregam mesmo se outra parte do dash der erro
     carregarBases(token);
     if (typeof carregarGrupos === "function") carregarGrupos(token);
+    if (typeof carregarDisparos === "function") carregarDisparos(token);
     renderPainel();
     montarFiltros();
     renderLeads();
@@ -184,6 +185,7 @@ function trocarConta(c) {
   aplicarContaGlobal();
   renderPainel(); montarFiltros(); renderLeads();
   if (TRAF.ads.length || BASE.ads.length) { montarFiltrosTrafego(); renderTrafego(); }
+  if (typeof renderDisparos === "function") renderDisparos();
 }
 document.querySelectorAll("#conta-global button").forEach((b) => b.addEventListener("click", () => trocarConta(b.dataset.conta)));
 addEventListener("load", () => {
@@ -196,6 +198,7 @@ document.querySelectorAll(".aba").forEach((b) => b.addEventListener("click", () 
   document.querySelectorAll(".aba").forEach((x) => { x.classList.toggle("ativa", x === b); x.setAttribute("aria-selected", x === b); });
   document.querySelectorAll(".aba-conteudo").forEach((m) => { m.hidden = m.id !== "aba-" + b.dataset.aba; });
   if (b.dataset.aba === "trafego" && typeof gInv !== "undefined" && gInv) gInv.resize();
+  if (b.dataset.aba === "disparos" && typeof gDisp !== "undefined") Object.values(gDisp).forEach((g) => g.resize());
   try { localStorage.setItem("dash_aba", b.dataset.aba); } catch (e) {}
 }));
 try { const a = localStorage.getItem("dash_aba"); if (a) document.querySelector(`.aba[data-aba="${a}"]`)?.click(); } catch (e) {}
