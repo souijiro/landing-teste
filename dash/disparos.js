@@ -40,7 +40,8 @@ function renderDisparos() {
   const daConta = (o) => contas.reduce((s, c) => ({ vol: s.vol + (o?.[c]?.vol || 0), custo: s.custo + (o?.[c]?.custo || 0) }), { vol: 0, custo: 0 });
 
   // ---- envios por modelo (somam as duas contas; a Meta não separa por número) ----
-  const M = new Map((DISP.modelos || []).map(([id, nome, cat, st]) => [id, { id, nome, cat, st, grupo: grupoModelo(nome), env: 0, ent: 0, lid: 0, cli: 0, custo: 0, ult: "", dias: {} }]));
+  const M = new Map((DISP.modelos || []).map(([id, nome, cat, st]) => [id, { id, nome, cat, st, grupo: grupoModelo(nome), env: 0, ent: 0, lid: 0, cli: 0, custo: 0, ult: "", dias: {}, leads: 0, rotulos: new Set() }]));
+  const porNome = new Map([...M.values()].map((m) => [m.nome.toLowerCase(), m]));
   const envDiaGrupo = new Map(); // dia -> {insc, convite, outros}
   for (const [dia, id, env, ent, lid, cli] of DISP.modelo_dia || []) {
     const m = M.get(id); if (!m) continue;
@@ -79,6 +80,19 @@ function renderDisparos() {
     const h = Math.floor(l.minuto / 60); leadsHora.set(l.dia + "|" + h, (leadsHora.get(l.dia + "|" + h) || 0) + 1);
   });
 
+  // ---- leads ligados ao modelo: UTM no formato "convite_low|template_atualizacao_v11" (convite|modelo) ----
+  const semModelo = new Map();
+  UNICOS.forEach((l) => {
+    for (const v of [l.utm_term, l.utm_content, l.utm_campaign, l.utm_source, l.utm_medium]) {
+      if (!v || !v.includes("|")) continue;
+      const partes = v.split("|").map((x) => x.trim());
+      const nome = partes[partes.length - 1].toLowerCase(), rot = partes.slice(0, -1).join("|");
+      const m = porNome.get(nome);
+      if (m) { m.leads++; if (rot) m.rotulos.add(rot); } else semModelo.set(nome, (semModelo.get(nome) || 0) + 1);
+      break;
+    }
+  });
+
   // ---- séries por dia ----
   const dias = [...new Set([...D.keys(), ...leadsDia.keys()])].filter((d) => d >= "2026-10-16").sort();
   const serie = dias.map((d) => {
@@ -87,8 +101,9 @@ function renderDisparos() {
     return { d, custo: cc.custo, envios: cc.vol, leads: leadsDia.get(d) || 0, porConta };
   });
   const tot = serie.reduce((s, x) => ({ custo: s.custo + x.custo, envios: s.envios + x.envios, leads: s.leads + x.leads }), { custo: 0, envios: 0, leads: 0 });
-  const insc = [...M.values()].filter((m) => m.grupo === "insc");
-  const conv = [...M.values()].filter((m) => m.grupo === "convite");
+  const usado = (m) => m.env || m.leads;
+  const insc = [...M.values()].filter((m) => m.grupo === "insc" && usado(m));
+  const conv = [...M.values()].filter((m) => m.grupo === "convite" && usado(m));
   const somaG = (L, k) => L.reduce((s, m) => s + m[k], 0);
 
   // ---- KPIs ----
@@ -134,16 +149,27 @@ function renderDisparos() {
     <div class="kpi kpi--largo kpi--pequeno"><p class="rotulo">Lidos que viraram lead</p><p class="kpi__num">${pct1(F.leads, F.lid)}</p></div>`;
 
   // ---- tabelas de modelos ----
-  const linhaModelo = (m) => `<tr><td><b>${esc(m.nome)}</b><small class="delta">${m.cat === "MARKETING" ? "Marketing" : m.cat === "UTILITY" ? "Utilidade" : esc(m.cat || "")}${m.st !== "APPROVED" ? " · " + esc(m.st) : ""}</small></td>
+  // leads, CPL e conversão por modelo só aparecem quando o lead chega com o identificador convite|modelo
+  const cplTxt = (custo, leads) => (leads ? brl(custo / leads) : "—");
+  const linhaModelo = (m) => `<tr><td><b>${esc(m.nome)}</b><small class="delta">${m.cat === "MARKETING" ? "Marketing" : m.cat === "UTILITY" ? "Utilidade" : esc(m.cat || "")}${m.st !== "APPROVED" ? " · " + esc(m.st) : ""}${m.rotulos.size ? " · " + esc([...m.rotulos].join(", ")) : ""}</small></td>
     <td class="n">${fmt(m.env)}</td><td class="n">${pct1(m.ent, m.env)}</td><td class="n">${pct1(m.lid, m.ent)}</td><td class="n">${pct1(m.cli, m.ent)}</td>
-    <td class="n">${brl(m.custo)}</td><td class="n">${m.ult ? dataCurta(m.ult) : "—"}</td></tr>`;
-  const totalModelos = (L, rot) => `<tr><td>${rot}</td><td class="n">${fmt(somaG(L, "env"))}</td><td class="n">${pct1(somaG(L, "ent"), somaG(L, "env"))}</td>
-    <td class="n">${pct1(somaG(L, "lid"), somaG(L, "ent"))}</td><td class="n">${pct1(somaG(L, "cli"), somaG(L, "ent"))}</td><td class="n">${brl(somaG(L, "custo"))}</td><td></td></tr>`;
+    <td class="n">${brl(m.custo)}</td><td class="n">${m.leads ? fmt(m.leads) : "—"}</td><td class="n">${cplTxt(m.custo, m.leads)}</td><td class="n">${m.leads ? pct1(m.leads, m.env) : "—"}</td>
+    <td class="n">${m.ult ? dataCurta(m.ult) : "—"}</td></tr>`;
+  const totalModelos = (L, rot) => {
+    const comLead = L.filter((m) => m.leads);
+    return `<tr><td>${rot}</td><td class="n">${fmt(somaG(L, "env"))}</td><td class="n">${pct1(somaG(L, "ent"), somaG(L, "env"))}</td>
+    <td class="n">${pct1(somaG(L, "lid"), somaG(L, "ent"))}</td><td class="n">${pct1(somaG(L, "cli"), somaG(L, "ent"))}</td><td class="n">${brl(somaG(L, "custo"))}</td>
+    <td class="n">${comLead.length ? fmt(somaG(comLead, "leads")) : "—"}</td><td class="n">${comLead.length ? cplTxt(somaG(comLead, "custo"), somaG(comLead, "leads")) : "—"}</td>
+    <td class="n">${comLead.length ? pct1(somaG(comLead, "leads"), somaG(comLead, "env")) : "—"}</td><td></td></tr>`;
+  };
   const preencher = (id, L, rot) => {
-    L.sort((a, b) => b.env - a.env);
-    $(id + " tbody").innerHTML = L.map(linhaModelo).join("") || '<tr><td colspan="7" class="vazio">Nenhum envio.</td></tr>';
+    L.sort((a, b) => (b.ult || "").localeCompare(a.ult || "") || b.env - a.env);
+    $(id + " tbody").innerHTML = L.map(linhaModelo).join("") || '<tr><td colspan="10" class="vazio">Nenhum envio.</td></tr>';
     $(id + " tfoot").innerHTML = L.length ? totalModelos(L, rot) : "";
   };
+  const notaLig = $("#disp-conv-nota");
+  if (notaLig) notaLig.textContent = "Leads, CPL e conversão por modelo: leads que chegaram com o identificador convite|modelo numa UTM (ex.: convite_low|template_atualizacao_v11); CPL = custo do modelo ÷ esses leads; conversão = esses leads ÷ envios do modelo. No total, só entram os modelos com leads identificados."
+    + (semModelo.size ? ` Identificadores sem modelo com esse nome na Meta: ${[...semModelo].map(([n, q]) => `${n} (${q})`).join(", ")}.` : "");
   preencher("#t-disp-insc", insc, `Total · ${insc.length} modelos`);
   preencher("#t-disp-conv", conv, `Total convites · ${conv.length} modelos`);
 
