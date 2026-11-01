@@ -173,17 +173,18 @@ function opcoesMoeda({ stacked = false, legenda = false }) {
   o.scales.y.ticks.precision = undefined;
   return o;
 }
-// envios (barras, eixo esquerdo) × inscrições (barras) + taxa de conversão (linha, eixo direito)
+// envios (barras, eixo esquerdo) × inscrições (linha, eixo direito); a conversão aparece no rodapé da dica
 function configConversao(labels, envios, leads) {
   const o = opcoesGrafico({ legenda: true });
-  o.scales.y2 = { position: "right", beginAtZero: true, grid: { drawOnChartArea: false }, border: { display: false },
-    ticks: { color: "#8a857f", font: { family: "Montserrat", size: 11 }, callback: (v) => v + "%" } };
-  o.plugins.tooltip.callbacks.label = (c) => c.dataset.yAxisID === "y2" ? ` Conversão: ${c.parsed.y == null ? "—" : c.parsed.y.toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "%"}` : ` ${c.dataset.label}: ${fmt(c.parsed.y)}`;
+  const eixo = (cor, txt) => ({ color: cor, font: { family: "Montserrat", size: 11 } , text: txt, display: true });
+  o.scales.y.title = eixo("#8a857f", "convites");
+  o.scales.y2 = { position: "right", beginAtZero: true, grid: { drawOnChartArea: false }, border: { display: false }, title: eixo("#1e853a", "inscrições"),
+    ticks: { color: "#1e853a", font: { family: "Montserrat", size: 11 }, precision: 0, callback: (v) => fmt(v) } };
+  o.plugins.tooltip.callbacks.footer = (it) => { const i = it[0].dataIndex; return envios[i] ? "Conversão: " + pct1(leads[i], envios[i]) : ""; };
   return {
     data: { labels, datasets: [
-      { type: "bar", label: "Convites enviados", data: envios, backgroundColor: "#c9c4bd", borderRadius: 4, yAxisID: "y", order: 2 },
-      { type: "bar", label: "Inscrições full_funnel", data: leads, backgroundColor: "#1e853a", borderRadius: 4, yAxisID: "y", order: 2 },
-      { type: "line", label: "Conversão", data: envios.map((e, i) => (e ? leads[i] / e * 100 : null)), borderColor: "#eb6834", backgroundColor: "#eb6834", yAxisID: "y2", tension: .25, spanGaps: true, pointRadius: 3, order: 1 }
+      { type: "bar", label: "Convites enviados", data: envios.map(Math.round), backgroundColor: "#c9c4bd", borderRadius: 4, yAxisID: "y", order: 2 },
+      { type: "line", label: "Inscrições full_funnel", data: leads, borderColor: "#1e853a", backgroundColor: "#1e853a", yAxisID: "y2", tension: .25, pointRadius: 3, borderWidth: 2.5, order: 1 }
     ] },
     options: o
   };
