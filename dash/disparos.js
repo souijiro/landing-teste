@@ -4,7 +4,7 @@
 let DISP = null;
 const gDisp = {};
 const COR_CONTA = { Docis: "#eda100", "Felipe Russo": "#4a3aa7" };
-const grupoModelo = (nome) => (/inscricao_confirmada/i.test(nome) ? "insc" : /template/i.test(nome) ? "convite" : "outros");
+const grupoModelo = (nome) => (/inscricao_confirmada/i.test(nome) ? "insc" : /template|cvt|convite/i.test(nome) ? "convite" : "outros");
 const pct1 = (a, b) => { if (!b) return "—"; const v = a / b * 100; return v.toLocaleString("pt-BR", { maximumFractionDigits: v > 0 && v < 1 ? 2 : 1 }) + "%"; };
 const dataCurta = (d) => d.slice(8, 10) + "/" + d.slice(5, 7);
 
