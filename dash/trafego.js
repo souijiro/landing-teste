@@ -524,11 +524,22 @@ function totaisTrafegoPorDia() {
 }
 
 // ---------- Criativos (Drive) ----------
+// mesma chave do gerador: sem "blf26_", extensão, " | observação" e os pedaços img/vid/captacao
+// (blf26_docis_captacao_vid_101 e docis_vid_101 -> docis_101; docis_lembrete_vid_101 -> docis_lembrete_101)
+const chaveCriativo = (nome) => String(nome || "").toLowerCase().split(" | ")[0].trim()
+  .replace(/\.(png|jpe?g|webp|mp4|mov)$/, "").replace(/^blf26_/, "")
+  .split("_").filter((p) => p && !["img", "vid", "captacao"].includes(p)).join("_");
 function criativoDe(nomeAnuncio) {
   const C = window.CRIATIVOS || {};
   if (C[nomeAnuncio]) return C[nomeAnuncio];
-  const num = String(nomeAnuncio || "").match(/(\d{3})$/);          // cai para o número (únicos entre os criativos)
-  if (num) { const k = Object.keys(C).find((x) => x.endsWith("_" + num[1])); if (k) return C[k]; }
+  const partes = chaveCriativo(nomeAnuncio).split("_");
+  for (let n = partes.length; n > 0; n--) {                          // tira variações do fim (_cinema, _pov, _noticia…)
+    const k = partes.slice(0, n).join("_");
+    if (C[k]) return C[k];
+    if (/^\d{3}$/.test(partes[n - 1])) break;
+  }
+  const num = String(nomeAnuncio || "").match(/(\d{3})$/);          // cai para o número, só se for único entre os criativos
+  if (num) { const ks = Object.keys(C).filter((x) => x.endsWith("_" + num[1])); if (ks.length === 1) return C[ks[0]]; }
   return null;
 }
 const thumbUrl = (c, w = 200) => `https://drive.google.com/thumbnail?id=${encodeURIComponent(c.id)}&sz=w${w}`;
