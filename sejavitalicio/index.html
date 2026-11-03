@@ -14,10 +14,11 @@
   <meta property="og:image" content="https://c.docis.com.br/black2026/img/og-black2026.jpg?v=2">
 
   <script>
+    // GTM e pixel só carregam no 1º toque/rolagem ou 3,5 s depois da página pronta (os eventos ficam na fila até lá)
     window.carregarDepois = function (fn) {
       var feito = false, go = function () { if (!feito) { feito = true; fn(); } };
-      if (document.readyState === "complete") setTimeout(go, 0);
-      else addEventListener("load", function () { setTimeout(go, 0); });
+      if (document.readyState === "complete") setTimeout(go, 3500);
+      else addEventListener("load", function () { setTimeout(go, 3500); });
       ["touchstart", "pointerdown", "scroll", "keydown"].forEach(function (ev) { addEventListener(ev, go, { once: true, passive: true }); });
     };
     // Rastreamento — preencha aqui (sem mexer no resto da página)
@@ -50,8 +51,8 @@
   </script>
 
   <link rel="preload" href="/black2026/img/montserrat-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="/black2026/img/cilaine-480.webp" as="image" fetchpriority="high">
-  <link rel="preload" href="/black2026/img/felipe-bracos-480.webp?v=3" as="image" fetchpriority="high">
+  <link rel="preload" as="image" fetchpriority="high" imagesrcset="/black2026/img/cilaine-360.webp 360w, /black2026/img/cilaine-480.webp 480w, /black2026/img/cilaine-700.webp 700w" imagesizes="(max-width: 720px) 46vw, 290px">
+  <link rel="preload" as="image" fetchpriority="high" imagesrcset="/black2026/img/felipe-bracos-360.webp?v=3 360w, /black2026/img/felipe-bracos-480.webp?v=3 480w, /black2026/img/felipe-bracos-700.webp?v=3 700w" imagesizes="(max-width: 720px) 46vw, 290px">
   <style>
 @font-face { font-family: "Montserrat"; font-style: normal; font-weight: 400 800; font-display: swap; src: url(/black2026/img/montserrat-latin.woff2) format("woff2");
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
@@ -265,11 +266,11 @@ body.modal-aberto .cta-fixo { transform: translateY(110%); }
 
         <div class="experts">
           <figure class="expert expert--cilaine">
-            <img src="/black2026/img/cilaine-480.webp" srcset="/black2026/img/cilaine-480.webp 480w, /black2026/img/cilaine-700.webp 700w" sizes="(max-width: 720px) 46vw, 290px" alt="Cilaine Rodrigues, da Docis" width="480" height="652" fetchpriority="high">
+            <img src="/black2026/img/cilaine-480.webp" srcset="/black2026/img/cilaine-360.webp 360w, /black2026/img/cilaine-480.webp 480w, /black2026/img/cilaine-700.webp 700w" sizes="(max-width: 720px) 46vw, 290px" alt="Cilaine Rodrigues, da Docis" width="480" height="652" fetchpriority="high">
             <figcaption>Cilaine Rodrigues<small>Docis</small></figcaption>
           </figure>
           <figure class="expert expert--felipe">
-            <img src="/black2026/img/felipe-bracos-480.webp?v=3" srcset="/black2026/img/felipe-bracos-480.webp?v=3 480w, /black2026/img/felipe-bracos-700.webp?v=3 700w" sizes="(max-width: 720px) 46vw, 290px" alt="Felipe Russo" width="480" height="652" fetchpriority="high">
+            <img src="/black2026/img/felipe-bracos-480.webp?v=3" srcset="/black2026/img/felipe-bracos-360.webp?v=3 360w, /black2026/img/felipe-bracos-480.webp?v=3 480w, /black2026/img/felipe-bracos-700.webp?v=3 700w" sizes="(max-width: 720px) 46vw, 290px" alt="Felipe Russo" width="480" height="652" fetchpriority="high">
             <figcaption>Felipe Russo<small>Confeitaria 5 Estrelas</small></figcaption>
           </figure>
         </div>
@@ -318,7 +319,7 @@ body.modal-aberto .cta-fixo { transform: translateY(110%); }
           <p class="grupo__titulo"><img src="/black2026/img/cabeca-felipe.webp" alt="" width="71" height="96" loading="lazy">Cursos do Felipe Russo</p>
           <div class="cursos cursos--felipe">
             <article class="curso">
-              <div class="curso__capa"><img src="/black2026/img/curso-5estrelas.webp?v=2" alt="Capa do curso Confeitaria 5 Estrelas" width="521" height="196" loading="lazy"><span class="tag">Acesso vitalício</span></div>
+              <div class="curso__capa"><img src="/black2026/img/curso-5estrelas-640.webp" srcset="/black2026/img/curso-5estrelas-640.webp 640w, /black2026/img/curso-5estrelas.webp?v=2 1042w" sizes="(max-width: 720px) 92vw, (max-width: 1000px) 46vw, 340px" alt="Capa do curso Confeitaria 5 Estrelas" width="521" height="196" loading="lazy"><span class="tag">Acesso vitalício</span></div>
               <div class="curso__corpo"><h3>Confeitaria 5 Estrelas</h3><p>Formação de iFood para confeitaria, com mentoria e acompanhamento.</p></div>
             </article>
             <article class="curso curso--incluso">
@@ -329,7 +330,7 @@ body.modal-aberto .cta-fixo { transform: translateY(110%); }
               </div>
             </article>
             <article class="curso">
-              <div class="curso__capa"><img src="/black2026/img/curso-99lucrativo.webp" alt="Capa do curso 99 Lucrativo" width="521" height="196" loading="lazy"><span class="tag">Acesso vitalício</span></div>
+              <div class="curso__capa"><img src="/black2026/img/curso-99lucrativo-640.webp" srcset="/black2026/img/curso-99lucrativo-640.webp 640w, /black2026/img/curso-99lucrativo.webp 1042w" sizes="(max-width: 720px) 92vw, (max-width: 1000px) 46vw, 340px" alt="Capa do curso 99 Lucrativo" width="521" height="196" loading="lazy"><span class="tag">Acesso vitalício</span></div>
               <div class="curso__corpo"><h3>99 Lucrativo</h3><p>Aprenda a vender todos os dias no 99Food e transforme o delivery em uma fonte real de faturamento.</p></div>
             </article>
           </div>
