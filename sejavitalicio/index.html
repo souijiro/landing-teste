@@ -140,7 +140,8 @@ button { font: inherit; }
 .secao__sub { margin: 0 auto 26px; max-width: 560px; text-align: center; color: var(--texto-2); font-size: .95rem; }
 .grupo { margin-top: 26px; }
 .grupo__titulo { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; font-size: .82rem; letter-spacing: .14em; text-transform: uppercase; color: var(--ouro); font-weight: 800; }
-.grupo__titulo img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; object-position: top; background: var(--card-2); border: 1px solid rgba(212, 175, 55, .5); }
+.grupo__titulo img { width: auto; height: 64px; flex: none; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .55)); }
+.grupo__titulo img.cabeca-felipe { height: 55px; }
 .grupo__titulo::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(212, 175, 55, .5), transparent); }
 .cursos { display: grid; gap: 14px; grid-template-columns: 1fr; }
 .curso { background: var(--card); border: 1px solid var(--linha); border-radius: var(--raio); overflow: hidden; display: flex; flex-direction: column; }
@@ -290,7 +291,7 @@ body.modal-aberto .cta-fixo { transform: translateY(110%); }
         <p class="secao__sub" id="cursos-sub">Receitas que vendem de um lado, estratégia de iFood e delivery do outro. Tudo em uma única oferta.</p>
 
         <div class="grupo revelar" id="grupo-docis">
-          <p class="grupo__titulo"><img src="/black2026/img/cabeca-cilaine.webp" alt="" width="69" height="87" loading="lazy">Cursos da Docis | Cilaine Rodrigues</p>
+          <p class="grupo__titulo"><img src="/black2026/img/cabeca-ci-flutuante.webp" alt="" width="150" height="192" loading="lazy">Cursos da Docis | Cilaine Rodrigues</p>
           <div class="cursos cursos--docis">
             <article class="curso">
               <div class="curso__capa"><img src="/black2026/img/curso-brigadeiro.webp" alt="Capa do curso Brigadeiro de A a Z" width="521" height="196" loading="lazy"><span class="tag">Acesso vitalício</span></div>
@@ -316,7 +317,7 @@ body.modal-aberto .cta-fixo { transform: translateY(110%); }
         </div>
 
         <div class="grupo revelar" id="grupo-felipe">
-          <p class="grupo__titulo"><img src="/black2026/img/cabeca-felipe.webp" alt="" width="71" height="96" loading="lazy">Cursos do Felipe Russo</p>
+          <p class="grupo__titulo"><img class="cabeca-felipe" src="/black2026/img/cabeca-felipe-flutuante.webp" alt="" width="122" height="165" loading="lazy">Cursos do Felipe Russo</p>
           <div class="cursos cursos--felipe">
             <article class="curso">
               <div class="curso__capa"><img src="/black2026/img/curso-5estrelas-640.webp" srcset="/black2026/img/curso-5estrelas-640.webp 640w, /black2026/img/curso-5estrelas.webp?v=2 1042w" sizes="(max-width: 720px) 92vw, (max-width: 1000px) 46vw, 340px" alt="Capa do curso Confeitaria 5 Estrelas" width="521" height="196" loading="lazy"><span class="tag">Acesso vitalício</span></div>
