@@ -51,6 +51,7 @@
 
   <link rel="preload" href="/black2026/img/montserrat-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/black2026/img/cilaine-480.webp" as="image" fetchpriority="high">
+  <link rel="preload" href="/black2026/img/felipe-bracos-480.webp" as="image" fetchpriority="high">
   <style>
 @font-face { font-family: "Montserrat"; font-style: normal; font-weight: 400 800; font-display: swap; src: url(/black2026/img/montserrat-latin.woff2) format("woff2");
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
@@ -114,9 +115,9 @@ button { font: inherit; }
   height: clamp(178px, 29vh, 300px); border: 1px solid var(--linha);
 }
 .expert img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 12%; }
-.expert--cilaine { background: radial-gradient(120% 90% at 50% 0%, #2a2414, var(--card) 70%); }
-.expert--cilaine img { object-position: 50% 0; }
-.expert--felipe img { object-position: 52% 22%; transform: scale(1.35); transform-origin: 52% 30%; }
+/* as duas fotos são recortes com fundo transparente, no mesmo enquadramento (cabeça do mesmo tamanho) */
+.expert--cilaine, .expert--felipe { background: radial-gradient(120% 90% at 50% 0%, #2a2414, var(--card) 70%); }
+.expert--cilaine img, .expert--felipe img { object-position: 50% 0; }
 .expert figcaption {
   position: absolute; left: 0; right: 0; bottom: 0; padding: 26px 8px 9px;
   background: linear-gradient(transparent, rgba(8, 8, 8, .92)); font-weight: 700; font-size: .8rem; line-height: 1.2;
@@ -264,7 +265,7 @@ body.modal-aberto .cta-fixo { transform: translateY(110%); }
             <figcaption>Cilaine Rodrigues<small>Docis</small></figcaption>
           </figure>
           <figure class="expert expert--felipe">
-            <img src="/black2026/img/felipe.webp?v=2" alt="Felipe Russo" width="400" height="543" fetchpriority="high">
+            <img src="/black2026/img/felipe-bracos-480.webp" srcset="/black2026/img/felipe-bracos-480.webp 480w, /black2026/img/felipe-bracos-700.webp 700w" sizes="(max-width: 720px) 46vw, 290px" alt="Felipe Russo" width="480" height="652" fetchpriority="high">
             <figcaption>Felipe Russo<small>Confeitaria 5 Estrelas</small></figcaption>
           </figure>
         </div>
@@ -387,6 +388,6 @@ body.modal-aberto .cta-fixo { transform: translateY(110%); }
     </div>
   </div>
 
-  <script src="/sejavitalicio/app.js?v=2" defer></script>
+  <script src="/sejavitalicio/app.js?v=3" defer></script>
 </body>
 </html>
