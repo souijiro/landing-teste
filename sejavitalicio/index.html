@@ -287,9 +287,9 @@ body.modal-aberto .cta-fixo { transform: translateY(110%); }
     <section class="secao" id="cursos">
       <div class="wrap">
         <h2>Os cursos que você leva <span class="ouro">para sempre</span></h2>
-        <p class="secao__sub">Receitas que vendem de um lado, estratégia de iFood e delivery do outro. Tudo em uma única oferta.</p>
+        <p class="secao__sub" id="cursos-sub">Receitas que vendem de um lado, estratégia de iFood e delivery do outro. Tudo em uma única oferta.</p>
 
-        <div class="grupo revelar">
+        <div class="grupo revelar" id="grupo-docis">
           <p class="grupo__titulo"><img src="/black2026/img/cabeca-cilaine.webp" alt="" width="69" height="87" loading="lazy">Cursos da Docis | Cilaine Rodrigues</p>
           <div class="cursos cursos--docis">
             <article class="curso">
@@ -315,7 +315,7 @@ body.modal-aberto .cta-fixo { transform: translateY(110%); }
           </div>
         </div>
 
-        <div class="grupo revelar">
+        <div class="grupo revelar" id="grupo-felipe">
           <p class="grupo__titulo"><img src="/black2026/img/cabeca-felipe.webp" alt="" width="71" height="96" loading="lazy">Cursos do Felipe Russo</p>
           <div class="cursos cursos--felipe">
             <article class="curso">
@@ -336,6 +336,13 @@ body.modal-aberto .cta-fixo { transform: translateY(110%); }
           </div>
         </div>
 
+        <script>
+          if (/confeitaria5estrelas/i.test(location.hostname)) {
+            var gd = document.getElementById("grupo-docis"), gf = document.getElementById("grupo-felipe");
+            gd.parentNode.insertBefore(gf, gd);
+            document.getElementById("cursos-sub").textContent = "Estratégia de iFood e delivery de um lado, receitas que vendem do outro. Tudo em uma única oferta.";
+          }
+        </script>
         <div class="secao__cta"><button type="button" class="btn" data-abrir="cursos">Quero garantir meu acesso vitalício</button></div>
       </div>
     </section>
