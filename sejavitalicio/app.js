@@ -30,7 +30,7 @@ const $ = (s) => document.querySelector(s);
 const brl = (v) => "R$ " + Number(v).toLocaleString("pt-BR");
 
 // ---------- eventos (nunca com CPF/e-mail) ----------
-const EVENTOS_META = { clique_cta: "CTAClick", nao_aluno: "NaoSouAluno", inicio_identificacao: "IdentificacaoInicio", consulta_concluida: "ConsultaConcluida", categoria_oferta: "CategoriaOferta" };
+const EVENTOS_META = { clique_cta: "CTAClick", nao_aluno: "NaoSouAluno", sou_aluno: "SouAluno", inicio_identificacao: "IdentificacaoInicio", consulta_concluida: "ConsultaConcluida", categoria_oferta: "CategoriaOferta" };
 function evento(nome, dados = {}) {
   try {
     window.dataLayer = window.dataLayer || [];
@@ -54,12 +54,19 @@ function abrir(origem) {
   evento("clique_cta", { origem });
   ultimoFoco = document.activeElement;
   mostrar("#etapa-form");
+  mostrarConsulta(false);
   modal.classList.add("aberto");
   document.body.classList.add("modal-aberto");
   document.documentElement.style.overflow = "hidden";
   evento("inicio_identificacao", { origem });
-  setTimeout(() => $("#valor").focus(), 60);
+  setTimeout(() => $("#sou-aluno").focus(), 60);
 }
+// "Sou aluno" abre os campos de consulta; "Não sou aluno" vai direto ao checkout.
+function mostrarConsulta(sim) {
+  $("#consulta").hidden = !sim;
+  $("#sou-aluno").setAttribute("aria-expanded", String(sim));
+}
+$("#sou-aluno").addEventListener("click", () => { mostrarConsulta(true); evento("sou_aluno"); setTipo(tipo); });
 function fechar() {
   modal.classList.remove("aberto");
   document.body.classList.remove("modal-aberto");

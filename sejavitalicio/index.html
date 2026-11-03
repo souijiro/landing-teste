@@ -204,10 +204,13 @@ body.modal-aberto .cta-fixo { transform: translateY(110%); }
 .modal h2 { margin: 0 0 8px; font-size: clamp(1.15rem, 5vw, 1.45rem); line-height: 1.2; font-weight: 800; text-transform: uppercase; padding: 0 22px; }
 .modal__sub { margin: 0 0 18px; color: var(--texto-2); font-size: .92rem; }
 .etapa[hidden] { display: none; }
-.abas { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; padding: 5px; background: var(--card); border-radius: 14px; margin-bottom: 14px; }
+.abas { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 5px; background: var(--card); border-radius: 14px; margin-bottom: 14px; }
 .aba { min-height: 46px; padding: 4px 6px; border: 0; border-radius: 10px; background: transparent; color: var(--texto-2); font-weight: 700; font-size: .86rem; line-height: 1.15; cursor: pointer; }
-.aba--nao-aluno { border: 1px solid #3a3a3a; color: #fff; }
-.aba--nao-aluno:hover { border-color: var(--ouro); }
+.escolha { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.escolha__btn { min-height: 54px; padding: 8px 10px; border: 1px solid #3a3a3a; border-radius: 14px; background: var(--card); color: #fff; font-weight: 800; font-size: 1rem; cursor: pointer; }
+.escolha__btn:hover { border-color: var(--ouro); }
+.escolha__btn:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.escolha__btn[aria-expanded="true"] { background: var(--ouro); border-color: var(--ouro); color: #0b0b0b; }
 .aba[aria-selected="true"] { background: var(--ouro); color: #0b0b0b; }
 .campo { text-align: left; margin-bottom: 14px; }
 .campo label { display: block; margin: 0 0 6px; font-size: .82rem; font-weight: 700; color: var(--texto-2); }
@@ -378,10 +381,14 @@ body.modal-aberto .cta-fixo { transform: translateY(110%); }
         <h2 id="modal-titulo">Vamos descobrir se você tem um <span class="ouro">desconto especial?</span></h2>
         <p class="modal__sub">Se você já comprou algum curso da Docis ou do Felipe Russo, pode ter uma condição exclusiva nesta Black.</p>
         <form id="form-consulta" novalidate>
+          <div class="escolha">
+            <button type="button" class="escolha__btn" id="sou-aluno" aria-expanded="false" aria-controls="consulta">Sou aluno</button>
+            <button type="button" class="escolha__btn" id="nao-aluno">Não sou aluno</button>
+          </div>
+          <div id="consulta" hidden>
           <div class="abas" role="tablist" aria-label="Consultar por">
             <button type="button" class="aba" role="tab" aria-selected="true" data-tipo="cpf">Pelo CPF</button>
             <button type="button" class="aba" role="tab" aria-selected="false" data-tipo="email">Pelo e-mail</button>
-            <button type="button" class="aba aba--nao-aluno" id="nao-aluno">Não sou aluno</button>
           </div>
           <div class="campo">
             <label for="valor" id="valor-rotulo">Seu CPF</label>
@@ -390,6 +397,7 @@ body.modal-aberto .cta-fixo { transform: translateY(110%); }
           </div>
           <button type="submit" class="btn">Consultar meu benefício</button>
           <p class="modal__privacidade">Usamos seu CPF ou e-mail só para encontrar sua compra. Nenhum dado é exibido nesta tela.</p>
+          </div>
         </form>
       </div>
 
@@ -402,6 +410,6 @@ body.modal-aberto .cta-fixo { transform: translateY(110%); }
     </div>
   </div>
 
-  <script src="/sejavitalicio/app.js?v=5" defer></script>
+  <script src="/sejavitalicio/app.js?v=6" defer></script>
 </body>
 </html>
