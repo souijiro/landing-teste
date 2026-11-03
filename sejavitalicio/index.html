@@ -51,7 +51,7 @@
 
   <link rel="preload" href="/black2026/img/montserrat-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/black2026/img/cilaine-480.webp" as="image" fetchpriority="high">
-  <link rel="preload" href="/black2026/img/felipe-bracos-480.webp" as="image" fetchpriority="high">
+  <link rel="preload" href="/black2026/img/felipe-bracos-480.webp?v=3" as="image" fetchpriority="high">
   <style>
 @font-face { font-family: "Montserrat"; font-style: normal; font-weight: 400 800; font-display: swap; src: url(/black2026/img/montserrat-latin.woff2) format("woff2");
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
@@ -127,8 +127,10 @@ button { font: inherit; }
 .hero h1 .ouro { white-space: nowrap; }
 .hero__sub { margin: 12px auto 0; max-width: 620px; color: var(--texto-2); font-size: clamp(.92rem, 3.6vw, 1.08rem); line-height: 1.45; }
 .hero__sub strong { color: var(--texto); font-weight: 700; }
-.hero__cta { max-width: 460px; margin: 18px auto 0; }
-.hero__nota { margin: 10px 0 0; font-size: .85rem; color: var(--texto-2); }
+.hero__cta { max-width: 460px; margin: 20px auto 0; }
+.hero__preco { margin: 12px 0 0; font-size: 1rem; color: var(--texto-2); }
+.hero__preco strong { color: #fff; font-weight: 800; }
+.hero__nota { margin: 4px 0 0; font-size: .85rem; color: var(--texto-2); }
 .hero__nota strong { color: var(--ouro); font-weight: 700; }
 
 /* ---------- cursos ---------- */
@@ -200,8 +202,10 @@ body.modal-aberto .cta-fixo { transform: translateY(110%); }
 .modal h2 { margin: 0 0 8px; font-size: clamp(1.15rem, 5vw, 1.45rem); line-height: 1.2; font-weight: 800; text-transform: uppercase; padding: 0 22px; }
 .modal__sub { margin: 0 0 18px; color: var(--texto-2); font-size: .92rem; }
 .etapa[hidden] { display: none; }
-.abas { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 5px; background: var(--card); border-radius: 14px; margin-bottom: 14px; }
-.aba { min-height: 46px; border: 0; border-radius: 10px; background: transparent; color: var(--texto-2); font-weight: 700; font-size: .9rem; cursor: pointer; }
+.abas { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; padding: 5px; background: var(--card); border-radius: 14px; margin-bottom: 14px; }
+.aba { min-height: 46px; padding: 4px 6px; border: 0; border-radius: 10px; background: transparent; color: var(--texto-2); font-weight: 700; font-size: .86rem; line-height: 1.15; cursor: pointer; }
+.aba--nao-aluno { border: 1px solid #3a3a3a; color: #fff; }
+.aba--nao-aluno:hover { border-color: var(--ouro); }
 .aba[aria-selected="true"] { background: var(--ouro); color: #0b0b0b; }
 .campo { text-align: left; margin-bottom: 14px; }
 .campo label { display: block; margin: 0 0 6px; font-size: .82rem; font-weight: 700; color: var(--texto-2); }
@@ -265,15 +269,15 @@ body.modal-aberto .cta-fixo { transform: translateY(110%); }
             <figcaption>Cilaine Rodrigues<small>Docis</small></figcaption>
           </figure>
           <figure class="expert expert--felipe">
-            <img src="/black2026/img/felipe-bracos-480.webp" srcset="/black2026/img/felipe-bracos-480.webp 480w, /black2026/img/felipe-bracos-700.webp 700w" sizes="(max-width: 720px) 46vw, 290px" alt="Felipe Russo" width="480" height="652" fetchpriority="high">
+            <img src="/black2026/img/felipe-bracos-480.webp?v=3" srcset="/black2026/img/felipe-bracos-480.webp?v=3 480w, /black2026/img/felipe-bracos-700.webp?v=3 700w" sizes="(max-width: 720px) 46vw, 290px" alt="Felipe Russo" width="480" height="652" fetchpriority="high">
             <figcaption>Felipe Russo<small>Confeitaria 5 Estrelas</small></figcaption>
           </figure>
         </div>
 
         <h1>Todos os cursos da Docis + Felipe Russo com <span class="ouro">acesso vitalício!</span></h1>
-        <p class="hero__sub">Aprenda as receitas que vendem e as estratégias de iFood e delivery para transformar seu conhecimento em vendas. <strong>Uma única oportunidade para ter acesso aos cursos dos dois especialistas para sempre!</strong></p>
         <div class="hero__cta">
           <button type="button" class="btn" data-abrir="hero" id="cta-hero">Quero meu acesso vitalício</button>
+          <p class="hero__preco">Preço oficial: <strong>R$ 1.397</strong></p>
           <p class="hero__nota">Você pode ter um <strong>desconto especial</strong> se já é nosso aluno.</p>
         </div>
       </div>
@@ -366,8 +370,9 @@ body.modal-aberto .cta-fixo { transform: translateY(110%); }
         <p class="modal__sub">Se você já comprou algum curso da Docis ou do Felipe Russo, pode ter uma condição exclusiva nesta Black.</p>
         <form id="form-consulta" novalidate>
           <div class="abas" role="tablist" aria-label="Consultar por">
-            <button type="button" class="aba" role="tab" aria-selected="true" data-tipo="cpf">Consultar pelo CPF</button>
-            <button type="button" class="aba" role="tab" aria-selected="false" data-tipo="email">Pelo e-mail de compra</button>
+            <button type="button" class="aba" role="tab" aria-selected="true" data-tipo="cpf">Pelo CPF</button>
+            <button type="button" class="aba" role="tab" aria-selected="false" data-tipo="email">Pelo e-mail</button>
+            <button type="button" class="aba aba--nao-aluno" id="nao-aluno">Não sou aluno</button>
           </div>
           <div class="campo">
             <label for="valor" id="valor-rotulo">Seu CPF</label>
@@ -388,6 +393,6 @@ body.modal-aberto .cta-fixo { transform: translateY(110%); }
     </div>
   </div>
 
-  <script src="/sejavitalicio/app.js?v=3" defer></script>
+  <script src="/sejavitalicio/app.js?v=5" defer></script>
 </body>
 </html>

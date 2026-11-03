@@ -30,7 +30,7 @@ const $ = (s) => document.querySelector(s);
 const brl = (v) => "R$ " + Number(v).toLocaleString("pt-BR");
 
 // ---------- eventos (nunca com CPF/e-mail) ----------
-const EVENTOS_META = { clique_cta: "CTAClick", inicio_identificacao: "IdentificacaoInicio", consulta_concluida: "ConsultaConcluida", categoria_oferta: "CategoriaOferta" };
+const EVENTOS_META = { clique_cta: "CTAClick", nao_aluno: "NaoSouAluno", inicio_identificacao: "IdentificacaoInicio", consulta_concluida: "ConsultaConcluida", categoria_oferta: "CategoriaOferta" };
 function evento(nome, dados = {}) {
   try {
     window.dataLayer = window.dataLayer || [];
@@ -74,7 +74,7 @@ document.addEventListener("keydown", (e) => { if (e.key === "Escape" && modal.cl
 const campo = $("#valor"), erro = $("#valor-erro");
 function setTipo(t) {
   tipo = t;
-  document.querySelectorAll(".aba").forEach((a) => a.setAttribute("aria-selected", String(a.dataset.tipo === t)));
+  document.querySelectorAll(".aba[data-tipo]").forEach((a) => a.setAttribute("aria-selected", String(a.dataset.tipo === t)));
   campo.value = ""; limparErro();
   if (t === "cpf") {
     $("#valor-rotulo").textContent = "Seu CPF";
@@ -85,7 +85,7 @@ function setTipo(t) {
   }
   campo.focus();
 }
-document.querySelectorAll(".aba").forEach((a) => a.addEventListener("click", () => setTipo(a.dataset.tipo)));
+document.querySelectorAll(".aba[data-tipo]").forEach((a) => a.addEventListener("click", () => setTipo(a.dataset.tipo)));
 
 function mascaraCpf(v) {
   const d = v.replace(/\D/g, "").slice(0, 11);
@@ -140,10 +140,24 @@ $("#form-consulta").addEventListener("submit", async (e) => {
   if (res.erro === "limite") return telaErro("Muitas consultas seguidas desta conexão. Aguarde alguns minutos e tente de novo.");
   if (!OFERTAS[res.categoria]) return telaErro("Não conseguimos concluir a consulta. Tente de novo em alguns segundos.");
 
-  evento("consulta_concluida", { tipo_consulta: tipo });
+  evento("consulta_concluida", { tipo_consulta: tipo, encontrado: res.categoria !== "novo" });
+  if (res.categoria === "novo") return telaNaoEncontrado();
   evento("categoria_oferta", { categoria: res.categoria, valor: res.preco });
   telaOferta(res, tipo === "email" ? valor.trim().toLowerCase() : "");
 });
+
+// CPF/e-mail sem compra: pede para conferir ou seguir como novo aluno
+function telaNaoEncontrado() {
+  const box = $("#etapa-resultado");
+  box.innerHTML = `<div class="erro-caixa"><div class="icone" aria-hidden="true">🔎</div>
+    <h2 class="res__titulo">Não encontramos seu cadastro</h2>
+    <p>Confira o ${tipo === "cpf" ? "CPF" : "e-mail"} digitado e tente novamente${tipo === "cpf" ? " ou consulte pelo e-mail da compra" : ""}.</p>
+    <button type="button" class="btn btn--branco" id="tentar-de-novo">Tentar novamente</button>
+    <div class="res__outro"><button type="button" class="link" id="link-nao-aluno">Clique aqui se você não for aluno</button></div></div>`;
+  mostrar("#etapa-resultado");
+  $("#tentar-de-novo").addEventListener("click", () => { mostrar("#etapa-form"); campo.focus(); campo.select(); });
+  $("#link-nao-aluno").addEventListener("click", irNaoAluno);
+}
 
 function telaErro(msg) {
   const box = $("#etapa-resultado");
@@ -190,6 +204,27 @@ function telaOferta(res, email) {
   }
   $("#outro").addEventListener("click", () => setTipoEVoltar());
 }
+// "Não sou aluno": sem consulta de cadastro, vai direto para o checkout da oferta cheia.
+// A aba é aberta já no clique (senão o bloqueador de pop-up barra) e recebe o link quando ele chega.
+async function irNaoAluno() {
+  if (enviando) return;
+  enviando = true;
+  evento("nao_aluno", {});
+  const aba = window.open("about:blank", "_blank");
+  mostrar("#etapa-carregando");
+  let res = null;
+  try { res = await consultar("nao_aluno", null); } catch (err) { /* tratado abaixo */ }
+  enviando = false;
+  if (!res || res.categoria !== "novo") { if (aba) aba.close(); return telaErro("Não conseguimos abrir o checkout agora. Tente de novo em alguns segundos."); }
+  evento("categoria_oferta", { categoria: res.categoria, valor: res.preco });
+  telaOferta(res, "");                                  // a página fica com a oferta aberta atrás do checkout
+  if (!res.checkout) { if (aba) aba.close(); return; }  // checkout ainda não configurado: fica a tela da oferta
+  const url = montarCheckout(res.checkout, res.categoria, "");
+  evento("clique_checkout", { categoria: res.categoria, valor: res.preco });
+  if (aba) { aba.opener = null; aba.location.href = url; } else location.href = url;
+}
+$("#nao-aluno").addEventListener("click", irNaoAluno);
+
 function setTipoEVoltar() { mostrar("#etapa-form"); setTipo(tipo === "cpf" ? "email" : "cpf"); }
 
 // ---------- botão fixo no celular: aparece quando o botão da primeira dobra sai da tela ----------
