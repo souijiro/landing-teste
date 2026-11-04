@@ -54,12 +54,14 @@
     #tv-vendas .kpi--gigante .kpi__num { font-size: 3.6rem; }
     #tv-vendas .v-menores { grid-template-columns: repeat(3, 1fr); margin-top: 12px; flex: none; }
     #tv-vendas .v-mini__num { font-size: 1.6rem; }
-    #tv-venda { position: fixed; top: 0; left: 0; width: 1280px; height: 720px; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      background: rgba(11,11,11,.92); color: #fff; font-family: Montserrat, sans-serif; text-align: center; opacity: 0; pointer-events: none; transition: opacity .5s; }
-    #tv-venda.on { opacity: 1; }
-    #tv-venda .r { margin: 0; font-size: 26px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #ffd60a; }
-    #tv-venda .v { margin: 6px 0 0; font-size: 150px; font-weight: 800; line-height: 1; }
-    #tv-venda .s { margin: 18px 0 0; font-size: 30px; font-weight: 600; color: #d6d3d1; }
+    #tv-vendas-avisos { position: fixed; right: 28px; bottom: 44px; width: 460px; display: flex; flex-direction: column-reverse; pointer-events: none; }
+    .tv-venda { margin-top: 10px; padding: 14px 20px 14px 22px; border-radius: 16px; background: rgba(11,11,11,.78); border-left: 6px solid #ffd60a;
+      color: #fff; font-family: Montserrat, sans-serif; box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      transform: translateY(140%); opacity: 0; transition: transform .6s cubic-bezier(.2,.9,.3,1.2), opacity .5s; }
+    .tv-venda.on { transform: translateY(0); opacity: 1; }
+    .tv-venda .r { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #ffd60a; }
+    .tv-venda .v { margin: 3px 0 0; font-size: 30px; font-weight: 800; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tv-venda .s { margin: 3px 0 0; font-size: 15px; font-weight: 600; color: #d6d3d1; }
     #tv-quem { height: 100%; }
     #tv-quem > * { display: flex; flex-direction: column; overflow: hidden; }
     #tv #tv-quem .alunos { margin-top: 0; flex: 1.35; }
@@ -110,7 +112,7 @@
     </section>
     <div id="tv-rodape"><span id="tv-info">Carregando…</span><span><span id="tv-dica"></span><span id="tv-pontos"></span></span></div>
     <div id="tv-aviso"></div>
-    <div id="tv-venda"><p class="r"></p><p class="v"></p><p class="s"></p></div>` : `
+    <div id="tv-vendas-avisos"></div>` : `
     <section class="tv-slide" data-nome="painel">
       <h1 class="tv-titulo">Leads da Black Vitalícia<small>meta 10.000 até 5/11</small></h1>
       <div class="tv-corpo" id="tv-painel"></div>
@@ -183,15 +185,21 @@
   function tocarVendas(n) {
     for (let i = 0; i < Math.min(n, 20); i++) setTimeout(() => { try { new Audio("/dash/venda.mp3").play().catch(() => {}); } catch (e) {} }, i * 700);
   }
+  // um banner por venda subindo no canto de baixo, cada um com o seu som (vendas juntas encavalam)
   function comemorar(novas) {
-    const ultima = novas[novas.length - 1];
-    $("#tv-venda .r").textContent = novas.length > 1 ? novas.length + " vendas novas!" : "Venda nova!";
-    $("#tv-venda .v").textContent = typeof valorCheio === "function" ? brlV(novas.reduce((s, v) => s + valorCheio(v), 0)) : "";
-    $("#tv-venda .s").textContent = [((ultima.nome || "").split(" ")[0]), typeof condicao === "function" ? (CONDICOES.find((k) => k.id === condicao(ultima)) || {}).nome : ""].filter(Boolean).join(" · ");
-    $("#tv-venda").classList.add("on");
-    clearTimeout(vendaTimer); vendaTimer = setTimeout(() => $("#tv-venda").classList.remove("on"), 10000);
-    if (window.parent !== window) parent.postMessage({ tvVenda: novas.length }, "*");
-    else tocarVendas(novas.length);
+    novas.slice(-20).forEach((v, i) => setTimeout(() => {
+      const b = document.createElement("div");
+      b.className = "tv-venda";
+      const cond = typeof condicao === "function" ? (CONDICOES.find((k) => k.id === condicao(v)) || {}).nome : "";
+      b.innerHTML = '<p class="r">Venda nova!</p><p class="v"></p><p class="s"></p>';
+      b.querySelector(".v").textContent = (v.nome || "Nova aluna").trim().split(/\s+/).slice(0, 2).join(" ");
+      b.querySelector(".s").textContent = [typeof valorCheio === "function" ? brlV(valorCheio(v)) : "", cond].filter(Boolean).join(" · ");
+      $("#tv-vendas-avisos").appendChild(b);
+      setTimeout(() => b.classList.add("on"), 30);
+      setTimeout(() => { b.classList.remove("on"); setTimeout(() => b.remove(), 700); }, 12000);
+      if (window.parent !== window) parent.postMessage({ tvVenda: 1 }, "*");
+      else tocarVendas(1);
+    }, i * 700));
   }
   function olharVendas() {
     if (typeof VENDAS === "undefined" || !VENDAS || typeof grupoStatus !== "function") return;
@@ -203,7 +211,7 @@
     novas.forEach((v) => vistas.add(chave(v)));
     if (novas.length) comemorar(novas);
   }
-  window.tvTesteVenda = () => comemorar([{ nome: "Teste", cupom: "" }]);
+  window.tvTesteVenda = () => comemorar([{ nome: "Aluna Teste", cupom: "" }]);
 
   function copiarConversao() {
     olharVendas();
