@@ -179,7 +179,10 @@
   }
   // venda nova: tela de comemoração + som (o app da TV toca o som; no navegador toca aqui mesmo)
   let vistas = null, vendaTimer = null;
-  const SOM = new Audio("/dash/venda.wav");
+  // um som por venda, cada um num player próprio: vendas juntas tocam encavaladas (com um pequeno intervalo)
+  function tocarVendas(n) {
+    for (let i = 0; i < Math.min(n, 20); i++) setTimeout(() => { try { new Audio("/dash/venda.mp3").play().catch(() => {}); } catch (e) {} }, i * 700);
+  }
   function comemorar(novas) {
     const ultima = novas[novas.length - 1];
     $("#tv-venda .r").textContent = novas.length > 1 ? novas.length + " vendas novas!" : "Venda nova!";
@@ -188,7 +191,7 @@
     $("#tv-venda").classList.add("on");
     clearTimeout(vendaTimer); vendaTimer = setTimeout(() => $("#tv-venda").classList.remove("on"), 10000);
     if (window.parent !== window) parent.postMessage({ tvVenda: novas.length }, "*");
-    else { try { SOM.currentTime = 0; SOM.play().catch(() => {}); } catch (e) {} }
+    else tocarVendas(novas.length);
   }
   function olharVendas() {
     if (typeof VENDAS === "undefined" || !VENDAS || typeof grupoStatus !== "function") return;
