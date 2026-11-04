@@ -11,6 +11,8 @@
     };
   }
   if (!window.MODO_TV) return;
+  // /dash/tv?so=vendas: só as telas de vendas (TV de casa)
+  const SO_VENDAS = /[?&]so=vendas/.test(location.search);
 
   const ESCALA = 1.5;            // layout em 1280×720, ampliado para 1920×1080
   const TROCA = 30 * 1000;       // troca sozinha a cada 30 s…
@@ -34,13 +36,37 @@
     .tv-grade > * { flex: 1; min-width: 0; margin: 0 !important; }
     .tv-grade > * + * { margin-left: 18px !important; }
     #tv-painel { display: flex; flex-direction: column; }
-    #tv .hero { display: grid; grid-template-columns: 330px 1fr; gap: 14px; flex: none; }
-    #tv .hero__principal { padding: 18px 20px; }
-    #tv .hero__numero { font-size: 4.4rem; }
-    #tv .kpis { grid-template-columns: repeat(5, 1fr); gap: 8px; }
-    #tv .kpi { padding: 9px 11px; }
-    #tv .kpi__num { font-size: 1.45rem; }
-    #tv .kpi__sub { font-size: .66rem; }
+    #tv-painel .hero { display: grid; grid-template-columns: 330px 1fr; gap: 14px; flex: none; }
+    #tv-painel .hero__principal { padding: 18px 20px; }
+    #tv-painel .hero__numero { font-size: 4.4rem; }
+    #tv-painel .kpis { grid-template-columns: repeat(5, 1fr); gap: 8px; }
+    #tv-painel .kpi { padding: 9px 11px; }
+    #tv-painel .kpi__num { font-size: 1.45rem; }
+    #tv-painel .kpi__sub { font-size: .66rem; }
+    #tv-vendas { display: flex; flex-direction: column; }
+    #tv-vendas .v-hero { display: grid; grid-template-columns: 410px 1fr; gap: 14px; flex: 1; min-height: 0; }
+    #tv-vendas .hero__principal { display: flex; flex-direction: column; padding: 22px 26px; }
+    #tv-vendas .hero__numero { font-size: 6rem; }
+    #tv-vendas .v-grandes { grid-template-columns: repeat(3, 1fr); grid-auto-rows: 1fr; gap: 10px; }
+    #tv-vendas .kpi { display: flex; flex-direction: column; justify-content: center; padding: 12px 16px; }
+    #tv-vendas .kpi__num { font-size: 2rem; }
+    #tv-vendas .kpi__sub { font-size: .72rem; }
+    #tv-vendas .kpi--gigante .kpi__num { font-size: 3.6rem; }
+    #tv-vendas .v-menores { grid-template-columns: repeat(3, 1fr); margin-top: 12px; flex: none; }
+    #tv-vendas .v-mini__num { font-size: 1.6rem; }
+    .tv-conv { margin-top: auto; padding-top: 14px; border-top: 1px solid #2e2b28; }
+    .tv-conv .r { margin: 0; font: 700 13px Montserrat, sans-serif; text-transform: uppercase; letter-spacing: .08em; color: #a8a29e; }
+    .tv-conv .v { margin: 2px 0 0; font: 800 64px Montserrat, sans-serif; line-height: 1.05; color: #ffd60a; }
+    .tv-conv .s { margin: 2px 0 0; font: 600 14px Montserrat, sans-serif; color: #d6d3d1; }
+    #tv-quem { height: 100%; }
+    #tv-quem > * { display: flex; flex-direction: column; overflow: hidden; }
+    #tv #tv-quem .alunos { margin-top: 0; flex: 1.35; }
+    #tv #tv-quem .alunos__lista li { padding: 6px 10px; }
+    #tv #tv-quem .alunos__corpo { grid-template-columns: 230px 1fr; gap: 16px; align-items: center; }
+    #tv #tv-quem .alunos__pizza { width: 230px; height: 230px; }
+    #tv #tv-quem .alunos__lista { grid-template-columns: 1fr; }
+    #tv #tv-quem .grafico { flex: 1; height: auto !important; min-height: 0; }
+    #tv #tv-quem .tabela-wrap { display: none; }
     #tv .alunos { flex: 1; min-height: 0; margin-top: 14px; padding: 12px 18px; overflow: hidden; }
     #tv .alunos .cartao__topo { margin-bottom: 4px; }
     #tv .alunos__corpo { grid-template-columns: 250px 1fr; gap: 22px; }
@@ -71,7 +97,17 @@
   const LOGO = "/black2026/img/logo.webp";
   const raiz = document.createElement("div");
   raiz.id = "tv";
-  raiz.innerHTML = `
+  raiz.innerHTML = SO_VENDAS ? `
+    <section class="tv-slide" data-nome="vendas">
+      <h1 class="tv-titulo">Vendas da Black Vitalícia<small>compras aprovadas na Hotmart</small></h1>
+      <div class="tv-corpo" id="tv-vendas"></div>
+    </section>
+    <section class="tv-slide" data-nome="quem">
+      <h1 class="tv-titulo">Quem está comprando<small>compras aprovadas · por perfil e por dia</small></h1>
+      <div class="tv-corpo tv-grade" id="tv-quem"></div>
+    </section>
+    <div id="tv-rodape"><span id="tv-info">Carregando…</span><span><span id="tv-dica"></span><span id="tv-pontos"></span></span></div>
+    <div id="tv-aviso"></div>` : `
     <section class="tv-slide" data-nome="painel">
       <h1 class="tv-titulo">Leads da Black Vitalícia<small>meta 10.000 até 5/11</small></h1>
       <div class="tv-corpo" id="tv-painel"></div>
@@ -98,9 +134,20 @@
   document.body.appendChild(raiz);
 
   // move os cartões do dash para as telas (os scripts do dash continuam atualizando os mesmos elementos)
-  $("#tv-painel").appendChild($("#aba-painel .hero"));
-  $("#tv-painel").appendChild($("#aba-painel .alunos"));
-  $("#tv-funil").appendChild($(".funil-cartao"));
+  if (SO_VENDAS) {
+    $("#tv-vendas").appendChild($("#aba-vendas .v-hero"));
+    $("#tv-vendas").appendChild($("#vend-kpis-2"));
+    const conv = document.createElement("div");
+    conv.className = "tv-conv";
+    conv.innerHTML = '<p class="r">Conversão da lista</p><p class="v" id="tv-conv">—</p><p class="s" id="tv-conv-sub"></p>';
+    $("#tv-vendas .hero__principal").appendChild(conv);
+    $("#tv-quem").appendChild($("#aba-vendas .alunos"));
+    $("#tv-quem").appendChild($("#g-vend-dia").closest(".cartao"));
+  } else {
+    $("#tv-painel").appendChild($("#aba-painel .hero"));
+    $("#tv-painel").appendChild($("#aba-painel .alunos"));
+    $("#tv-funil").appendChild($(".funil-cartao"));
+  }
 
   // funil e taxas só de hoje
   function filtrarHoje() {
@@ -110,10 +157,10 @@
     $("#tv-funil-dia").textContent = h.slice(8, 10) + "/" + h.slice(5, 7);
     try { if (typeof TRAF !== "undefined" && TRAF && TRAF.ads && TRAF.ads.length) renderTrafego(); } catch (e) {}
   }
-  filtrarHoje();
+  if (!SO_VENDAS) filtrarHoje();
 
   // o gráfico de CPM hora a hora só nasce quando os dados do tráfego chegam
-  const esperaCpm = setInterval(() => {
+  const esperaCpm = SO_VENDAS ? null : setInterval(() => {
     const c = $("#g-tx-cpm-hora");
     if (!c) return;
     clearInterval(esperaCpm);
@@ -131,7 +178,16 @@
     $("#tv-info").textContent = "Black Vitalícia 2026 · atualizado às " +
       new Date().toLocaleTimeString("pt-BR", { timeZone: "America/Sao_Paulo", hour: "2-digit", minute: "2-digit" });
   }
-  setInterval(() => { filtrarHoje(); copiarCustos(); }, 5000);
+  // conversão da lista = compras aprovadas ÷ leads captados (os mesmos números do quadro da meta)
+  function copiarConversao() {
+    const n = (id) => +(($(id) ? $(id).textContent : "") .replace(/\D/g, "")) || 0;
+    const compras = n("#vk-compras"), captados = n("#vk-captados");
+    $("#tv-conv").textContent = captados ? (compras / captados * 100).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + "%" : "—";
+    $("#tv-conv-sub").textContent = captados ? `${compras.toLocaleString("pt-BR")} compras ÷ ${captados.toLocaleString("pt-BR")} leads captados` : "";
+    $("#tv-info").textContent = "Vendas · Black Vitalícia 2026 · atualizado às " +
+      new Date().toLocaleTimeString("pt-BR", { timeZone: "America/Sao_Paulo", hour: "2-digit", minute: "2-digit" });
+  }
+  setInterval(() => { if (SO_VENDAS) return copiarConversao(); filtrarHoje(); copiarCustos(); }, 5000);
 
   // troca de telas
   const telas = [].slice.call(raiz.querySelectorAll(".tv-slide"));
