@@ -54,10 +54,12 @@
     #tv-vendas .kpi--gigante .kpi__num { font-size: 3.6rem; }
     #tv-vendas .v-menores { grid-template-columns: repeat(3, 1fr); margin-top: 12px; flex: none; }
     #tv-vendas .v-mini__num { font-size: 1.6rem; }
-    .tv-conv { margin-top: auto; padding-top: 14px; border-top: 1px solid #2e2b28; }
-    .tv-conv .r { margin: 0; font: 700 13px Montserrat, sans-serif; text-transform: uppercase; letter-spacing: .08em; color: #a8a29e; }
-    .tv-conv .v { margin: 2px 0 0; font: 800 64px Montserrat, sans-serif; line-height: 1.05; color: #ffd60a; }
-    .tv-conv .s { margin: 2px 0 0; font: 600 14px Montserrat, sans-serif; color: #d6d3d1; }
+    #tv-venda { position: fixed; top: 0; left: 0; width: 1280px; height: 720px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: rgba(11,11,11,.92); color: #fff; font-family: Montserrat, sans-serif; text-align: center; opacity: 0; pointer-events: none; transition: opacity .5s; }
+    #tv-venda.on { opacity: 1; }
+    #tv-venda .r { margin: 0; font-size: 26px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #ffd60a; }
+    #tv-venda .v { margin: 6px 0 0; font-size: 150px; font-weight: 800; line-height: 1; }
+    #tv-venda .s { margin: 18px 0 0; font-size: 30px; font-weight: 600; color: #d6d3d1; }
     #tv-quem { height: 100%; }
     #tv-quem > * { display: flex; flex-direction: column; overflow: hidden; }
     #tv #tv-quem .alunos { margin-top: 0; flex: 1.35; }
@@ -107,7 +109,8 @@
       <div class="tv-corpo tv-grade" id="tv-quem"></div>
     </section>
     <div id="tv-rodape"><span id="tv-info">Carregando…</span><span><span id="tv-dica"></span><span id="tv-pontos"></span></span></div>
-    <div id="tv-aviso"></div>` : `
+    <div id="tv-aviso"></div>
+    <div id="tv-venda"><p class="r"></p><p class="v"></p><p class="s"></p></div>` : `
     <section class="tv-slide" data-nome="painel">
       <h1 class="tv-titulo">Leads da Black Vitalícia<small>meta 10.000 até 5/11</small></h1>
       <div class="tv-corpo" id="tv-painel"></div>
@@ -137,10 +140,6 @@
   if (SO_VENDAS) {
     $("#tv-vendas").appendChild($("#aba-vendas .v-hero"));
     $("#tv-vendas").appendChild($("#vend-kpis-2"));
-    const conv = document.createElement("div");
-    conv.className = "tv-conv";
-    conv.innerHTML = '<p class="r">Conversão da lista</p><p class="v" id="tv-conv">—</p><p class="s" id="tv-conv-sub"></p>';
-    $("#tv-vendas .hero__principal").appendChild(conv);
     $("#tv-quem").appendChild($("#aba-vendas .alunos"));
     $("#tv-quem").appendChild($("#g-vend-dia").closest(".cartao"));
   } else {
@@ -178,12 +177,33 @@
     $("#tv-info").textContent = "Black Vitalícia 2026 · atualizado às " +
       new Date().toLocaleTimeString("pt-BR", { timeZone: "America/Sao_Paulo", hour: "2-digit", minute: "2-digit" });
   }
-  // conversão da lista = compras aprovadas ÷ leads captados (os mesmos números do quadro da meta)
+  // venda nova: tela de comemoração + som (o app da TV toca o som; no navegador toca aqui mesmo)
+  let vistas = null, vendaTimer = null;
+  const SOM = new Audio("/dash/venda.wav");
+  function comemorar(novas) {
+    const ultima = novas[novas.length - 1];
+    $("#tv-venda .r").textContent = novas.length > 1 ? novas.length + " vendas novas!" : "Venda nova!";
+    $("#tv-venda .v").textContent = typeof valorCheio === "function" ? brlV(novas.reduce((s, v) => s + valorCheio(v), 0)) : "";
+    $("#tv-venda .s").textContent = [((ultima.nome || "").split(" ")[0]), typeof condicao === "function" ? (CONDICOES.find((k) => k.id === condicao(ultima)) || {}).nome : ""].filter(Boolean).join(" · ");
+    $("#tv-venda").classList.add("on");
+    clearTimeout(vendaTimer); vendaTimer = setTimeout(() => $("#tv-venda").classList.remove("on"), 10000);
+    if (window.parent !== window) parent.postMessage({ tvVenda: novas.length }, "*");
+    else { try { SOM.currentTime = 0; SOM.play().catch(() => {}); } catch (e) {} }
+  }
+  function olharVendas() {
+    if (typeof VENDAS === "undefined" || !VENDAS || typeof grupoStatus !== "function") return;
+    const comTeste = $("#vend-testes") && $("#vend-testes").checked; // mesmas compras que o quadro conta
+    const aprov = (VENDAS.vendas || []).filter((v) => grupoStatus(v.status) === "aprovada" && ehCompra(v) && (comTeste || !v.teste));
+    const chave = (v) => v.id || v.transacao || (v.em + "|" + v.email);
+    if (vistas === null) { vistas = new Set(aprov.map(chave)); return; } // primeira carga: só guarda
+    const novas = aprov.filter((v) => !vistas.has(chave(v)));
+    novas.forEach((v) => vistas.add(chave(v)));
+    if (novas.length) comemorar(novas);
+  }
+  window.tvTesteVenda = () => comemorar([{ nome: "Teste", cupom: "" }]);
+
   function copiarConversao() {
-    const n = (id) => +(($(id) ? $(id).textContent : "") .replace(/\D/g, "")) || 0;
-    const compras = n("#vk-compras"), captados = n("#vk-captados");
-    $("#tv-conv").textContent = captados ? (compras / captados * 100).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + "%" : "—";
-    $("#tv-conv-sub").textContent = captados ? `${compras.toLocaleString("pt-BR")} compras ÷ ${captados.toLocaleString("pt-BR")} leads captados` : "";
+    olharVendas();
     $("#tv-info").textContent = "Vendas · Black Vitalícia 2026 · atualizado às " +
       new Date().toLocaleTimeString("pt-BR", { timeZone: "America/Sao_Paulo", hour: "2-digit", minute: "2-digit" });
   }
@@ -220,6 +240,7 @@
     if (cod === 39) { ultimaManual = Date.now(); mostrar(atual + 1); return true; }       // ▶
     if (cod === 37) { ultimaManual = Date.now(); mostrar(atual - 1); return true; }       // ◀
     if (cod === 13) { pausar(!pausado); return true; }                                   // OK
+    if (SO_VENDAS && (cod === 10252 || cod === 415)) { window.tvTesteVenda(); return true; } // ▶❚❚ / ▶ = teste do aviso de venda
     return false;
   }
   document.addEventListener("keydown", (e) => { if (tecla(e.keyCode)) e.preventDefault(); });
