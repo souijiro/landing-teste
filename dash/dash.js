@@ -122,6 +122,7 @@ async function carregar() {
     carregarBases(token);
     if (typeof carregarGrupos === "function") carregarGrupos(token);
     if (typeof carregarDisparos === "function") carregarDisparos(token);
+    if (typeof carregarVendas === "function") carregarVendas(token);
     renderPainel();
     montarFiltros();
     renderLeads();

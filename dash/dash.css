@@ -529,3 +529,19 @@ td:first-child .delta { display: inline; margin-left: 4px; }
 #t-grupos-cada tr.g-cheio .trilho b { background: #e5484d; }
 #t-grupos-cada tr.g-cheio small { color: #9b1c1c; font-weight: 700; }
 .g-cheio__tag { display: inline-block; margin-left: 4px; padding: 1px 7px; border-radius: 99px; background: #e5484d; color: #fff; font-size: .7rem; font-weight: 800; white-space: nowrap; }
+
+/* ---------- Aba Vendas ---------- */
+.kpis--vendas { grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 720px) { .kpis--vendas { grid-template-columns: repeat(4, 1fr); } }
+.v-prof { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; white-space: nowrap; }
+.v-cabecas { display: inline-flex; align-items: flex-end; vertical-align: middle; margin-right: 6px; }
+.v-cabecas:empty { display: none; }
+.v-cabeca { height: 34px; width: auto; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .25)); }
+.v-cabeca--fe { height: 30px; }
+.v-cabeca + .v-cabeca { margin-left: -6px; }
+.v-prof .v-cabeca { height: 44px; } .v-prof .v-cabeca--fe { height: 38px; }
+.v-st { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: .72rem; font-weight: 700; white-space: nowrap; }
+.v-st--aprovada { background: #146c3a; color: #fff; }
+.v-st--cancelada { background: #e5484d; color: #fff; }
+.v-st--pendente { background: #f2e7c9; color: #6b4e00; }
+.v-teste { display: inline-block; padding: 1px 6px; border-radius: 6px; font-size: .68rem; font-weight: 700; background: #ebe7e2; color: #57534e; }
