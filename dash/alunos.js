@@ -54,7 +54,7 @@ const pluginCabecas = {
     if (p0) {
       ctx.save(); ctx.textAlign = "center"; ctx.fillStyle = "#1a1a1a";
       ctx.font = "800 26px Montserrat, sans-serif"; ctx.fillText(fmt(total), p0.x, p0.y + 4);
-      ctx.font = "600 11px Montserrat, sans-serif"; ctx.fillStyle = "#8a857f"; ctx.fillText("leads únicos", p0.x, p0.y + 22);
+      ctx.font = "600 11px Montserrat, sans-serif"; ctx.fillStyle = "#8a857f"; ctx.fillText(chart.options.plugins.cabecas?.rotulo || "leads únicos", p0.x, p0.y + 22);
       ctx.restore();
     }
   }

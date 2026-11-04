@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/dash/dash.css?v=39">
+  <link rel="stylesheet" href="/dash/dash.css?v=41">
   <script>
     // Modo TV (/dash/tv ou ?tv=1): telas grandes que trocam pelas setas do controle; chave da TV vem em #t=
     window.MODO_TV = /^\/dash\/tv/.test(location.pathname) || /[?&]tv=1/.test(location.search);
@@ -305,31 +305,49 @@
     <!-- ===== Aba Vendas (webhook Hotmart) ===== -->
     <main class="aba-conteudo" id="aba-vendas" hidden>
       <section class="cartao filtros v-barra"><label class="t-nota"><input type="checkbox" id="vend-testes"> Incluir testes da Hotmart <span id="vend-testes-n"></span></label><span class="t-nota" id="vend-ultimo"></span></section>
-      <section class="kpis kpis--vendas" id="vend-kpis"><p class="t-nota">Carregando…</p></section>
-      <section class="cartao">
-        <div class="cartao__topo"><h2>Vendas aprovadas por dia</h2><span class="t-nota">quantidade por professor · valor na dica</span></div>
-        <div class="grafico"><canvas id="g-vend-dia" aria-label="Vendas aprovadas por dia, por professor"></canvas></div>
-        <div class="tabela-wrap"><table class="tabela" id="t-vend-dia">
-          <thead><tr><th>Dia</th><th class="n">Aprovadas</th><th class="n">Valor aprovado</th><th class="n">Ticket médio</th><th class="n">Canceladas</th><th class="n">Valor cancelado</th><th class="n">Carrinhos</th></tr></thead><tbody></tbody>
-        </table></div>
+      <section class="hero v-hero">
+        <div class="hero__principal">
+          <p class="rotulo">Compras aprovadas</p>
+          <p class="hero__numero" id="vk-compras">0</p>
+          <p class="hero__meta">de <strong id="vk-meta">—</strong> · meta (20% dos <span id="vk-captados">—</span> leads captados)</p>
+          <div class="barra" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="vk-barra"><div class="barra__fill" id="vk-barra-fill"></div></div>
+          <div class="hero__rodape"><span><strong id="vk-pct">0%</strong> da meta</span><span>faltam <strong id="vk-faltam">—</strong></span></div>
+        </div>
+        <div class="kpis v-grandes" id="vend-kpis"><p class="t-nota">Carregando…</p></div>
       </section>
-      <section class="cartao">
-        <div class="cartao__topo"><h2>Vendas aprovadas por hora</h2><label class="t-nota">Dia <select id="vend-dia" aria-label="Dia mostrado no gráfico por hora"></select></label></div>
-        <p class="t-nota" id="vend-hora-resumo"></p>
-        <div class="grafico"><canvas id="g-vend-hora" aria-label="Vendas aprovadas por hora do dia escolhido, por professor"></canvas></div>
+      <section class="v-menores" id="vend-kpis-2"></section>
+      <p class="t-nota v-nota-valores">Valor cheio = preço total da compra, mesmo no parcelamento inteligente ou boleto parcelado. Aprovado (30 dias) = o que já foi aprovado: no parcelamento inteligente e no boleto parcelado, só a parcela já paga.</p>
+      <section class="cartao alunos">
+        <div class="cartao__topo"><h2>Alunos entre os compradores</h2><span class="t-nota">compras aprovadas · por e-mail ou telefone, na lista de alunos</span></div>
+        <div class="alunos__corpo">
+          <div class="alunos__pizza"><canvas id="g-vend-alunos" aria-label="Compras aprovadas por perfil de aluno: Docis, Felipe Russo, dos dois e não alunos"></canvas></div>
+          <ul class="alunos__lista" id="vend-alunos-lista"></ul>
+        </div>
       </section>
       <section class="cartao">
         <div class="cartao__topo"><h2>Por professor</h2><span class="t-nota">de quem a pessoa já era aluna</span></div>
         <div class="tabela-wrap"><table class="tabela" id="t-vend-prof">
-          <thead><tr><th>Quem comprou</th><th class="n">Aprovadas</th><th class="n">Valor aprovado</th><th class="n">Canceladas</th><th class="n">Valor cancelado</th><th class="n">Carrinhos abandonados</th></tr></thead><tbody></tbody><tfoot></tfoot>
+          <thead><tr><th>Quem comprou</th><th class="n">Aprovadas</th><th class="n">Valor cheio</th><th class="n">Aprovado (30 dias)</th><th class="n">Canceladas</th><th class="n">Valor cancelado</th><th class="n">Carrinhos abandonados</th></tr></thead><tbody></tbody><tfoot></tfoot>
         </table></div>
         <p class="t-nota">Cruzamos o e-mail e o telefone da compra com a base de alunos da Docis e do Felipe.</p>
       </section>
       <section class="cartao">
         <div class="cartao__topo"><h2>Por condição</h2><span class="t-nota">cupom usado no checkout</span></div>
         <div class="tabela-wrap"><table class="tabela" id="t-vend-cond">
-          <thead><tr><th>Condição</th><th class="n">Aprovadas</th><th class="n">Valor aprovado</th><th class="n">Canceladas</th><th class="n">Valor cancelado</th></tr></thead><tbody></tbody><tfoot></tfoot>
+          <thead><tr><th>Condição</th><th class="n">Aprovadas</th><th class="n">Valor cheio</th><th class="n">Aprovado (30 dias)</th><th class="n">Canceladas</th><th class="n">Valor cancelado</th></tr></thead><tbody></tbody><tfoot></tfoot>
         </table></div>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Vendas aprovadas por dia</h2><span class="t-nota">compras aprovadas por dia · valor na dica</span></div>
+        <div class="grafico"><canvas id="g-vend-dia" aria-label="Vendas aprovadas por dia, por professor"></canvas></div>
+        <div class="tabela-wrap"><table class="tabela" id="t-vend-dia">
+          <thead><tr><th>Dia</th><th class="n">Aprovadas</th><th class="n">Valor cheio</th><th class="n">Aprovado (30 dias)</th><th class="n">Canceladas</th><th class="n">Valor cancelado</th><th class="n">Carrinhos</th></tr></thead><tbody></tbody>
+        </table></div>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Vendas aprovadas por hora</h2><label class="t-nota">Dia <select id="vend-dia" aria-label="Dia mostrado no gráfico por hora"></select></label></div>
+        <p class="t-nota" id="vend-hora-resumo"></p>
+        <div class="grafico"><canvas id="g-vend-hora" aria-label="Vendas aprovadas por hora do dia escolhido, por professor"></canvas></div>
       </section>
       <section class="cartao">
         <div class="cartao__topo"><h2>Compras</h2><span class="t-nota">mais recentes primeiro</span></div>
@@ -445,13 +463,13 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <script src="/dash/dash.js?v=32"></script>
-  <script src="/dash/alunos.js?v=3"></script>
+  <script src="/dash/alunos.js?v=4"></script>
   <script src="/dash/criativos.js?v=2"></script>
   <script src="/dash/trafego.js?v=38"></script>
   <script src="/dash/ab.js?v=19"></script>
   <script src="/dash/grupos.js?v=6"></script>
-  <script src="/dash/disparos.js?v=6"></script>
-  <script src="/dash/vendas.js?v=3"></script>
+  <script src="/dash/disparos.js?v=7"></script>
+  <script src="/dash/vendas.js?v=5"></script>
   <script src="/dash/tv.js?v=2"></script>
 </body>
 </html>

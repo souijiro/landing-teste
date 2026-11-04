@@ -546,3 +546,23 @@ td:first-child .delta { display: inline; margin-left: 4px; }
 .v-st--pendente { background: #f2e7c9; color: #6b4e00; }
 .v-teste { display: inline-block; padding: 1px 6px; border-radius: 6px; font-size: .68rem; font-weight: 700; background: #ebe7e2; color: #57534e; }
 .v-barra { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; justify-content: space-between; }
+
+/* Vendas: meta (hero), quadros grandes e menores coloridos */
+.v-grandes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.kpi--gigante { grid-column: 1 / -1; padding: 20px 22px; }
+.kpi--gigante .kpi__num { font-size: clamp(2.4rem, 7vw, 3.4rem); margin-top: 6px; letter-spacing: -.01em; }
+.kpi--gigante .kpi__sub { font-size: .82rem; }
+.kpi--verde { background: #e9f7ef; border-color: #b9e4c9; }
+.kpi--verde .kpi__num { color: #136c39; }
+.kpi--vermelho-num .kpi__num { color: #b42318; }
+.v-menores { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.v-mini { border-radius: 12px; padding: 10px 14px; border: 1px solid; }
+.v-mini .rotulo { margin: 0; }
+.v-mini__num { margin: 2px 0 0; font-size: 1.35rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.v-mini__num span { font-size: .95rem; font-weight: 700; }
+.v-mini .kpi__sub { margin-top: 2px; }
+.v-mini--vermelho { background: #fdecec; border-color: #f3b9b9; } .v-mini--vermelho .v-mini__num { color: #b42318; }
+.v-mini--amarelo { background: #fff8db; border-color: #f2dc8a; } .v-mini--amarelo .v-mini__num { color: #8a6500; }
+.v-mini--laranja { background: #fff0e3; border-color: #f6c79c; } .v-mini--laranja .v-mini__num { color: #c2410c; }
+.v-nota-valores { margin: -6px 2px 0; }
+@media (min-width: 720px) { .v-grandes { grid-template-columns: repeat(3, 1fr); } .v-menores { grid-template-columns: repeat(3, 1fr); } }

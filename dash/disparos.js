@@ -11,6 +11,7 @@ const dataCurta = (d) => d.slice(8, 10) + "/" + d.slice(5, 7);
 async function carregarDisparos(token) {
   try { DISP = await rpc("dash_disparos_black2026", { p_token: token }); } catch (e) { DISP = null; }
   renderDisparos();
+  if (typeof VENDAS !== "undefined" && VENDAS) renderVendas(); // custo da API entra no ROI/CAC da aba Vendas
 }
 
 function renderDisparos() {
