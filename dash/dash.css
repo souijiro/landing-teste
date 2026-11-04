@@ -545,3 +545,4 @@ td:first-child .delta { display: inline; margin-left: 4px; }
 .v-st--cancelada { background: #e5484d; color: #fff; }
 .v-st--pendente { background: #f2e7c9; color: #6b4e00; }
 .v-teste { display: inline-block; padding: 1px 6px; border-radius: 6px; font-size: .68rem; font-weight: 700; background: #ebe7e2; color: #57534e; }
+.v-barra { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; justify-content: space-between; }

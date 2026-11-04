@@ -21,6 +21,7 @@ const CONDICOES = [
   { id: "aluno", nome: "Aluno", sub: "cupom ALUNOS · R$ 897" },
   { id: "novo", nome: "Novo aluno", sub: "sem cupom · R$ 1.397" }
 ];
+const METODO = { CREDIT_CARD: "Cartão", PIX: "Pix", BILLET: "Boleto", PAYPAL: "PayPal", GOOGLE_PAY: "Google Pay", APPLE_PAY: "Apple Pay", HOTMART_CARD: "Hotmart Card", DEBIT_CARD: "Débito" };
 const condicao = (v) => { const c = String(v.cupom || "").toUpperCase(); return c.includes("BLACK") ? "black" : c.includes("ALUNO") ? "aluno" : "novo"; };
 const SRC_CABECA = { ci: "/black2026/img/cabeca-ci-flutuante.webp", fe: "/black2026/img/cabeca-felipe-flutuante.webp" };
 const cabecas = (lista) => `<span class="v-cabecas">${lista.map((k) => `<img src="${SRC_CABECA[k]}" alt="" class="v-cabeca v-cabeca--${k}">`).join("")}</span>`;
@@ -79,7 +80,7 @@ function renderVendas() {
       <td>${quando(v.em)}</td><td>${tagSt(v.status)}${v.teste ? ' <span class="v-teste">teste</span>' : ""}</td>
       <td>${cabecasDe(v.professor)}${esc(v.nome || "—")}<br><span class="t-nota">${esc(v.email || "")}</span></td>
       <td>${whats(v.telefone)}</td><td>${esc((CONDICOES.find((k) => k.id === condicao(v)) || {}).nome)}</td>
-      <td class="n">${brlV(v.valor)}</td><td>${esc(v.metodo || "—")}${v.parcelas > 1 ? " " + v.parcelas + "x" : ""}</td></tr>`).join("")
+      <td class="n">${brlV(v.valor)}</td><td>${esc(METODO[v.metodo] || v.metodo || "—")}${v.parcelas > 1 ? " " + v.parcelas + "x" : ""}</td></tr>`).join("")
     : '<tr><td colspan="7" class="t-nota">Nenhuma compra recebida ainda.</td></tr>';
   $("#t-vend-carr tbody").innerHTML = C.length ? C.map((c) => `<tr>
       <td>${quando(c.em)}</td><td>${cabecasDe(c.professor)}${esc(c.nome || "—")}${c.teste ? ' <span class="v-teste">teste</span>' : ""}<br><span class="t-nota">${esc(c.email || "")}</span></td>

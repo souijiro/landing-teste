@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/dash/dash.css?v=38">
+  <link rel="stylesheet" href="/dash/dash.css?v=39">
   <script>
     // Modo TV (/dash/tv ou ?tv=1): telas grandes que trocam pelas setas do controle; chave da TV vem em #t=
     window.MODO_TV = /^\/dash\/tv/.test(location.pathname) || /[?&]tv=1/.test(location.search);
@@ -304,7 +304,7 @@
 
     <!-- ===== Aba Vendas (webhook Hotmart) ===== -->
     <main class="aba-conteudo" id="aba-vendas" hidden>
-      <section class="cartao filtros"><label class="t-nota"><input type="checkbox" id="vend-testes"> Incluir testes da Hotmart <span id="vend-testes-n"></span></label> · <span class="t-nota" id="vend-ultimo"></span></section>
+      <section class="cartao filtros v-barra"><label class="t-nota"><input type="checkbox" id="vend-testes"> Incluir testes da Hotmart <span id="vend-testes-n"></span></label><span class="t-nota" id="vend-ultimo"></span></section>
       <section class="kpis kpis--vendas" id="vend-kpis"><p class="t-nota">Carregando…</p></section>
       <section class="cartao">
         <div class="cartao__topo"><h2>Por professor</h2><span class="t-nota">de quem a pessoa já era aluna</span></div>
@@ -439,7 +439,7 @@
   <script src="/dash/ab.js?v=19"></script>
   <script src="/dash/grupos.js?v=6"></script>
   <script src="/dash/disparos.js?v=6"></script>
-  <script src="/dash/vendas.js?v=1"></script>
+  <script src="/dash/vendas.js?v=2"></script>
   <script src="/dash/tv.js?v=2"></script>
 </body>
 </html>
