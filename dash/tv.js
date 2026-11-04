@@ -54,14 +54,14 @@
     #tv-vendas .kpi--gigante .kpi__num { font-size: 3.6rem; }
     #tv-vendas .v-menores { grid-template-columns: repeat(3, 1fr); margin-top: 12px; flex: none; }
     #tv-vendas .v-mini__num { font-size: 1.6rem; }
-    #tv-vendas-avisos { position: fixed; right: 28px; bottom: 44px; width: 460px; display: flex; flex-direction: column-reverse; pointer-events: none; }
-    .tv-venda { margin-top: 10px; padding: 14px 20px 14px 22px; border-radius: 16px; background: rgba(11,11,11,.78); border-left: 6px solid #ffd60a;
-      color: #fff; font-family: Montserrat, sans-serif; box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    #tv-vendas-avisos { position: fixed; right: 12px; bottom: 12px; width: 270px; display: flex; flex-direction: column-reverse; pointer-events: none; }
+    .tv-venda { margin-top: 6px; padding: 8px 12px 8px 12px; border-radius: 11px; background: rgba(11,11,11,.72); border-left: 4px solid #ffd60a;
+      color: #fff; font-family: Montserrat, sans-serif; box-shadow: 0 6px 18px rgba(0,0,0,.2);
       transform: translateY(140%); opacity: 0; transition: transform .6s cubic-bezier(.2,.9,.3,1.2), opacity .5s; }
     .tv-venda.on { transform: translateY(0); opacity: 1; }
-    .tv-venda .r { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #ffd60a; }
-    .tv-venda .v { margin: 3px 0 0; font-size: 30px; font-weight: 800; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .tv-venda .s { margin: 3px 0 0; font-size: 15px; font-weight: 600; color: #d6d3d1; }
+    .tv-venda .r { margin: 0; font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #ffd60a; }
+    .tv-venda .v { margin: 1px 0 0; font-size: 17px; font-weight: 800; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tv-venda .s { margin: 1px 0 0; font-size: 10px; font-weight: 600; color: #d6d3d1; }
     #tv-quem { height: 100%; }
     #tv-quem > * { display: flex; flex-direction: column; overflow: hidden; }
     #tv #tv-quem .alunos { margin-top: 0; flex: 1.35; }
