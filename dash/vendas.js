@@ -145,6 +145,7 @@ function renderVendas() {
   const pctRoi = (x) => x == null ? "—" : (x * 100).toLocaleString("pt-BR", { maximumFractionDigits: 0 }) + "%";
   alvo.innerHTML = [
     ["kpi--gigante kpi--destaque", "Valor das vendas (cheio)", brlV(ap.v), nParc ? `${fmt(nParc)} no parcelamento inteligente/boleto parcelado, contadas pelo valor total` : (ap.n ? "ticket médio " + brlV(ap.v / ap.n) : "valor total das compras aprovadas")],
+    [captados && ap.n / captados >= META_VENDAS ? "kpi--verde" : "", "Conversão dos leads", captados ? pct(ap.n, captados) : "—", `${fmt(ap.n)} compras de ${fmt(captados)} leads captados · meta ${fmt(META_VENDAS * 100)}%`],
     ["kpi--verde", "Valor aprovado (30 dias)", brlV(ap.v30), nParc ? "só as parcelas já pagas" : "sem parcelamento inteligente"],
     ["", "ROAS", vezes(roas), trafego ? `valor cheio ÷ tráfego (${brlV(trafego)})` : "sem gasto de tráfego"],
     [roi != null && roi < 0 ? "kpi--vermelho-num" : "", "ROI", pctRoi(roi), invest ? `(valor cheio − investimento) ÷ investimento` : "sem investimento"],
