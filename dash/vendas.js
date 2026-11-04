@@ -87,5 +87,58 @@ function renderVendas() {
       <td>${whats(c.telefone)}</td><td>${c.comprou ? '<span class="v-st v-st--aprovada">Comprou depois</span>' : '<span class="v-st v-st--pendente">Não comprou</span>'}</td></tr>`).join("")
     : '<tr><td colspan="4" class="t-nota">Nenhum carrinho abandonado recebido ainda.</td></tr>';
   $("#vend-ultimo").textContent = VENDAS.ultimo_evento ? "último aviso da Hotmart: " + quando(VENDAS.ultimo_evento) : "nenhum aviso da Hotmart ainda";
+  renderVendasTempo(V, C);
 }
-document.addEventListener("change", (e) => { if (e.target.id === "vend-testes") { e.target.dataset.mexido = "1"; renderVendas(); } });
+
+// ---- por dia e por hora (horário de Brasília) ----
+const gVend = {};
+const COR_PROF = { docis: "#eda100", felipe: "#4a3aa7", ambos: "#1baf7a", null: "#b9b2a9" };
+const horaNum = (iso) => +new Intl.DateTimeFormat("en-GB", { timeZone: TZ, hour: "2-digit", hourCycle: "h23" }).format(new Date(iso));
+function graficoVendas(id, labels, aprov, legendaX) {
+  const el = document.getElementById(id); if (!el) return;
+  if (gVend[id]) gVend[id].destroy();
+  const o = opcoesGrafico({ stacked: true, legenda: true });
+  o.plugins.tooltip.callbacks.label = (c) => {
+    const lista = aprov[c.dataIndex].filter((v) => (v.professor || null) === PROFS[c.datasetIndex].id);
+    return ` ${c.dataset.label}: ${fmt(c.parsed.y)} · ${brlV(lista.reduce((s, v) => s + (+v.valor || 0), 0))}`;
+  };
+  o.plugins.tooltip.callbacks.footer = (it) => { const l = aprov[it[0].dataIndex]; return `Total: ${fmt(l.length)} · ${brlV(l.reduce((s, v) => s + (+v.valor || 0), 0))}`; };
+  if (legendaX) o.plugins.tooltip.callbacks.title = (it) => legendaX(it[0].dataIndex);
+  gVend[id] = new Chart(el, {
+    type: "bar",
+    data: { labels, datasets: PROFS.map((p) => ({ label: p.nome, data: aprov.map((l) => l.filter((v) => (v.professor || null) === p.id).length), backgroundColor: COR_PROF[p.id], borderRadius: 3, maxBarThickness: 46 })) },
+    options: o
+  });
+}
+function renderVendasTempo(V, C) {
+  const aprovadas = V.filter((v) => grupoStatus(v.status) === "aprovada" && v.em);
+  const hoje = diaSP.format(new Date());
+  const diasCom = [...V, ...C].map((x) => x.em && diaSP.format(new Date(x.em))).filter(Boolean).sort();
+  const ini = diasCom[0] && diasCom[0] < hoje ? diasCom[0] : hoje;
+  const dias = []; for (let d = ini; d <= hoje; d = somaDias(d, 1)) dias.push(d);
+  const doDia = (lista, d) => lista.filter((x) => x.em && diaSP.format(new Date(x.em)) === d);
+
+  graficoVendas("g-vend-dia", dias.map(dataBR), dias.map((d) => doDia(aprovadas, d)));
+
+  // tabela por dia (mais recente primeiro)
+  const somaV = (l) => l.reduce((s, v) => s + (+v.valor || 0), 0);
+  $("#t-vend-dia tbody").innerHTML = dias.slice().reverse().map((d) => {
+    const a = doDia(aprovadas, d), c = doDia(V.filter((v) => grupoStatus(v.status) === "cancelada"), d), k = doDia(C, d);
+    return `<tr><td>${dataBR(d)}</td><td class="n"><b>${fmt(a.length)}</b></td><td class="n">${brlV(somaV(a))}</td><td class="n">${a.length ? brlV(somaV(a) / a.length) : "—"}</td><td class="n">${fmt(c.length)}</td><td class="n">${brlV(somaV(c))}</td><td class="n">${fmt(k.length)}</td></tr>`;
+  }).join("");
+
+  // por hora do dia escolhido
+  const sel = $("#vend-dia");
+  const escolhido = sel.value && dias.includes(sel.value) ? sel.value : hoje;
+  sel.innerHTML = dias.slice().reverse().map((d) => `<option value="${d}"${d === escolhido ? " selected" : ""}>${d === hoje ? "Hoje · " : ""}${dataBR(d)}</option>`).join("");
+  const doDiaEsc = doDia(aprovadas, escolhido);
+  const horas = [...Array(24).keys()];
+  const porHora = horas.map((h) => doDiaEsc.filter((v) => horaNum(v.em) === h));
+  graficoVendas("g-vend-hora", horas.map((h) => h + "h"), porHora, (i) => `${dataBR(escolhido)} · ${i}h às ${i}h59`);
+  const totDia = somaV(doDiaEsc);
+  $("#vend-hora-resumo").textContent = `${dataBR(escolhido)}: ${fmt(doDiaEsc.length)} aprovada${doDiaEsc.length === 1 ? "" : "s"} · ${brlV(totDia)}`;
+}
+document.addEventListener("change", (e) => {
+  if (e.target.id === "vend-testes") { e.target.dataset.mexido = "1"; renderVendas(); }
+  if (e.target.id === "vend-dia") renderVendas();
+});

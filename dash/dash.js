@@ -200,6 +200,7 @@ document.querySelectorAll(".aba").forEach((b) => b.addEventListener("click", () 
   document.querySelectorAll(".aba-conteudo").forEach((m) => { m.hidden = m.id !== "aba-" + b.dataset.aba; });
   if (b.dataset.aba === "trafego" && typeof gInv !== "undefined" && gInv) gInv.resize();
   if (b.dataset.aba === "disparos" && typeof gDisp !== "undefined") Object.values(gDisp).forEach((g) => g.resize());
+  if (b.dataset.aba === "vendas" && typeof gVend !== "undefined") Object.values(gVend).forEach((g) => g.resize());
   try { localStorage.setItem("dash_aba", b.dataset.aba); } catch (e) {}
 }));
 try { const a = localStorage.getItem("dash_aba"); if (a) document.querySelector(`.aba[data-aba="${a}"]`)?.click(); } catch (e) {}

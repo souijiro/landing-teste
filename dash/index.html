@@ -307,6 +307,18 @@
       <section class="cartao filtros v-barra"><label class="t-nota"><input type="checkbox" id="vend-testes"> Incluir testes da Hotmart <span id="vend-testes-n"></span></label><span class="t-nota" id="vend-ultimo"></span></section>
       <section class="kpis kpis--vendas" id="vend-kpis"><p class="t-nota">Carregando…</p></section>
       <section class="cartao">
+        <div class="cartao__topo"><h2>Vendas aprovadas por dia</h2><span class="t-nota">quantidade por professor · valor na dica</span></div>
+        <div class="grafico"><canvas id="g-vend-dia" aria-label="Vendas aprovadas por dia, por professor"></canvas></div>
+        <div class="tabela-wrap"><table class="tabela" id="t-vend-dia">
+          <thead><tr><th>Dia</th><th class="n">Aprovadas</th><th class="n">Valor aprovado</th><th class="n">Ticket médio</th><th class="n">Canceladas</th><th class="n">Valor cancelado</th><th class="n">Carrinhos</th></tr></thead><tbody></tbody>
+        </table></div>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Vendas aprovadas por hora</h2><label class="t-nota">Dia <select id="vend-dia" aria-label="Dia mostrado no gráfico por hora"></select></label></div>
+        <p class="t-nota" id="vend-hora-resumo"></p>
+        <div class="grafico"><canvas id="g-vend-hora" aria-label="Vendas aprovadas por hora do dia escolhido, por professor"></canvas></div>
+      </section>
+      <section class="cartao">
         <div class="cartao__topo"><h2>Por professor</h2><span class="t-nota">de quem a pessoa já era aluna</span></div>
         <div class="tabela-wrap"><table class="tabela" id="t-vend-prof">
           <thead><tr><th>Quem comprou</th><th class="n">Aprovadas</th><th class="n">Valor aprovado</th><th class="n">Canceladas</th><th class="n">Valor cancelado</th><th class="n">Carrinhos abandonados</th></tr></thead><tbody></tbody><tfoot></tfoot>
@@ -432,14 +444,14 @@
   <img class="previa-hover" id="previa-hover" alt="" hidden>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-  <script src="/dash/dash.js?v=31"></script>
+  <script src="/dash/dash.js?v=32"></script>
   <script src="/dash/alunos.js?v=3"></script>
   <script src="/dash/criativos.js?v=2"></script>
   <script src="/dash/trafego.js?v=38"></script>
   <script src="/dash/ab.js?v=19"></script>
   <script src="/dash/grupos.js?v=6"></script>
   <script src="/dash/disparos.js?v=6"></script>
-  <script src="/dash/vendas.js?v=2"></script>
+  <script src="/dash/vendas.js?v=3"></script>
   <script src="/dash/tv.js?v=2"></script>
 </body>
 </html>
