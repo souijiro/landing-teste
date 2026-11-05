@@ -181,8 +181,10 @@
 
     function voltarNormal() { $("aviso").hidden = true; $("ir-live").hidden = true; clearInterval(timer); $("titulo").innerHTML = 'Assista à <em>Black Vitalícia</em>'; }
 
-    // teste: ?aovivo=1 força o aviso fora do horário
-    const forcar = new URLSearchParams(location.search).get("aovivo") === "1";
+    // teste: ?r=y (ou ?aovivo=1) força o aviso e o redirect fora do horário, mesmo para quem já foi
+    const qs = new URLSearchParams(location.search);
+    const forcar = qs.get("r") === "y" || qs.get("aovivo") === "1";
+    if (forcar) { try { sessionStorage.removeItem("liveblack_foi"); } catch (e) {} }
     const agora = Date.now();
     if (forcar || (agora >= INICIO && agora < FIM)) mostrarAviso();
     else if (agora < INICIO) setTimeout(mostrarAviso, INICIO - agora); // página aberta antes: o aviso aparece sozinho às 18:55
