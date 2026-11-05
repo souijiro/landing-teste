@@ -3,6 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <script>
+    // Durante a live (18:55–21:00 de 5/11, Brasília) vai direto para o YouTube, antes de carregar a página.
+    // Quem volta do YouTube (mesma aba) fica na página com o botão. Teste: ?r=y
+    (function () {
+      var LIVE = "LjwqMAUSznI";
+      var INICIO = Date.parse("2026-11-05T18:55:00-03:00"), FIM = Date.parse("2026-11-05T21:00:00-03:00");
+      var forcar = /[?&](r=y|aovivo=1)(&|$)/.test(location.search), agora = Date.now();
+      if (!forcar && !(agora >= INICIO && agora < FIM)) return;
+      try { if (!forcar && sessionStorage.getItem("liveblack_foi")) return; sessionStorage.setItem("liveblack_foi", "1"); } catch (e) {}
+      window.LIVE_REDIRECIONOU = true;
+      // pixel do Felipe direto (o fbq não tem tempo de carregar)
+      if (location.hostname === "black.confeitaria5estrelas.com") {
+        try { fetch("https://www.facebook.com/tr?id=3168622129919221&ev=FoiParaLiveBlack2026&noscript=1&dl=" + encodeURIComponent(location.href), { mode: "no-cors", keepalive: true }); } catch (e) {}
+      }
+      document.documentElement.style.background = "#000";
+      var url = "https://www.youtube.com/watch?v=" + LIVE, ua = navigator.userAgent;
+      if (/Android/i.test(ua)) {
+        location.replace("intent://www.youtube.com/watch?v=" + LIVE + "#Intent;scheme=https;package=com.google.android.youtube;S.browser_fallback_url=" + encodeURIComponent(url) + ";end");
+      } else if (/iPhone|iPad|iPod/i.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)) {
+        location.href = "youtube://www.youtube.com/watch?v=" + LIVE;
+        setTimeout(function () { if (!document.hidden) location.replace(url); }, 1500); // sem app: abre no Safari
+      } else {
+        location.replace(url);
+      }
+    })();
+  </script>
   <title>Black Vitalícia 2026 — Ao vivo</title>
   <meta name="robots" content="noindex">
   <meta name="theme-color" content="#000000">
@@ -181,10 +207,9 @@
 
     function voltarNormal() { $("aviso").hidden = true; $("ir-live").hidden = true; clearInterval(timer); $("titulo").innerHTML = 'Assista à <em>Black Vitalícia</em>'; }
 
-    // teste: ?r=y (ou ?aovivo=1) força o aviso e o redirect fora do horário, mesmo para quem já foi
+    // teste: ?r=y (ou ?aovivo=1) força o modo ao vivo fora do horário (o redirect fica no início do <head>)
     const qs = new URLSearchParams(location.search);
     const forcar = qs.get("r") === "y" || qs.get("aovivo") === "1";
-    if (forcar) { try { sessionStorage.removeItem("liveblack_foi"); } catch (e) {} }
     const agora = Date.now();
     if (forcar || (agora >= INICIO && agora < FIM)) mostrarAviso();
     else if (agora < INICIO) setTimeout(mostrarAviso, INICIO - agora); // página aberta antes: o aviso aparece sozinho às 18:55
