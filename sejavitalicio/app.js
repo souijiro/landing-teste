@@ -64,9 +64,10 @@ function abrir(origem) {
 // "Sou aluno" abre os campos de consulta; "Não sou aluno" vai direto ao checkout.
 function mostrarConsulta(sim) {
   $("#consulta").hidden = !sim;
+  $("#escolha").hidden = sim; // depois de "Sou aluno" some a escolha; quem não é aluno usa o link abaixo do campo
   $("#sou-aluno").setAttribute("aria-expanded", String(sim));
 }
-$("#sou-aluno").addEventListener("click", () => { mostrarConsulta(true); evento("sou_aluno"); setTipo(tipo); });
+$("#sou-aluno").addEventListener("click", () => { mostrarConsulta(true); evento("sou_aluno"); setTipo(tipo); setTimeout(() => $("#valor").focus(), 30); });
 function fechar() {
   modal.classList.remove("aberto");
   document.body.classList.remove("modal-aberto");
@@ -231,6 +232,7 @@ async function irNaoAluno() {
   if (aba) { aba.opener = null; aba.location.href = url; } else location.href = url;
 }
 $("#nao-aluno").addEventListener("click", irNaoAluno);
+$("#nao-aluno-2").addEventListener("click", irNaoAluno);
 
 function setTipoEVoltar() { mostrar("#etapa-form"); setTipo(tipo === "cpf" ? "email" : "cpf"); }
 

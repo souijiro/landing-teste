@@ -206,6 +206,7 @@ body.modal-aberto .cta-fixo { transform: translateY(110%); }
 .etapa[hidden] { display: none; }
 .abas { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 5px; background: var(--card); border-radius: 14px; margin-bottom: 14px; }
 .aba { min-height: 46px; padding: 4px 6px; border: 0; border-radius: 10px; background: transparent; color: var(--texto-2); font-weight: 700; font-size: .86rem; line-height: 1.15; cursor: pointer; }
+.escolha[hidden] { display: none; }
 .escolha { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
 .escolha__btn { min-height: 54px; padding: 8px 10px; border: 1px solid #3a3a3a; border-radius: 14px; background: var(--card); color: #fff; font-weight: 800; font-size: 1rem; cursor: pointer; }
 .escolha__btn:hover { border-color: var(--ouro); }
@@ -239,6 +240,7 @@ body.modal-aberto .cta-fixo { transform: translateY(110%); }
 .res__valor { display: block; font-size: clamp(2.3rem, 12vw, 3rem); font-weight: 800; color: var(--ouro); line-height: 1.1; letter-spacing: -.02em; }
 .res__aviso { margin: 10px 0 0; color: var(--texto-3); font-size: .8rem; }
 .res__outro { margin-top: 6px; }
+.link--nao-aluno { display: block; margin: 2px auto 6px; color: #fff; font-weight: 600; }
 .erro-caixa { padding: 8px 0 4px; }
 .erro-caixa .icone { font-size: 2rem; }
 .erro-caixa p { color: var(--texto-2); font-size: .93rem; }
@@ -381,7 +383,7 @@ body.modal-aberto .cta-fixo { transform: translateY(110%); }
         <h2 id="modal-titulo">Vamos descobrir se você tem um <span class="ouro">desconto especial?</span></h2>
         <p class="modal__sub">Se você já comprou algum curso da Docis ou do Felipe Russo, pode ter uma condição exclusiva nesta Black.</p>
         <form id="form-consulta" novalidate>
-          <div class="escolha">
+          <div class="escolha" id="escolha">
             <button type="button" class="escolha__btn" id="sou-aluno" aria-expanded="false" aria-controls="consulta">Sou aluno</button>
             <button type="button" class="escolha__btn" id="nao-aluno">Não sou aluno</button>
           </div>
@@ -394,6 +396,7 @@ body.modal-aberto .cta-fixo { transform: translateY(110%); }
             <label for="valor" id="valor-rotulo">Seu CPF</label>
             <input id="valor" name="valor" type="text" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00" maxlength="14" aria-describedby="valor-erro">
             <p class="campo__erro" id="valor-erro" role="alert"></p>
+            <button type="button" class="link link--nao-aluno" id="nao-aluno-2">Não é aluno? Toque aqui</button>
           </div>
           <button type="submit" class="btn">Consultar meu benefício</button>
           <p class="modal__privacidade">Usamos seu CPF ou e-mail só para encontrar sua compra. Nenhum dado é exibido nesta tela.</p>
@@ -410,6 +413,6 @@ body.modal-aberto .cta-fixo { transform: translateY(110%); }
     </div>
   </div>
 
-  <script src="/sejavitalicio/app.js?v=6" defer></script>
+  <script src="/sejavitalicio/app.js?v=7" defer></script>
 </body>
 </html>
