@@ -566,3 +566,14 @@ td:first-child .delta { display: inline; margin-left: 4px; }
 .v-mini--laranja { background: #fff0e3; border-color: #f6c79c; } .v-mini--laranja .v-mini__num { color: #c2410c; }
 .v-nota-valores { margin: -6px 2px 0; }
 @media (min-width: 720px) { .v-grandes { grid-template-columns: repeat(3, 1fr); } .v-menores { grid-template-columns: repeat(3, 1fr); } }
+
+/* aba Comparativo 2025 × 2026 */
+.cmp-kpis { grid-template-columns: repeat(2, 1fr); margin-bottom: 14px; }
+@media (min-width: 900px) { .cmp-kpis { grid-template-columns: repeat(4, 1fr); } }
+.cmp-controles { display: flex; flex-wrap: wrap; gap: 8px; }
+.cmp-opc { display: inline-flex; border: 1px solid var(--linha); border-radius: 999px; padding: 2px; background: #faf8f5; }
+.cmp-opc button { border: 0; background: transparent; padding: 5px 11px; border-radius: 999px; font: 700 .75rem Montserrat, sans-serif; color: var(--texto-2); cursor: pointer; }
+.cmp-opc button.ativo { background: #111; color: #fff; }
+.cmp-grafico { height: 320px; }
+.cmp-conv { font-size: 1rem; font-weight: 700; color: #1e853a; }
+#cmp-seg-kpis { margin-bottom: 12px; }

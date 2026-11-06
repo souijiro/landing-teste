@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/dash/dash.css?v=41">
+  <link rel="stylesheet" href="/dash/dash.css?v=42">
   <script>
     // Modo TV (/dash/tv ou ?tv=1): telas grandes que trocam pelas setas do controle; chave da TV vem em #t=
     window.MODO_TV = /^\/dash\/tv/.test(location.pathname) || /[?&]tv=1/.test(location.search);
@@ -52,6 +52,7 @@
       <nav class="abas" role="tablist">
         <button role="tab" class="aba ativa" data-aba="painel" aria-selected="true">Dashboard</button>
         <button role="tab" class="aba" data-aba="vendas" aria-selected="false">Vendas</button>
+        <button role="tab" class="aba" data-aba="comparativo" aria-selected="false">2025 × 2026</button>
         <button role="tab" class="aba" data-aba="trafego" aria-selected="false">Tráfego</button>
         <button role="tab" class="aba" data-aba="alunos" aria-selected="false">Alunos</button>
         <button role="tab" class="aba" data-aba="grupos" aria-selected="false">Grupos</button>
@@ -363,6 +364,39 @@
       </section>
     </main>
 
+    <!-- ===== Aba Comparativo (Black 2025 × 2026 e conversão por segmento de aluno) ===== -->
+    <main class="aba-conteudo" id="aba-comparativo" hidden>
+      <section class="kpis cmp-kpis" id="cmp-kpis"><p class="t-nota">Carregando…</p></section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Black 2025 × Black 2026</h2>
+          <div class="cmp-controles">
+            <div class="cmp-opc" data-opc="escala" role="group" aria-label="Escala"><button type="button" data-v="hora" class="ativo">Hora a hora</button><button type="button" data-v="dia">Dia a dia</button></div>
+            <div class="cmp-opc" data-opc="medida" role="group" aria-label="Medida"><button type="button" data-v="vendas" class="ativo">Vendas</button><button type="button" data-v="valor">Faturamento</button></div>
+            <div class="cmp-opc" data-opc="acumulado" role="group" aria-label="Acumulado"><button type="button" data-v="1" class="ativo">Acumulado</button><button type="button" data-v="0">Por período</button></div>
+          </div>
+        </div>
+        <div class="grafico cmp-grafico"><canvas id="g-cmp" aria-label="Vendas ou faturamento da Black 2025 e da Black 2026, desde a abertura do carrinho"></canvas></div>
+        <p class="t-nota" id="cmp-nota"></p>
+        <p class="t-nota">2025 = Hotmart + boleto parcelado (planilha). A Hotmart 2025 não tem valor na planilha: cada venda conta R$ 993,55, a média real do boleto parcelado de 2025 (81% alunos a R$ 897, 19% novos a R$ 1.397). 2026 = valor cheio das compras aprovadas.</p>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Quem comprou em 2026, por tipo de aluno</h2><span class="t-nota">por e-mail ou telefone, na base de alunos</span></div>
+        <div class="kpis" id="cmp-seg-kpis"></div>
+        <div class="tabela-wrap"><table class="tabela" id="t-cmp-seg">
+          <thead><tr><th>Grupo</th><th class="n">Leads captados</th><th class="n">Compraram</th><th class="n">Conversão dos leads</th><th class="n">Na base de alunos</th><th class="n">Conversão da base</th><th class="n">Valor cheio</th></tr></thead><tbody></tbody><tfoot></tfoot>
+        </table></div>
+        <p class="t-nota">Conversão dos leads = compraram ÷ leads captados do grupo. Conversão da base = compraram ÷ todos os alunos do grupo na base (inclusive quem não se cadastrou). Quem comprou a Black anterior conta só como "Black", mesmo que também tenha low ticket.</p>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Alunos do low ticket que compraram</h2><span class="t-nota">mais recentes primeiro</span></div>
+        <div class="tabela-wrap"><table class="tabela" id="t-cmp-lt"><thead><tr><th>Quando</th><th>Comprador</th><th>Condição</th><th class="n">Valor cheio</th></tr></thead><tbody></tbody></table></div>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Alunos da Black anterior que compraram</h2><span class="t-nota">mais recentes primeiro</span></div>
+        <div class="tabela-wrap"><table class="tabela" id="t-cmp-black"><thead><tr><th>Quando</th><th>Comprador</th><th>Condição</th><th class="n">Valor cheio</th></tr></thead><tbody></tbody></table></div>
+      </section>
+    </main>
+
     <!-- ===== Aba Disparos (WhatsApp API oficial × leads full_funnel) ===== -->
     <main class="aba-conteudo" id="aba-disparos" hidden>
       <section class="kpis kpis--trafego" id="disp-kpis"><p class="t-nota">Carregando…</p></section>
@@ -462,14 +496,15 @@
   <img class="previa-hover" id="previa-hover" alt="" hidden>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-  <script src="/dash/dash.js?v=32"></script>
+  <script src="/dash/dash.js?v=33"></script>
   <script src="/dash/alunos.js?v=4"></script>
   <script src="/dash/criativos.js?v=2"></script>
   <script src="/dash/trafego.js?v=38"></script>
   <script src="/dash/ab.js?v=19"></script>
   <script src="/dash/grupos.js?v=6"></script>
   <script src="/dash/disparos.js?v=7"></script>
-  <script src="/dash/vendas.js?v=6"></script>
+  <script src="/dash/vendas.js?v=7"></script>
+  <script src="/dash/comparativo.js?v=1"></script>
   <script src="/dash/tv.js?v=7"></script>
 </body>
 </html>

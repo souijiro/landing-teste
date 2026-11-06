@@ -123,6 +123,7 @@ async function carregar() {
     if (typeof carregarGrupos === "function") carregarGrupos(token);
     if (typeof carregarDisparos === "function") carregarDisparos(token);
     if (typeof carregarVendas === "function") carregarVendas(token);
+    if (typeof carregarComparativo === "function") carregarComparativo(token);
     renderPainel();
     montarFiltros();
     renderLeads();
@@ -201,6 +202,7 @@ document.querySelectorAll(".aba").forEach((b) => b.addEventListener("click", () 
   if (b.dataset.aba === "trafego" && typeof gInv !== "undefined" && gInv) gInv.resize();
   if (b.dataset.aba === "disparos" && typeof gDisp !== "undefined") Object.values(gDisp).forEach((g) => g.resize());
   if (b.dataset.aba === "vendas" && typeof gVend !== "undefined") Object.values(gVend).forEach((g) => g.resize());
+  if (b.dataset.aba === "comparativo" && typeof gCmp !== "undefined" && gCmp) gCmp.resize();
   try { localStorage.setItem("dash_aba", b.dataset.aba); } catch (e) {}
 }));
 try { const a = localStorage.getItem("dash_aba"); if (a) document.querySelector(`.aba[data-aba="${a}"]`)?.click(); } catch (e) {}

@@ -191,6 +191,7 @@ function renderVendas() {
     : '<tr><td colspan="4" class="t-nota">Nenhum carrinho abandonado recebido ainda.</td></tr>';
   $("#vend-ultimo").textContent = VENDAS.ultimo_evento ? "último aviso da Hotmart: " + quando(VENDAS.ultimo_evento) : "nenhum aviso da Hotmart ainda";
   renderVendasTempo(V, C);
+  if (typeof renderComparativo === "function") renderComparativo(); // a aba Comparativo usa as mesmas vendas
 }
 
 // ---- por dia e por hora (horário de Brasília) ----
