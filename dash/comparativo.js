@@ -5,7 +5,7 @@
 let CMP; // undefined = carregando, null = falhou
 const ABERTURA = { 2025: new Date("2025-10-27T20:00:00-03:00"), 2026: new Date("2026-11-05T20:00:00-03:00") };
 // A planilha da Hotmart 2025 não tem valor: usa a mistura real do boleto parcelado de 2025
-// (163 alunos a R$ 897 + 39 novos a R$ 1.397 = R$ 993,55 por venda). Troque aqui se tiver o valor certo.
+// (163 alunos a R$ 897 + 39 novos a R$ 1.397 = R$ 993,53 por venda). Troque aqui se tiver o valor certo.
 const VALOR_HOTMART_2025 = (163 * 897 + 39 * 1397) / 202;
 const SEGMENTOS = [
   { id: "black", nome: "Alunos da Black anterior", sub: "compraram a Black 2025" },
