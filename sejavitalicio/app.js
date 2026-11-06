@@ -4,6 +4,9 @@
 const SUPABASE_URL = "https://eoqyoeohbcpdjxghfwua.supabase.co";
 const SUPABASE_KEY = "sb_publishable_cv-1jB60ZGb1hJHYQi0qPA_LwF9DS98";
 const PRECO_CHEIO = 1397;
+const PRECO_ANCORA = 5999; // soma de tudo que a oferta entrega
+// valor da parcela em 12x no checkout da Hotmart (com juros), por preço à vista
+const PARCELA_12X = { 1397: "139,51", 897: "89,51", 297: "29,66" };
 
 const OFERTAS = {
   black_anterior: {
@@ -194,8 +197,8 @@ function telaOferta(res, email) {
     <h2 class="res__titulo">${o.titulo}</h2>
     <p class="res__msg">${o.msg}</p>
     <div class="res__preco">
-      ${temDesconto ? `<span class="res__de">De <s>${brl(PRECO_CHEIO)}</s></span><span class="res__por">por apenas</span>` : ""}
-      <span class="res__valor">${brl(res.preco)}</span>
+      <span class="res__de">De <s>${brl(PRECO_ANCORA)}</s>${temDesconto ? ` · preço oficial <s>${brl(PRECO_CHEIO)}</s>` : ""}</span><span class="res__por">por apenas</span>
+      ${PARCELA_12X[res.preco] ? `<span class="res__parcela">12x R$ ${PARCELA_12X[res.preco]}</span><span class="res__vista">ou ${brl(res.preco)} à vista</span>` : `<span class="res__valor">${brl(res.preco)}</span>`}
     </div>
     <button type="button" class="btn" id="ir-checkout" ${res.checkout ? "" : "disabled"}>${o.botao}</button>
     ${res.checkout ? "" : `<p class="res__aviso">O checkout desta oferta abre em instantes. Volte daqui a pouco para garantir sua condição.</p>`}

@@ -238,6 +238,27 @@ body.modal-aberto .cta-fixo { transform: translateY(110%); }
 .res__de s { color: var(--texto-2); }
 .res__por { display: block; font-size: .8rem; color: var(--texto-2); margin-top: 2px; }
 .res__valor { display: block; font-size: clamp(2.3rem, 12vw, 3rem); font-weight: 800; color: var(--ouro); line-height: 1.1; letter-spacing: -.02em; }
+/* ---------- O que você recebe + ancoragem de preço ---------- */
+.recebe { list-style: none; margin: 18px auto 0; padding: 0; max-width: 560px; }
+.recebe li { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 11px 2px; border-bottom: 1px solid rgba(255,255,255,.1); font-size: 1rem; }
+.recebe li span { font-weight: 600; }
+.recebe li small { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px; background: rgba(212,175,55,.15); color: var(--ouro); font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; vertical-align: 2px; }
+.recebe li b { color: var(--texto-2); font-weight: 700; white-space: nowrap; }
+.recebe .recebe__total { border-bottom: 0; margin-top: 4px; font-size: 1.2rem; }
+.recebe .recebe__total span { font-weight: 800; text-transform: uppercase; }
+.recebe .recebe__total b { color: #fff; font-weight: 800; text-decoration: underline 3px #e5484d; text-underline-offset: 6px; }
+.ancora { margin: 34px auto 0; max-width: 560px; text-align: center; }
+.ancora__de { margin: 0 0 18px; font-size: 1.5rem; font-weight: 800; color: var(--texto-2); }
+.ancora__de s { color: #fff; text-decoration-color: #e5484d; text-decoration-thickness: 3px; }
+.ancora__bloco { margin: 0 0 22px; }
+.ancora__quem { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0; color: var(--ouro); font-weight: 800; font-size: 1.35rem; text-transform: uppercase; letter-spacing: .02em; }
+.ancora__quem img { height: 46px; width: auto; filter: drop-shadow(0 3px 8px rgba(0,0,0,.5)); }
+.ancora__quem img.cabeca-felipe { height: 40px; }
+.ancora__parcela { margin: 2px 0 0; font-size: clamp(2.4rem, 12vw, 3.6rem); font-weight: 800; line-height: 1.05; letter-spacing: -.02em; }
+.ancora__vista { margin: 4px 0 0; color: var(--ouro); font-weight: 700; text-transform: uppercase; font-size: 1rem; }
+.ancora__bloco--aluno .ancora__parcela { color: var(--ouro-claro); }
+.res__parcela { display: block; font-size: clamp(2.1rem, 11vw, 2.7rem); font-weight: 800; color: var(--ouro); line-height: 1.1; letter-spacing: -.02em; }
+.res__vista { display: block; margin-top: 4px; color: var(--texto-2); font-size: .95rem; font-weight: 600; }
 .res__aviso { margin: 10px 0 0; color: var(--texto-3); font-size: .8rem; }
 .res__outro { margin-top: 6px; }
 .link--nao-aluno { display: block; margin: 2px auto 6px; color: #fff; font-weight: 600; }
@@ -284,7 +305,7 @@ body.modal-aberto .cta-fixo { transform: translateY(110%); }
         <h1>Todos os cursos da Docis + Felipe Russo com <span class="ouro">acesso vitalício!</span></h1>
         <div class="hero__cta">
           <button type="button" class="btn" data-abrir="hero" id="cta-hero">Quero meu acesso vitalício</button>
-          <p class="hero__preco">Preço oficial: <strong>R$ 1.397</strong></p>
+          <p class="hero__preco">De <s>R$ 5.999</s> por <strong>12x R$ 139,51</strong> ou <strong>R$ 1.397</strong> à vista</p>
           <p class="hero__nota">Você pode ter um <strong>desconto especial</strong> se já é nosso aluno.</p>
         </div>
       </div>
@@ -365,6 +386,41 @@ body.modal-aberto .cta-fixo { transform: translateY(110%); }
         <div class="secao__cta"><button type="button" class="btn" data-abrir="precos">Quero descobrir meu desconto</button></div>
       </div>
     </section>
+
+    <section class="secao" id="oferta">
+      <div class="wrap">
+        <h2>O que você <span class="ouro">recebe</span></h2>
+        <ul class="recebe revelar">
+          <li><span>Brigadeiro de A a Z</span><b>R$ 697</b></li>
+          <li><span>Naked Cakes</span><b>R$ 497</b></li>
+          <li><span>Tortas Especiais</span><b>R$ 297</b></li>
+          <li><span>Cookies Perfeitos</span><b>R$ 197</b></li>
+          <li><span>Meus Primeiros R$ 500 por Semana (P5S)</span><b>R$ 297</b></li>
+          <li><span>Confeitaria 5 Estrelas (iFood)</span><b>R$ 697</b></li>
+          <li><span>99 Lucrativo (99Food)</span><b>R$ 497</b></li>
+          <li><span>Bolo Gelado</span><b>R$ 27</b></li>
+          <li><span>Browninho</span><b>R$ 47</b></li>
+          <li><span>Ninho com Morango</span><b>R$ 47</b></li>
+          <li><span>10 kg de Chocolate Canagá <small>sorteio</small></span><b>R$ 1.000</b></li>
+          <li><span>1 panela mexedora <small>sorteio</small></span><b>R$ 1.699</b></li>
+          <li class="recebe__total"><span>Total</span><b>R$ 5.999</b></li>
+        </ul>
+        <div class="ancora revelar">
+          <p class="ancora__de">De <s>R$ 5.999</s></p>
+          <div class="ancora__bloco">
+            <p class="ancora__quem">Não alunos</p>
+            <p class="ancora__parcela">12x R$ 139,51</p>
+            <p class="ancora__vista">ou R$ 1.397 à vista</p>
+          </div>
+          <div class="ancora__bloco ancora__bloco--aluno">
+            <p class="ancora__quem">Alunos <img src="/black2026/img/cabeca-felipe-flutuante.webp" alt="" width="122" height="165" class="cabeca-felipe"><img src="/black2026/img/cabeca-ci-flutuante.webp" alt="" width="150" height="192"></p>
+            <p class="ancora__parcela">12x R$ 89,51</p>
+            <p class="ancora__vista">ou R$ 897 à vista</p>
+          </div>
+        </div>
+        <div class="secao__cta"><button type="button" class="btn" data-abrir="oferta">Quero meu acesso vitalício</button></div>
+      </div>
+    </section>
   </main>
 
   <footer class="rodape">Copyright © 2026 · Docis + Felipe Russo · Todos os direitos reservados</footer>
@@ -413,6 +469,6 @@ body.modal-aberto .cta-fixo { transform: translateY(110%); }
     </div>
   </div>
 
-  <script src="/sejavitalicio/app.js?v=7" defer></script>
+  <script src="/sejavitalicio/app.js?v=8" defer></script>
 </body>
 </html>
