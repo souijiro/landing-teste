@@ -266,6 +266,13 @@
     .pop input { width: 100%; font: 500 1.05rem 'Inter', sans-serif; padding: 14px 16px; border: 2px solid #e2dbee; border-radius: 14px; outline: none; }
     .pop input:focus { border-color: var(--purple); }
     .pop input.erro { border-color: #d33; }
+    .tel-linha { display: flex; gap: 8px; }
+    .tel-linha input { flex: 1; min-width: 0; }
+    .pais { position: relative; flex: none; width: 104px; }
+    .pais select { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; font-size: 16px; }
+    .pais .vis { height: 100%; display: flex; align-items: center; justify-content: center; gap: 4px; border: 2px solid #e2dbee; border-radius: 14px; font: 600 1rem 'Inter', sans-serif; padding: 0 8px; background: #faf8fe; white-space: nowrap; }
+    .pais .vis::after { content: '▾'; color: #8a8191; font-size: .8rem; }
+    .pais select:focus + .vis { border-color: var(--purple); }
     .pop .msg { color: #d33; font-size: .82rem; margin-top: 6px; min-height: 1em; }
     .pop .btn { margin-top: 16px; }
     .pop .seg { text-align: center; font-size: .75rem; color: #8a8191; margin-top: 12px; }
@@ -547,8 +554,14 @@
       <label for="f-nome">Seu nome completo</label>
       <input id="f-nome" name="nome" autocomplete="name" placeholder="Ex.: Maria Silva" required>
       <div class="msg" id="m-nome"></div>
-      <label for="f-tel">Seu WhatsApp com DDD</label>
-      <input id="f-tel" name="tel" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="(11) 91234-5678" required>
+      <label for="f-tel">Seu WhatsApp</label>
+      <div class="tel-linha">
+        <div class="pais">
+          <select id="f-pais" aria-label="País do WhatsApp"></select>
+          <span class="vis" id="f-pais-vis" aria-hidden="true">🇧🇷 +55</span>
+        </div>
+        <input id="f-tel" name="tel" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="(11) 91234-5678" required>
+      </div>
       <div class="msg" id="m-tel"></div>
       <button type="submit" class="btn btn-block" id="f-ir">Ir para o pagamento →</button>
       <p class="seg">🔒 Pagamento 100% seguro pela Hotmart</p>
@@ -607,7 +620,36 @@
       function guardado(k) { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } }
       function guarda(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 
+      /* País do WhatsApp: [código, nome, DDI, exemplo] */
+      var PAISES = [
+        ["BR","Brasil","55","(11) 91234-5678"],["PT","Portugal","351","912 345 678"],["US","Estados Unidos","1","(555) 123-4567"],
+        ["JP","Japão","81","90 1234 5678"],["IT","Itália","39","312 345 6789"],["ES","Espanha","34","612 34 56 78"],
+        ["GB","Reino Unido","44","7400 123456"],["IE","Irlanda","353","85 123 4567"],["DE","Alemanha","49","1512 3456789"],
+        ["FR","França","33","6 12 34 56 78"],["CH","Suíça","41","78 123 45 67"],["BE","Bélgica","32","470 12 34 56"],
+        ["NL","Holanda","31","6 12345678"],["LU","Luxemburgo","352","628 123 456"],["CA","Canadá","1","(555) 123-4567"],
+        ["AR","Argentina","54","9 11 2345-6789"],["PY","Paraguai","595","961 456789"],["UY","Uruguai","598","94 231 234"],
+        ["CL","Chile","56","9 6123 4567"],["BO","Bolívia","591","71234567"],["PE","Peru","51","912 345 678"],
+        ["CO","Colômbia","57","321 1234567"],["MX","México","52","55 1234 5678"],["AO","Angola","244","923 123 456"],
+        ["MZ","Moçambique","258","82 123 4567"],["CV","Cabo Verde","238","991 12 34"],["AU","Austrália","61","412 345 678"],
+        ["AE","Emirados Árabes","971","50 123 4567"],["IL","Israel","972","50 234 5678"]
+      ];
+      function bandeira(cc) { return cc.replace(/./g, function (c) { return String.fromCodePoint(127397 + c.charCodeAt(0)); }); }
+      var sel = document.getElementById("f-pais"), vis = document.getElementById("f-pais-vis");
+      sel.innerHTML = PAISES.map(function (p) {
+        return '<option value="' + p[0] + '">' + bandeira(p[0]) + " " + p[1] + " (+" + p[2] + ")</option>";
+      }).join("");
+      function paisAtual() { return PAISES.filter(function (p) { return p[0] === sel.value; })[0] || PAISES[0]; }
+      function ehBR() { return sel.value === "BR"; }
+      function atualizaPais() {
+        var p = paisAtual();
+        vis.textContent = bandeira(p[0]) + " +" + p[2];
+        tel.placeholder = p[3];
+        tel.value = mascara(tel.value);
+      }
+      sel.addEventListener("change", function () { atualizaPais(); tel.focus(); });
+
       function mascara(v) {
+        if (!ehBR()) return v.replace(/[^\d ]/g, "").replace(/\s+/g, " ").slice(0, 18);
         var d = v.replace(/\D/g, "").replace(/^55(?=\d{10,11}$)/, "").slice(0, 11);
         if (d.length <= 2) return d.length ? "(" + d : "";
         if (d.length <= 6) return "(" + d.slice(0, 2) + ") " + d.slice(2);
@@ -619,6 +661,7 @@
       function abrir(e) {
         local = (e && e.currentTarget && e.currentTarget.dataset.local) || "";
         nome.value = nome.value || guardado("baw_nome");
+        if (!tel.value && guardado("baw_pais")) { sel.value = guardado("baw_pais"); if (!sel.value) sel.value = "BR"; atualizaPais(); }
         tel.value = tel.value || mascara(guardado("baw_tel"));
         pop.classList.add("on");
         document.body.style.overflow = "hidden";
@@ -632,14 +675,14 @@
       pop.addEventListener("click", function (e) { if (e.target === pop) fechar(); });
       addEventListener("keydown", function (e) { if (e.key === "Escape") fechar(); });
 
-      function urlCheckout(n, ddd, numero) {
+      function urlCheckout(n, ddd, numero) { /* ddd vazio = número internacional completo (DDI+número) */
         var u = new URL(window.CHECKOUT_URL);
         /* repassa tudo que veio na URL da página (utm_*, src, sck, fbclid…) */
         new URLSearchParams(location.search).forEach(function (v, k) {
           if (["name", "phoneac", "phonenumber"].indexOf(k) === -1) u.searchParams.set(k, v);
         });
         u.searchParams.set("name", n);
-        u.searchParams.set("phoneac", ddd);
+        if (ddd) u.searchParams.set("phoneac", ddd);
         u.searchParams.set("phonenumber", numero);
         return u.toString();
       }
@@ -653,15 +696,18 @@
         document.getElementById("m-tel").textContent = "";
         nome.classList.remove("erro"); tel.classList.remove("erro");
         if (n.length < 3) { ok = false; nome.classList.add("erro"); document.getElementById("m-nome").textContent = "Digite seu nome."; }
-        if (!/^[1-9][1-9]\d{8,9}$/.test(d)) { ok = false; tel.classList.add("erro"); document.getElementById("m-tel").textContent = "Digite o WhatsApp com DDD."; }
+        if (!ehBR()) d = d.replace(/^0+/, "");
+        var telOk = ehBR() ? /^[1-9][1-9]\d{8,9}$/.test(d) : /^\d{6,14}$/.test(d);
+        if (!telOk) { ok = false; tel.classList.add("erro"); document.getElementById("m-tel").textContent = ehBR() ? "Digite o WhatsApp com DDD." : "Digite o número do WhatsApp."; }
         if (!ok) return;
 
-        guarda("baw_nome", n); guarda("baw_tel", d);
-        var destino = urlCheckout(n, d.slice(0, 2), d.slice(2));
+        guarda("baw_nome", n); guarda("baw_tel", d); guarda("baw_pais", sel.value);
+        /* Brasil: phoneac=DDD + phonenumber. Outros países: phonenumber=DDI+número (a Hotmart identifica o país) */
+        var destino = ehBR() ? urlCheckout(n, d.slice(0, 2), d.slice(2)) : urlCheckout(n, "", paisAtual()[2] + d);
         var foi = false;
         function ir() { if (!foi) { foi = true; location.href = destino; } }
         document.getElementById("f-ir").textContent = "Abrindo o pagamento…";
-        dataLayer.push({ event: "clique_checkout_baw", local: local, eventCallback: ir, eventTimeout: 800 });
+        dataLayer.push({ event: "clique_checkout_baw", local: local, pais: sel.value, eventCallback: ir, eventTimeout: 800 });
         setTimeout(ir, 900);
       });
     })();
