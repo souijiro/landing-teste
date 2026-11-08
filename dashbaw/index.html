@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0b0b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Webinário BAW">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Dash Webinário BAW</title>
+  <link rel="icon" href="/dash/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="/dash/icons/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/dash/dash.css?v=42">
+  <link rel="stylesheet" href="/dashbaw/baw.css?v=1">
+</head>
+<body>
+
+  <section class="login" id="login" hidden>
+    <form class="login__caixa" id="login-form">
+      <p class="login__titulo">Webinário<br><b>Brigadeiro de A a Z</b></p>
+      <label for="senha">Senha do dashboard</label>
+      <input type="password" id="senha" autocomplete="current-password" required autofocus>
+      <button type="submit" id="login-btn">Entrar</button>
+      <p class="login__erro" id="login-erro" hidden>Senha incorreta.</p>
+    </form>
+  </section>
+
+  <div class="app" id="app" hidden>
+    <header class="topo">
+      <div class="topo__marca">
+        <div class="topo__selo">BAW</div>
+        <div>
+          <strong>Webinário Brigadeiro de A a Z</strong>
+          <span id="atualizado">Carregando…</span>
+        </div>
+      </div>
+      <div class="topo__acoes">
+        <button class="btn-sec" id="recarregar" title="Atualizar agora">↻ Atualizar</button>
+        <button class="btn-sec" id="sair">Sair</button>
+      </div>
+      <nav class="abas abas--rolar" role="tablist">
+        <button role="tab" class="aba ativa" data-aba="painel">Painel</button>
+        <button role="tab" class="aba" data-aba="low">Low ticket</button>
+        <button role="tab" class="aba" data-aba="inscricoes">Inscrições</button>
+        <button role="tab" class="aba" data-aba="webinario">Webinário</button>
+        <button role="tab" class="aba" data-aba="principal">Brigadeiro de A a Z</button>
+        <button role="tab" class="aba" data-aba="upsell">Upsell DAZ</button>
+        <button role="tab" class="aba" data-aba="vendas">Vendas e recuperação</button>
+        <button role="tab" class="aba" data-aba="disparos">Disparos</button>
+        <button role="tab" class="aba" data-aba="financeiro">Financeiro</button>
+        <button role="tab" class="aba" data-aba="webhooks">Webhooks <span class="bolinha" id="bolinha-webhooks" hidden></span></button>
+        <button role="tab" class="aba" data-aba="cadastros">Cadastros <span class="bolinha" id="bolinha-cadastros" hidden></span></button>
+      </nav>
+      <div class="periodo" id="periodo">
+        <div class="periodo__modo" role="group" aria-label="Agrupar por">
+          <button type="button" data-modo="dia">Dia</button>
+          <button type="button" data-modo="semana" class="ativo">Semana</button>
+          <button type="button" data-modo="mes">Mês</button>
+        </div>
+        <select id="periodo-sel" aria-label="Período"></select>
+        <span class="periodo__nota" id="periodo-nota"></span>
+      </div>
+    </header>
+
+    <p class="aviso-topo" id="aviso-produtos" hidden></p>
+
+    <!-- Painel -->
+    <main class="aba-conteudo" id="aba-painel">
+      <section class="kpis kpis--baw" id="painel-kpis"></section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Funil do webinário</h2><span class="t-nota" id="funil-nota"></span></div>
+        <div class="funil-baw" id="painel-funil"></div>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Low tickets no período</h2></div>
+        <div class="lows" id="painel-lows"></div>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Webhooks</h2></div>
+        <div class="saude" id="painel-saude"></div>
+      </section>
+    </main>
+
+    <!-- Low ticket -->
+    <main class="aba-conteudo" id="aba-low" hidden>
+      <section class="kpis kpis--baw" id="low-kpis"></section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Quadro resumo</h2><span class="t-nota">uma linha por <span class="modo-nome">semana</span> · seta compara com a média das anteriores</span></div>
+        <div class="tabela-wrap"><table class="tabela tabela--quadro" id="low-quadro"></table></div>
+        <p class="tabela-legenda"><span>Faturamento = low + order bumps (aprovadas). Líquido = faturamento − tráfego − taxa Hotmart − imposto − imposto do tráfego. CAC = (tráfego + imposto do tráfego) ÷ vendas do low. ROAS = faturamento ÷ tráfego.</span></p>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Por low ticket</h2></div>
+        <div class="tabela-wrap"><table class="tabela" id="low-por-produto"></table></div>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Order bumps do low</h2></div>
+        <div class="tabela-wrap"><table class="tabela" id="low-ob"></table></div>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Vendas por hora (período)</h2></div>
+        <div class="horas" id="low-horas"></div>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Por código src</h2></div>
+        <div class="tabela-wrap"><table class="tabela" id="low-src"></table></div>
+      </section>
+    </main>
+
+    <!-- Inscrições -->
+    <main class="aba-conteudo" id="aba-inscricoes" hidden>
+      <section class="kpis kpis--baw" id="insc-kpis"></section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Inscritos por <span class="modo-nome">semana</span></h2></div>
+        <div class="tabela-wrap"><table class="tabela" id="insc-quadro"></table></div>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Últimas inscrições</h2></div>
+        <div class="tabela-wrap tabela-wrap--alta"><table class="tabela" id="insc-lista"></table></div>
+      </section>
+    </main>
+
+    <!-- Webinário -->
+    <main class="aba-conteudo" id="aba-webinario" hidden>
+      <section class="kpis kpis--baw" id="web-kpis"></section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Funil da live</h2><span class="t-nota" id="web-nota"></span></div>
+        <div class="funil-baw" id="web-funil"></div>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Webinário a webinário</h2></div>
+        <div class="tabela-wrap"><table class="tabela" id="web-quadro"></table></div>
+        <p class="tabela-legenda"><span>Inscritos = inscrições da semana anterior (segunda 19h → segunda 19h). Vendas = Brigadeiro de A a Z vendidos da live até a segunda seguinte 19h.</span></p>
+      </section>
+    </main>
+
+    <!-- Principal -->
+    <main class="aba-conteudo" id="aba-principal" hidden>
+      <section class="kpis kpis--baw" id="princ-kpis"></section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Por <span class="modo-nome">semana</span></h2></div>
+        <div class="tabela-wrap"><table class="tabela" id="princ-quadro"></table></div>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Compradores por low de origem</h2></div>
+        <div class="tabela-wrap"><table class="tabela" id="princ-origem"></table></div>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Order bumps da oferta</h2></div>
+        <div class="tabela-wrap"><table class="tabela" id="princ-ob"></table></div>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Vendas do período</h2></div>
+        <div class="tabela-wrap tabela-wrap--alta"><table class="tabela" id="princ-lista"></table></div>
+      </section>
+    </main>
+
+    <!-- Upsell -->
+    <main class="aba-conteudo" id="aba-upsell" hidden>
+      <section class="kpis kpis--baw" id="ups-kpis"></section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Por <span class="modo-nome">semana</span></h2></div>
+        <div class="tabela-wrap"><table class="tabela" id="ups-quadro"></table></div>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Vendas do período</h2></div>
+        <div class="tabela-wrap tabela-wrap--alta"><table class="tabela" id="ups-lista"></table></div>
+      </section>
+    </main>
+
+    <!-- Vendas e recuperação -->
+    <main class="aba-conteudo" id="aba-vendas" hidden>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Status por produto</h2></div>
+        <div class="tabela-wrap"><table class="tabela" id="vend-status"></table></div>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Para recuperar</h2><span class="t-nota">aguardando pagamento, canceladas e carrinhos de quem ainda não comprou</span></div>
+        <div class="filtros__linha"><select id="rec-filtro"><option value="todos">Tudo</option><option value="aguardando">Aguardando pagamento</option><option value="cancelada">Canceladas/expiradas</option><option value="carrinho">Carrinho abandonado</option><option value="reembolso">Reembolso/chargeback</option></select></div>
+        <div class="tabela-wrap tabela-wrap--alta"><table class="tabela" id="vend-recuperar"></table></div>
+      </section>
+    </main>
+
+    <!-- Disparos -->
+    <main class="aba-conteudo" id="aba-disparos" hidden>
+      <section class="kpis kpis--baw" id="disp-kpis"></section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Custo por template</h2></div>
+        <div id="disp-corpo"></div>
+      </section>
+    </main>
+
+    <!-- Financeiro -->
+    <main class="aba-conteudo" id="aba-financeiro" hidden>
+      <section class="kpis kpis--baw" id="fin-kpis"></section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Resultado por <span class="modo-nome">semana</span></h2></div>
+        <div class="tabela-wrap"><table class="tabela tabela--quadro" id="fin-quadro"></table></div>
+        <p class="tabela-legenda"><span>Faturamento = valor cheio das vendas aprovadas. Caixa 30 dias = o que entra em até 30 dias (no parcelamento inteligente, só as parcelas pagas nesse prazo).</span></p>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Por produto no período</h2></div>
+        <div class="tabela-wrap"><table class="tabela" id="fin-produto"></table></div>
+      </section>
+    </main>
+
+    <!-- Webhooks -->
+    <main class="aba-conteudo" id="aba-webhooks" hidden>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Entradas</h2></div>
+        <div class="saude saude--grande" id="wh-entradas"></div>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Saída para o Full Funnel</h2><label class="chave-liga"><input type="checkbox" id="ff-ativo"> Envios ligados</label></div>
+        <p class="t-nota">Desligado: os eventos ficam registrados como "desligado" e não são enviados (ao ligar, não sai uma enxurrada de eventos antigos). Cada tipo pode ter a sua URL; "padrao" vale para os tipos sem URL própria.</p>
+        <div class="tabela-wrap"><table class="tabela" id="ff-urls"></table></div>
+        <button class="btn-pri" id="ff-salvar">Salvar URLs</button>
+        <div class="tabela-wrap" style="margin-top:16px"><table class="tabela" id="ff-envios"></table></div>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Últimos eventos recebidos</h2></div>
+        <div class="tabela-wrap tabela-wrap--alta"><table class="tabela tabela--log" id="wh-log"></table></div>
+      </section>
+    </main>
+
+    <!-- Cadastros -->
+    <main class="aba-conteudo" id="aba-cadastros" hidden>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Produtos e ofertas</h2><span class="t-nota">Produto novo que chega pela Hotmart aparece aqui como <b>pendente</b>: escolha o tipo e a imagem.</span></div>
+        <div class="tabela-wrap"><table class="tabela tabela--cad" id="cad-produtos"></table></div>
+        <form class="form-linha" id="cad-novo">
+          <input name="produto" placeholder="ID do produto Hotmart" required>
+          <input name="oferta" placeholder="Código da oferta (opcional)">
+          <input name="nome" placeholder="Nome">
+          <select name="tipo"></select>
+          <button class="btn-pri">Adicionar</button>
+        </form>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Taxas e impostos</h2></div>
+        <form class="form-linha" id="cad-taxas">
+          <label>Taxa Hotmart (%) <input name="taxa_hotmart" type="number" step="0.01" min="0"></label>
+          <label>Imposto da venda (%) <input name="imposto_venda" type="number" step="0.01" min="0"></label>
+          <label>Imposto do tráfego (%) <input name="imposto_trafego" type="number" step="0.01" min="0"></label>
+          <button class="btn-pri">Salvar</button>
+        </form>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Custos lançados à mão</h2><span class="t-nota">tráfego de lembrete, API oficial, comissões, ajustes</span></div>
+        <form class="form-linha" id="cad-custo">
+          <input name="dia" type="date" required>
+          <select name="categoria">
+            <option value="trafego_low">Tráfego do low</option><option value="trafego_lembrete">Tráfego de lembrete</option>
+            <option value="trafego_outro">Outro tráfego</option><option value="api_oficial">API oficial</option>
+            <option value="comissao">Comissão</option><option value="taxa">Taxa</option><option value="imposto">Imposto</option><option value="outro">Outro</option>
+          </select>
+          <input name="descricao" placeholder="Descrição">
+          <input name="valor" type="number" step="0.01" placeholder="Valor (R$)" required>
+          <button class="btn-pri">Lançar</button>
+        </form>
+        <div class="tabela-wrap"><table class="tabela" id="cad-custos"></table></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/dashbaw/app.js?v=1"></script>
+</body>
+</html>

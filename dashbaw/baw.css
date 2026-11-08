@@ -1,0 +1,85 @@
+/* Dash do webinário BAW — complementa /dash/dash.css (mesmo visual da Black) */
+.login__titulo { margin: 0 0 18px; color: #fff; text-align: center; font-size: 1.1rem; line-height: 1.3; }
+.login__titulo b { font-size: 1.5rem; color: var(--amarelo); }
+.topo__selo { flex: none; width: 52px; height: 52px; border-radius: 12px; background: var(--amarelo); color: var(--preto); display: grid; place-items: center; font-weight: 800; letter-spacing: .02em; }
+
+@media (max-width: 600px) { .topo__marca strong { font-size: .85rem; } .topo__selo { width: 42px; height: 42px; font-size: .8rem; } }
+.abas--rolar { overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.abas--rolar::-webkit-scrollbar { display: none; }
+.abas--rolar .aba { flex: none; white-space: nowrap; position: relative; }
+.bolinha { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #e5484d; margin-left: 4px; vertical-align: middle; }
+
+.periodo { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.periodo__modo { display: flex; background: #1c1b1b; border-radius: 8px; padding: 3px; }
+.periodo__modo button { border: 0; background: none; color: #cfc9c4; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: .8rem; }
+.periodo__modo button.ativo { background: var(--amarelo); color: var(--preto); }
+.periodo select { height: 34px; border-radius: 8px; border: 1px solid #333; background: #1c1b1b; color: #fff; padding: 0 8px; font: 600 13px var(--fonte); max-width: 100%; }
+.periodo__nota { color: #a8a29e; font-size: .75rem; }
+
+.aviso-topo { margin: 12px auto 0; max-width: 1248px; padding: 10px 14px; background: #fff7b8; border: 1px solid #f0e06a; border-radius: 10px; font-size: .85rem; }
+.aviso-topo a { font-weight: 700; color: inherit; cursor: pointer; }
+
+.kpis--baw { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 700px) { .kpis--baw { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (min-width: 1100px) { .kpis--baw { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+.kpi--preto { background: var(--preto); color: #fff; border-color: var(--preto); }
+.kpi--preto .rotulo, .kpi--preto .kpi__sub { color: #a8a29e; }
+.kpi__num.neg { color: #d13b3f; }
+.kpi--preto .kpi__num.neg { color: #ff8a8d; }
+.kpi .vazio-dado { color: var(--texto-3); font-size: 1.1rem; }
+
+/* funil */
+.funil-baw { display: grid; gap: 6px; }
+.funil-baw__linha { display: grid; grid-template-columns: 150px minmax(0, 1fr) 70px; gap: 10px; align-items: center; font-size: .85rem; }
+.funil-baw__nome { font-weight: 700; }
+.funil-baw__trilho { height: 30px; background: #f1ece6; border-radius: 8px; overflow: hidden; }
+.funil-baw__trilho b { display: flex; align-items: center; height: 100%; padding: 0 10px; color: #fff; font-weight: 800; background: #2a78d6; border-radius: 8px; min-width: 44px; transition: width .4s ease; font-variant-numeric: tabular-nums; }
+.funil-baw__pct { text-align: right; color: var(--texto-2); font-weight: 700; font-variant-numeric: tabular-nums; font-size: .78rem; }
+@media (max-width: 600px) { .funil-baw__linha { grid-template-columns: 96px minmax(0, 1fr) 54px; font-size: .78rem; } }
+
+/* cartões dos lows */
+.lows { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+.low { display: grid; grid-template-columns: 64px 1fr; gap: 12px; align-items: center; border: 1px solid var(--linha); border-radius: 14px; padding: 12px; }
+.low__img { width: 64px; height: 64px; border-radius: 10px; object-fit: cover; background: #f1ece6; display: grid; place-items: center; color: var(--texto-3); font-weight: 800; }
+.low strong { display: block; font-size: .9rem; }
+.low span { display: block; font-size: .78rem; color: var(--texto-2); }
+.thumb-low { width: 34px; height: 34px; border-radius: 6px; object-fit: cover; vertical-align: middle; margin-right: 8px; background: #f1ece6; display: inline-block; }
+
+/* saúde dos webhooks */
+.saude { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.saude__item { border: 1px solid var(--linha); border-left: 5px solid var(--cor, #8a857f); border-radius: 12px; padding: 10px 12px; }
+.saude__item strong { display: block; }
+.saude__item span { display: block; font-size: .78rem; color: var(--texto-2); }
+.saude__item code { font-size: .7rem; word-break: break-all; color: var(--texto-3); }
+.st-ok { --cor: #1baf7a; } .st-alerta { --cor: #eda100; } .st-erro { --cor: #e5484d; } .st-nada { --cor: #b8b2ab; }
+
+.pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: .72rem; font-weight: 700; background: #eee; color: #333; }
+.pill--aprovada, .pill--enviado { background: #e3f4e9; color: #146c3a; }
+.pill--aguardando, .pill--pendente, .pill--enviando { background: #fdf3cf; color: #8a6400; }
+.pill--cancelada, .pill--erro, .pill--reembolso { background: #fbe4e4; color: #b3262b; }
+.pill--carrinho, .pill--desligado, .pill--sem_url { background: #ece9e5; color: #57534e; }
+.pill--pendente-tipo { background: #ffee00; color: #000; }
+
+.tabela--quadro td, .tabela--quadro th { padding: 8px 8px; }
+.tabela td .seta { margin-left: 4px; font-size: .7rem; }
+.tabela tr.atual td { background: #fffbe0; }
+.tabela--log td { white-space: normal; vertical-align: top; }
+.tabela--log details pre { max-width: 680px; max-height: 300px; overflow: auto; background: #faf8f5; padding: 8px; border-radius: 8px; font-size: .72rem; white-space: pre-wrap; }
+.tabela--cad td { vertical-align: middle; }
+.tabela--cad input[type=text], .tabela--cad select { height: 34px; border: 1px solid #d6d0c8; border-radius: 6px; padding: 0 8px; font: 500 13px var(--fonte); }
+.tabela--cad .img-btn { cursor: pointer; display: inline-block; }
+.tabela--cad tr.pendente td { background: #fffbe0; }
+.tabela input.url { width: 100%; min-width: 320px; height: 34px; border: 1px solid #d6d0c8; border-radius: 6px; padding: 0 8px; font: 500 12px var(--fonte); }
+
+.form-linha { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; margin-top: 12px; }
+.form-linha input, .form-linha select { height: 38px; border: 1px solid #d6d0c8; border-radius: 8px; padding: 0 10px; font: 500 14px var(--fonte); background: #fff; min-width: 0; }
+.form-linha label { display: grid; gap: 4px; font-size: .78rem; font-weight: 600; color: var(--texto-2); }
+.chave-liga { display: inline-flex; gap: 6px; align-items: center; font-weight: 700; font-size: .85rem; }
+
+.horas { display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); gap: 3px; align-items: end; height: 140px; }
+.horas div { background: #2a78d6; border-radius: 4px 4px 0 0; position: relative; min-height: 2px; }
+.horas div span { position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); font-size: .6rem; color: var(--texto-3); }
+.horas div b { position: absolute; top: -16px; left: 50%; transform: translateX(-50%); font-size: .6rem; color: var(--texto-2); }
+#low-horas { margin: 18px 0 20px; }
+
+.vazio-bloco { padding: 18px; text-align: center; color: var(--texto-3); border: 1px dashed var(--linha); border-radius: 12px; }
