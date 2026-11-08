@@ -540,7 +540,7 @@ function renderCadastros(forcar) {
   $("#cad-produtos").innerHTML = `<thead><tr><th>Imagem</th><th>Produto (Hotmart)</th><th>Tipo</th><th>Nome no dash</th><th class="n">Vendas</th><th>Ativo</th><th></th></tr></thead><tbody>${
     PROD.map((p) => `<tr class="${p.tipo === "pendente" ? "pendente" : ""}" data-id="${p.id}">
       <td><label class="img-btn" title="Trocar imagem">${imgProd(p, "thumb-low")}<input type="file" accept="image/*" hidden data-img="${p.id}"></label></td>
-      <td>${esc(p.nome || "")}<br><small>produto ${esc(p.produto_id)}${p.oferta ? " · oferta " + esc(p.oferta) : " · todas as ofertas"}${p.preco ? " · " + brl(p.preco) : ""}</small></td>
+      <td>${esc(p.nome || "")}<br><small>${p.produto_id.startsWith("?") ? "aguardando a 1ª venda para pegar o ID" : "produto " + esc(p.produto_id)}${p.oferta ? " · oferta " + esc(p.oferta) : " · todas as ofertas"}${p.preco ? " · " + brl(p.preco) : ""}</small></td>
       <td><select data-campo="tipo">${opc(p.tipo)}</select></td>
       <td><input type="text" data-campo="apelido" value="${esc(p.apelido || "")}" placeholder="${esc(p.nome || "")}"></td>
       <td class="n">${fmt(vendasPorProd.get(p.id) || 0)}</td>
