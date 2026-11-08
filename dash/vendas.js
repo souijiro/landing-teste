@@ -175,6 +175,18 @@ function renderVendas() {
     `<tr><td><b>${k.nome}</b><br><span class="t-nota">${k.sub}</span></td>${celulas(V.filter((v) => condicao(v) === k.id))}</tr>`).join("");
   $("#t-vend-cond tfoot").innerHTML = `<tr><td>Total</td>${celulas(V)}</tr>`;
 
+  // ---- por código src (sem src: mostra o sck) ----
+  const codigo = (v) => (v.src ? "src: " + v.src : v.sck ? "sck: " + v.sck : "(sem código)");
+  const grupos = {};
+  V.forEach((v) => { (grupos[codigo(v)] ||= []).push(v); });
+  const ordem = Object.keys(grupos).sort((a, b) => soma(grupos[b].filter((v) => grupoStatus(v.status) === "aprovada")).n - soma(grupos[a].filter((v) => grupoStatus(v.status) === "aprovada")).n || a.localeCompare(b));
+  $("#t-vend-src tbody").innerHTML = ordem.length ? ordem.map((k) => {
+    const [tipo, ...resto] = k.split(": ");
+    const rot = resto.length ? `<b>${esc(resto.join(": "))}</b> <span class="t-nota">${tipo}</span>` : `<span class="t-nota">${esc(k)}</span>`;
+    return `<tr><td>${rot}</td>${celulas(grupos[k])}</tr>`;
+  }).join("") : '<tr><td colspan="6" class="t-nota">Nenhuma compra ainda.</td></tr>';
+  $("#t-vend-src tfoot").innerHTML = `<tr><td>Total</td>${celulas(V)}</tr>`;
+
   // ---- listas ----
   const quando = (iso) => (iso ? horaSP.format(new Date(iso)) : "—");
   const whats = (t) => { const d = String(t || "").replace(/\D/g, ""); if (!d) return "—"; const n = d.length <= 11 ? "55" + d : d; return `<a href="https://wa.me/${n}" target="_blank" rel="noopener">${esc(t)}</a>`; };
