@@ -20,7 +20,7 @@ const TIPOS_ENVIO = [
   "venda_principal_aprovada", "venda_principal_aguardando", "venda_principal_cancelada", "venda_principal_reembolso", "carrinho_principal",
   "venda_ob_principal_aprovada",
   "venda_upsell_aprovada", "venda_upsell_aguardando", "venda_upsell_cancelada", "venda_upsell_reembolso", "carrinho_upsell",
-  "webinario_acessou", "webinario_pitch", "webinario_oferta", "webinario_clicou", "webinario_saiu"
+  "webinario_acessou", "webinario_pitch", "webinario_oferta", "webinario_clicou", "webinario_nao_viu_oferta", "webinario_saiu"
 ];
 
 const $ = (s) => document.querySelector(s);
@@ -179,9 +179,10 @@ function mProduto(tipo, obTipo, k) {
 function mWeb(k) {
   const evs = WEB.filter((w) => noPer(w, k));
   const set = (ev) => new Set(evs.filter((w) => w.ev === ev && w.pessoa).map((w) => w.pessoa));
-  const acessou = set("acessou"), pitch = set("pitch"), oferta = set("oferta"), clicou = set("clicou");
-  // quem chegou no pitch/oferta também acessou
-  for (const s of [pitch, oferta, clicou]) s.forEach((p) => acessou.add(p));
+  const acessou = set("acessou"), pitch = set("pitch"), oferta = set("oferta"), clicou = set("clicou"), naoViuEv = set("nao_viu_oferta");
+  // quem chegou no pitch/oferta (ou ficou sem ver a oferta) também acessou; quem clicou viu a oferta
+  for (const s of [pitch, oferta, clicou, naoViuEv]) s.forEach((p) => acessou.add(p));
+  clicou.forEach((p) => oferta.add(p));
   const naoViu = [...acessou].filter((p) => !oferta.has(p)).length;
   const kIns = kAnterior(k);
   const insc = INSC.filter((i) => noPer(i, kIns)).length;
