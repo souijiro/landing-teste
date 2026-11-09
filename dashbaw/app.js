@@ -185,7 +185,8 @@ function mWeb(k) {
   clicou.forEach((p) => oferta.add(p));
   const naoViu = [...acessou].filter((p) => !oferta.has(p)).length;
   const kIns = kAnterior(k);
-  const insc = INSC.filter((i) => noPer(i, kIns)).length;
+  // na visão semanal vale a live que a pessoa escolheu (BAW_DATA_HORA_WEBINARIO); sem ela, a semana anterior
+  const insc = INSC.filter((i) => (MODO === "semana" && i.live ? i.live === k : noPer(i, kIns))).length;
   const lows = aprov("low", kIns).length;
   const vendas = aprov("principal", k).length;
   return { lows, insc, acessou: acessou.size, pitch: pitch.size, oferta: oferta.size, clicou: clicou.size, naoViu, vendas, temEventos: evs.length > 0 };
@@ -368,8 +369,8 @@ function renderInscricoes() {
   $("#insc-quadro").innerHTML = `<thead><tr><th>Período</th><th class="n">Inscritos</th><th class="n">Vendas low</th><th class="n">% inscr.</th>${ids.map((id) => `<th class="n">${esc(nomeId(id))}</th>`).join("")}</tr></thead><tbody>${
     ks.map((k) => { const m = contarInscPorLow(k), n = INSC.filter((i) => noPer(i, k)).length, vl = aprov("low", k).length;
       return `<tr class="${k === SEL ? "atual" : ""}"><td>${esc(rotulo(k))}</td><td class="n">${fmt(n)}</td><td class="n">${fmt(vl)}</td><td class="n">${pct(n, vl)}</td>${ids.map((id) => `<td class="n">${fmt(m.get(id) || 0)}</td>`).join("")}</tr>`; }).join("")}</tbody>`;
-  $("#insc-lista").innerHTML = `<thead><tr><th>Quando</th><th>Nome</th><th>E-mail</th><th>WhatsApp</th><th>Low</th><th>Tag</th></tr></thead><tbody>${
-    ins.slice(0, 300).map((i) => `<tr><td>${quando(i.em)}</td><td>${esc(i.nome)}</td><td>${esc(i.email)}</td><td>${waLink(i.tel)}</td><td>${esc(nomeProd(lowDaInscricao(i), "—"))}</td><td>${esc(i.tag)}</td></tr>`).join("") || vazioTab(6)}</tbody>`;
+  $("#insc-lista").innerHTML = `<thead><tr><th>Quando</th><th>Live</th><th>Nome</th><th>E-mail</th><th>WhatsApp</th><th>Low</th><th>Origem</th></tr></thead><tbody>${
+    ins.slice(0, 300).map((i) => `<tr><td>${quando(i.em)}</td><td>${i.live ? dm(i.live) : "—"}</td><td>${esc(i.nome)}</td><td>${esc(i.email)}</td><td>${waLink(i.tel)}</td><td>${esc(nomeProd(lowDaInscricao(i), "—"))}</td><td>${esc([i.utm_s, i.utm_c].filter(Boolean).join(" · "))}</td></tr>`).join("") || vazioTab(7)}</tbody>`;
 }
 
 // ---------- Webinário ----------
