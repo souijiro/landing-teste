@@ -491,6 +491,10 @@ function renderSaude(el, grande) {
   const st = D?.monitor?.envios_status || {};
   el.innerHTML = fontes.map((f) => { const [c, txt] = estadoFonte(f);
     return `<div class="saude__item ${c}"><strong>${NOME_FONTE[f.fonte] || f.fonte}</strong><span>${txt}</span><span>último: ${quando(f.ultimo)} · ${fmt(f.n24)} em 24 h</span>${grande ? `<code>${esc(WEBHOOK_URL)}?fonte=${f.fonte}${f.fonte === "hotmart" ? "" : "&chave=…"}</code>` : ""}</div>`; }).join("")
+    + (() => { const m = D?.monitor?.sync_meta;
+        const c = !m ? "st-nada" : !m.ok ? "st-erro" : Date.now() - new Date(m.ultimo).getTime() > 3 * 3600e3 ? "st-alerta" : "st-ok";
+        const txt = !m ? "nunca rodou" : !m.ok ? "erro: " + m.mensagem : c === "st-alerta" ? "sem ler há mais de 3 h" : "funcionando";
+        return `<div class="saude__item ${c}"><strong>Tráfego Meta (leitura)</strong><span>${esc(txt)}</span><span>última leitura: ${quando(m?.ultimo)} · de hora em hora</span></div>`; })()
     + `<div class="saude__item ${CFG.fullfunnel_ativo === true ? (st.erro ? "st-erro" : "st-ok") : "st-nada"}"><strong>Saída → Full Funnel</strong><span>${CFG.fullfunnel_ativo === true ? "ligada" : "desligada"}</span><span>${fmt(st.enviado || 0)} enviados · ${fmt(st.erro || 0)} erros · ${fmt((st.pendente || 0) + (st.enviando || 0))} na fila</span></div>`;
 }
 function renderWebhooks(forcar) {
