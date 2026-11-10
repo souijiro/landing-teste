@@ -9,10 +9,17 @@ const ATUALIZAR_A_CADA = 60 * 1000;
 const FAIXA_IGUAL = 0.10;
 const WEBHOOK_URL = SUPABASE_URL + "/functions/v1/baw-webhooks";
 
-const TIPOS = {
-  pendente: "Pendente (classificar)", low: "Low ticket", ob_low: "Order bump do low", principal: "Brigadeiro de A a Z (principal)",
-  ob_principal: "Order bump do principal", upsell: "Upsell Delivery de A a Z", ob_upsell: "Order bump do upsell", ignorar: "Ignorar"
+// tipos que se escolhem no cadastro (por produto)
+const TIPOS_CAD = {
+  pendente: "Pendente (classificar)", low: "Low ticket", principal: "Brigadeiro de A a Z (principal)", upsell: "Upsell Delivery de A a Z",
+  bump: "Order bump (segue a compra principal)", ignorar: "Ignorar (não é do webinário)"
 };
+// tipos efetivos das vendas (order bump vem no webhook e segue o produto da compra principal)
+const TIPOS = {
+  ...TIPOS_CAD, ob_low: "Order bump do low", ob_principal: "Order bump do principal", ob_upsell: "Order bump do upsell",
+  ob_pendente: "Order bump (compra principal não encontrada)"
+};
+const CATS_TEMPLATE = { convite: "Convite", lembrete: "Lembrete da live", venda: "Venda", follow_up: "Follow-up", recuperacao: "Recuperação de venda", ignorar: "Não é do webinário" };
 const TIPOS_ENVIO = [
   "padrao",
   "venda_low_aprovada", "venda_low_aguardando", "venda_low_cancelada", "venda_low_reembolso", "carrinho_low",
@@ -120,6 +127,9 @@ function preparar(d) {
       o.caixa30 = (COBR[v.t] || []).filter((c) => grupoStatus(c.st) === "aprovada" && new Date(c.em).getTime() <= lim).reduce((s, c) => s + (+c.valor || 0), 0);
     } else o.caixa30 = o.grupo === "aprovada" ? o.fat : 0;
     o.comissao = (v.com || []).filter((c) => /CO_?PRODUCER|AFFILIATE/i.test(c.source || "")).reduce((s, c) => s + (+c.value || 0), 0);
+    // taxa da Hotmart: a comissão MARKETPLACE que vem no webhook; sem ela, a % do cadastro
+    const mk = (v.com || []).filter((c) => /MARKETPLACE/i.test(c.source || ""));
+    o.taxaHm = mk.length ? mk.reduce((s, c) => s + (+c.value || 0), 0) : null;
     o.pessoa = pessoa(v);
     return o;
   });
@@ -132,12 +142,17 @@ function preparar(d) {
   TRAF = (d.trafego || []).map((t) => ({ ...t, sem: semanaDoDia(t.dia), mes: t.dia.slice(0, 7) }));
   CUST = (d.custos || []).map((c) => ({ ...c, sem: semanaDoDia(c.dia), mes: c.dia.slice(0, 7) }));
 }
+let TPL = { modelos: [], dia: [] }, TPL_DIA = [];
+function prepararTemplates(t) {
+  TPL = t || { modelos: [], dia: [] };
+  TPL_DIA = (TPL.dia || []).map((r) => ({ ...r, sem: semanaDoDia(r.dia), mes: r.dia.slice(0, 7) }));
+}
 
 // ---------- períodos ----------
 function chaveAgora() { const hoje = diaSP(new Date()); return MODO === "dia" ? hoje : MODO === "semana" ? semanaAgora() : hoje.slice(0, 7); }
 function periodos() {
   const s = new Set([chaveAgora()]);
-  for (const arr of [V, INSC, WEB, TRAF, CUST]) for (const o of arr) { const k = chave(o); if (k) s.add(k); }
+  for (const arr of [V, INSC, WEB, TRAF, CUST, TPL_DIA]) for (const o of arr) { const k = chave(o); if (k) s.add(k); }
   return [...s].sort().reverse();
 }
 function montarPeriodos() {
@@ -157,6 +172,10 @@ const soma = (arr, f) => arr.reduce((s, o) => s + (+f(o) || 0), 0);
 const trafego = (tipo, k) => soma(TRAF.filter((t) => t.tipo === tipo && noPer(t, k)), (t) => t.investimento);
 const custo = (cat, k) => soma(CUST.filter((c) => c.categoria === cat && noPer(c, k)), (c) => c.valor);
 const aprov = (tipo, k) => APROV.filter((v) => v.tipo === tipo && noPer(v, k));
+const taxaHotmart = (vs) => soma(vs, (v) => (v.taxaHm != null ? v.taxaHm : v.fat * taxa("taxa_hotmart")));
+// custo da API oficial: templates categorizados (automático) + lançado à mão
+const custoApiAuto = (k, cat) => soma(TPL_DIA.filter((r) => noPer(r, k) && (!cat || r.cat === cat)), (r) => r.custo);
+const custoApi = (k) => custoApiAuto(k) + custo("api_oficial", k);
 // webinário ligado a uma chave: na visão semanal, a live que abre a janela; os inscritos/lows vêm da semana anterior
 const kAnterior = (k) => (MODO === "semana" ? somaDias(k, -7) : k);
 
@@ -164,7 +183,7 @@ function mLow(k) {
   const lows = aprov("low", k), obs = aprov("ob_low", k);
   const vendas = lows.length, fatLT = soma(lows, (v) => v.fat), fatOB = soma(obs, (v) => v.fat), fat = fatLT + fatOB;
   const traf = trafego("low", k) + custo("trafego_low", k);
-  const tx = fat * taxa("taxa_hotmart"), imp = fat * taxa("imposto_venda"), impT = traf * taxa("imposto_trafego");
+  const tx = taxaHotmart(lows) + taxaHotmart(obs), imp = fat * taxa("imposto_venda"), impT = traf * taxa("imposto_trafego");
   const liq = fat - traf - tx - imp - impT;
   const insc = INSC.filter((i) => noPer(i, k)).length;
   return { vendas, insc, pInsc: div(insc, vendas), fat, fatLT, traf, tx, imp, impT, ticket: div(fat, vendas), liq, margem: div(liq, fat),
@@ -173,7 +192,7 @@ function mLow(k) {
 function mProduto(tipo, obTipo, k) {
   const vs = aprov(tipo, k), obs = aprov(obTipo, k);
   const fat = soma(vs, (v) => v.fat), fatOB = soma(obs, (v) => v.fat), tot = fat + fatOB;
-  const tx = tot * taxa("taxa_hotmart"), imp = tot * taxa("imposto_venda"), com = soma(vs, (v) => v.comissao) + soma(obs, (v) => v.comissao);
+  const tx = taxaHotmart(vs) + taxaHotmart(obs), imp = tot * taxa("imposto_venda"), com =soma(vs, (v) => v.comissao) + soma(obs, (v) => v.comissao);
   return { vendas: vs.length, fat, obQtd: obs.length, fatOB, tot, acresc: div(fatOB, fat), caixa: soma(vs, (v) => v.caixa30) + soma(obs, (v) => v.caixa30), tx, imp, com, liq: tot - tx - imp - com, vs, obs };
 }
 function mWeb(k) {
@@ -192,13 +211,13 @@ function mWeb(k) {
   return { lows, insc, acessou: acessou.size, pitch: pitch.size, oferta: oferta.size, clicou: clicou.size, naoViu, vendas, temEventos: evs.length > 0 };
 }
 function mFin(k) {
-  const vs = APROV.filter((v) => noPer(v, k) && !["pendente", "ignorar"].includes(v.tipo));
+  const vs = APROV.filter((v) => noPer(v, k) && !["pendente", "ignorar", "ob_pendente"].includes(v.tipo));
   const fat = soma(vs, (v) => v.fat), caixa = soma(vs, (v) => v.caixa30);
   const trafLow = trafego("low", k) + custo("trafego_low", k), trafLemb = trafego("lembrete", k) + custo("trafego_lembrete", k);
   const trafOutro = trafego("outro", k) + custo("trafego_outro", k), traf = trafLow + trafLemb + trafOutro;
   const impT = traf * taxa("imposto_trafego");
-  const api = custo("api_oficial", k), com = soma(vs, (v) => v.comissao) + custo("comissao", k);
-  const tx = fat * taxa("taxa_hotmart") + custo("taxa", k), imp = fat * taxa("imposto_venda") + custo("imposto", k), outros = custo("outro", k);
+  const api = custoApi(k), com = soma(vs, (v) => v.comissao) + custo("comissao", k);
+  const tx = taxaHotmart(vs) + custo("taxa", k), imp = fat * taxa("imposto_venda") + custo("imposto", k), outros = custo("outro", k);
   const custos = traf + impT + api + com + tx + imp + outros;
   return { fat, caixa, trafLow, trafLemb, trafOutro, impT, api, com, tx, imp, outros, custos, lucro: fat - custos, margem: div(fat - custos, fat), lucroCaixa: caixa - custos, vs };
 }
@@ -432,7 +451,7 @@ function renderUpsell() {
 
 // ---------- Vendas e recuperação ----------
 function renderVendas() {
-  const tipos = ["low", "ob_low", "principal", "ob_principal", "upsell", "ob_upsell", "pendente"];
+  const tipos = ["low", "ob_low", "principal", "ob_principal", "upsell", "ob_upsell", "pendente", "ob_pendente"];
   const vs = V.filter((v) => noPer(v)), cs = CARR.filter((c) => noPer(c));
   $("#vend-status").innerHTML = `<thead><tr><th>Produto</th><th class="n">Aprovadas</th><th class="n">Aguardando</th><th class="n">Canceladas</th><th class="n">Reembolsos</th><th class="n">% reembolso</th><th class="n">Carrinhos</th><th class="n">Carrinhos que compraram</th></tr></thead><tbody>${
     tipos.map((t) => { const x = vs.filter((v) => v.tipo === t), c = cs.filter((c) => c.tipo === t); if (!x.length && !c.length) return "";
@@ -450,11 +469,50 @@ function renderVendas() {
 $("#rec-filtro").addEventListener("change", () => renderVendas());
 
 // ---------- Disparos ----------
-function renderDisparos() {
-  const api = custo("api_oficial", SEL), W = mWeb(SEL), P = mProduto("principal", "ob_principal", SEL);
-  $("#disp-kpis").innerHTML = [kpi("Custo API oficial", brl(api), "lançado em Cadastros"), kpi("Custo por inscrito", isFinite(div(api, W.insc)) ? brl(api / W.insc) : "—"), kpi("Custo por venda BAW", isFinite(div(api, P.vendas)) ? brl(api / P.vendas) : "—")].join("");
-  $("#disp-corpo").innerHTML = `<div class="vazio-bloco">Leitura automática da API oficial (custo por template: convite, lembrete da live, venda, follow-up, recuperação) ainda não ligada.<br>Falta definir qual conta de WhatsApp e quais nomes de template são deste webinário. Enquanto isso, lance o custo em <b>Cadastros → Custos lançados à mão</b>.</div>`;
+function renderDisparos(forcar) {
+  const api = custoApi(SEL), manual = custo("api_oficial", SEL), W = mWeb(SEL), P = mProduto("principal", "ob_principal", SEL), L = mLow(SEL);
+  const rows = TPL_DIA.filter((r) => noPer(r));
+  const tot = (f, arr = rows) => soma(arr, (r) => r[f]);
+  $("#disp-kpis").innerHTML = [
+    kpi("Custo API oficial", brl(api), manual ? `inclui ${brl(manual)} lançado à mão` : "templates categorizados", "kpi--preto"),
+    kpi("Mensagens entregues", fmt(tot("ent")), `${fmt(tot("env"))} enviadas · ${pct(tot("lid"), tot("ent"))} lidas`),
+    kpi("Cliques", fmt(tot("cli")), pct(tot("cli"), tot("ent")) + " das entregues"),
+    kpi("Custo por inscrito", isFinite(div(api, W.insc)) ? brl(api / W.insc) : "—"),
+    kpi("Custo por venda do low", isFinite(div(api, L.vendas)) ? brl(api / L.vendas) : "—"),
+    kpi("Custo por venda BAW", isFinite(div(api, P.vendas)) ? brl(api / P.vendas) : "—")
+  ].join("");
+  // por categoria
+  const cats = Object.keys(CATS_TEMPLATE).filter((c) => c !== "ignorar");
+  $("#disp-cat").innerHTML = `<thead><tr><th>Categoria</th><th class="n">Templates</th><th class="n">Enviadas</th><th class="n">Entregues</th><th class="n">Lidas</th><th class="n">Cliques</th><th class="n">Custo</th><th class="n">Custo/entregue</th></tr></thead><tbody>${
+    cats.map((c) => { const a = rows.filter((r) => r.cat === c), nT = (TPL.modelos || []).filter((m) => m.baw === c).length;
+      return `<tr><td>${CATS_TEMPLATE[c]}</td><td class="n">${fmt(nT)}</td><td class="n">${fmt(tot("env", a))}</td><td class="n">${fmt(tot("ent", a))}</td><td class="n">${fmt(tot("lid", a))} <small>${pct(tot("lid", a), tot("ent", a))}</small></td><td class="n">${fmt(tot("cli", a))}</td><td class="n">${brl(tot("custo", a))}</td><td class="n">${tot("ent", a) ? brl(tot("custo", a) / tot("ent", a)) : "—"}</td></tr>`; }).join("")}
+    <tr class="total"><td>Total</td><td></td><td class="n">${fmt(tot("env"))}</td><td class="n">${fmt(tot("ent"))}</td><td class="n">${fmt(tot("lid"))}</td><td class="n">${fmt(tot("cli"))}</td><td class="n">${brl(tot("custo"))}</td><td class="n">${tot("ent") ? brl(tot("custo") / tot("ent")) : "—"}</td></tr></tbody>`;
+  // por template (período)
+  const nome = new Map((TPL.modelos || []).map((m) => [m.id, m]));
+  const porT = new Map();
+  for (const r of rows) { const o = porT.get(r.id) || { env: 0, ent: 0, lid: 0, cli: 0, custo: 0 }; for (const f of ["env", "ent", "lid", "cli", "custo"]) o[f] += +r[f] || 0; porT.set(r.id, o); }
+  $("#disp-tpl").innerHTML = `<thead><tr><th>Template</th><th>Categoria</th><th class="n">Enviadas</th><th class="n">Entregues</th><th class="n">Lidas</th><th class="n">Cliques</th><th class="n">Custo</th></tr></thead><tbody>${
+    [...porT.entries()].sort((a, b) => b[1].custo - a[1].custo).map(([id, o]) => { const m = nome.get(id);
+      return `<tr><td>${esc(m?.nome || id)} <small>${esc(m?.meta || "")}</small></td><td>${esc(CATS_TEMPLATE[m?.baw] || "")}</td><td class="n">${fmt(o.env)}</td><td class="n">${fmt(o.ent)}</td><td class="n">${fmt(o.lid)}</td><td class="n">${fmt(o.cli)}</td><td class="n">${brl(o.custo)}</td></tr>`; }).join("") || vazioTab(7, "Nenhum envio de template categorizado no período")}</tbody>`;
+  // tela de categorização
+  const semCat = (TPL.modelos || []).filter((m) => !m.baw && /^baw/i.test(m.nome)).length;
+  $("#bolinha-disparos").hidden = !semCat;
+  if (!forcar && $("#disp-cats").contains(document.activeElement)) return;
+  const filtro = ($("#tpl-busca").value || "").toLowerCase(), soSem = $("#tpl-sem").checked;
+  const lista = (TPL.modelos || []).filter((m) => (!filtro || m.nome.toLowerCase().includes(filtro)) && (!soSem || !m.baw))
+    .sort((a, b) => (/^baw/i.test(b.nome) - /^baw/i.test(a.nome)) || (!!a.baw - !!b.baw) || String(b.ultimo || "").localeCompare(String(a.ultimo || "")) || a.nome.localeCompare(b.nome));
+  $("#disp-cats").innerHTML = `<thead><tr><th>Template</th><th>Tipo Meta</th><th class="n">Enviadas 30 d</th><th>Último envio</th><th>Categoria no webinário</th></tr></thead><tbody>${
+    lista.map((m) => `<tr class="${!m.baw && /^baw/i.test(m.nome) ? "pendente" : ""}"><td>${esc(m.nome)}</td><td>${esc(m.meta || "")}</td><td class="n">${fmt(m.env30 || 0)}</td><td>${m.ultimo ? dm(m.ultimo) : "—"}</td>
+      <td><select data-tpl="${esc(m.id)}"><option value="">— sem categoria —</option>${Object.entries(CATS_TEMPLATE).map(([k, n]) => `<option value="${k}" ${m.baw === k ? "selected" : ""}>${n}</option>`).join("")}</select></td></tr>`).join("") || vazioTab(5, "Nenhum template encontrado")}</tbody>`;
+  $("#tpl-sync").textContent = TPL.sync ? "Dados da Meta lidos em " + quando(TPL.sync) + " (de hora em hora)" : "";
 }
+document.addEventListener("change", async (e) => {
+  const s = e.target.closest("[data-tpl]"); if (!s) return;
+  s.disabled = true;
+  try { await comToken("dash_baw_template_salvar", { p_modelo_id: s.dataset.tpl, p_categoria: s.value || null }); await carregar(true); }
+  catch (err) { alert("Não salvou: " + err.message); } finally { s.disabled = false; }
+});
+["#tpl-busca", "#tpl-sem"].forEach((id) => document.addEventListener("input", (e) => { if (e.target.matches(id)) renderDisparos(true); }));
 
 // ---------- Financeiro ----------
 function renderFinanceiro() {
@@ -539,14 +597,14 @@ function renderCadastros(forcar) {
   const pend = PROD.filter((p) => p.tipo === "pendente").length;
   $("#bolinha-cadastros").hidden = !pend;
   $("#aviso-produtos").hidden = !pend;
-  $("#aviso-produtos").innerHTML = pend ? `⚠️ ${pend} produto(s)/oferta(s) da Hotmart sem tipo — as vendas deles não entram nas contas. <a data-ir="cadastros">Classificar em Cadastros</a>` : "";
+  $("#aviso-produtos").innerHTML = pend ? `⚠️ ${pend} produto(s) da Hotmart sem tipo — as vendas deles não entram nas contas. <a data-ir="cadastros">Classificar em Cadastros</a>` : "";
   if (!forcar && $("#aba-cadastros").contains(document.activeElement) && /INPUT|SELECT/.test(document.activeElement.tagName)) return;
-  const opc = (sel) => Object.entries(TIPOS).map(([k, n]) => `<option value="${k}" ${k === sel ? "selected" : ""}>${n}</option>`).join("");
+  const opc = (sel) => Object.entries(TIPOS_CAD).map(([k, n]) => `<option value="${k}" ${k === sel ? "selected" : ""}>${n}</option>`).join("");
   const vendasPorProd = new Map(); for (const v of APROV) { const id = v.prodCad?.id; if (id) vendasPorProd.set(id, (vendasPorProd.get(id) || 0) + 1); }
   $("#cad-produtos").innerHTML = `<thead><tr><th>Imagem</th><th>Produto (Hotmart)</th><th>Tipo</th><th>Nome no dash</th><th class="n">Vendas</th><th>Ativo</th><th></th></tr></thead><tbody>${
     PROD.map((p) => `<tr class="${p.tipo === "pendente" ? "pendente" : ""}" data-id="${p.id}">
       <td><label class="img-btn" title="Trocar imagem">${imgProd(p, "thumb-low")}<input type="file" accept="image/*" hidden data-img="${p.id}"></label></td>
-      <td>${esc(p.nome || "")}<br><small>${p.produto_id.startsWith("?") ? "aguardando a 1ª venda para pegar o ID" : "produto " + esc(p.produto_id)}${p.oferta ? " · oferta " + esc(p.oferta) : " · todas as ofertas"}${p.preco ? " · " + brl(p.preco) : ""}</small></td>
+      <td>${esc(p.nome || "")}<br><small>${p.produto_id.startsWith("?") ? "aguardando a 1ª venda para pegar o ID" : "produto " + esc(p.produto_id)}${p.preco ? " · " + brl(p.preco) : ""}</small></td>
       <td><select data-campo="tipo">${opc(p.tipo)}</select></td>
       <td><input type="text" data-campo="apelido" value="${esc(p.apelido || "")}" placeholder="${esc(p.nome || "")}"></td>
       <td class="n">${fmt(vendasPorProd.get(p.id) || 0)}</td>
@@ -593,7 +651,7 @@ function reduzirImagem(arq, lado) {
 }
 $("#cad-novo").addEventListener("submit", async (e) => {
   e.preventDefault(); const f = e.target;
-  try { await comToken("dash_baw_produto_novo", { p_produto: f.produto.value, p_oferta: f.oferta.value, p_tipo: f.tipo.value, p_nome: f.nome.value || null }); f.reset(); await carregar(true); }
+  try { await comToken("dash_baw_produto_novo", { p_produto: f.produto.value, p_oferta: null, p_tipo: f.tipo.value, p_nome: f.nome.value || null }); f.reset(); await carregar(true); }
   catch (err) { alert("Não salvou: " + err.message); }
 });
 $("#cad-taxas").addEventListener("submit", async (e) => {
@@ -614,14 +672,16 @@ document.addEventListener("click", async (e) => {
 // ---------- carregar ----------
 function renderTudo(forcar) {
   montarPeriodos();
-  const partes = [renderPainel, renderLow, renderInscricoes, renderWebinario, renderPrincipal, renderUpsell, renderVendas, renderDisparos, renderFinanceiro, () => renderWebhooks(forcar), () => renderCadastros(forcar)];
+  const partes = [renderPainel, renderLow, renderInscricoes, renderWebinario, renderPrincipal, renderUpsell, renderVendas, () => renderDisparos(forcar), renderFinanceiro, () => renderWebhooks(forcar), () => renderCadastros(forcar)];
   for (const f of partes) { try { f(); } catch (err) { console.error(f.name, err); } }
 }
 async function carregar(forcar) {
   if (!lerToken()) return mostrarLogin();
   $("#recarregar").disabled = true;
   try {
-    preparar(await comToken("dash_baw"));
+    const [d, t] = await Promise.all([comToken("dash_baw"), comToken("dash_baw_templates").catch((e) => { if (e.code === "28000") throw e; console.error("templates", e); return null; })]);
+    preparar(d);
+    if (t) prepararTemplates(t);
     renderTudo(forcar === true);
     $("#atualizado").textContent = "Atualizado " + quando(new Date().toISOString()) + " · atualiza sozinho a cada 1 min";
   } catch (err) {

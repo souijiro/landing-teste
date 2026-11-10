@@ -51,7 +51,7 @@
         <button role="tab" class="aba" data-aba="principal">Brigadeiro de A a Z</button>
         <button role="tab" class="aba" data-aba="upsell">Upsell DAZ</button>
         <button role="tab" class="aba" data-aba="vendas">Vendas e recuperação</button>
-        <button role="tab" class="aba" data-aba="disparos">Disparos</button>
+        <button role="tab" class="aba" data-aba="disparos">Disparos <span class="bolinha" id="bolinha-disparos" hidden></span></button>
         <button role="tab" class="aba" data-aba="financeiro">Financeiro</button>
         <button role="tab" class="aba" data-aba="webhooks">Webhooks <span class="bolinha" id="bolinha-webhooks" hidden></span></button>
         <button role="tab" class="aba" data-aba="cadastros">Cadastros <span class="bolinha" id="bolinha-cadastros" hidden></span></button>
@@ -190,8 +190,18 @@
     <main class="aba-conteudo" id="aba-disparos" hidden>
       <section class="kpis kpis--baw" id="disp-kpis"></section>
       <section class="cartao">
-        <div class="cartao__topo"><h2>Custo por template</h2></div>
-        <div id="disp-corpo"></div>
+        <div class="cartao__topo"><h2>Por categoria</h2><span class="t-nota">WhatsApp oficial (11) 95324-3094 · custo = mensagens entregues × preço da Meta × PTAX</span></div>
+        <div class="tabela-wrap"><table class="tabela" id="disp-cat"></table></div>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Por template no período</h2></div>
+        <div class="tabela-wrap"><table class="tabela" id="disp-tpl"></table></div>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Categorizar templates</h2><span class="t-nota" id="tpl-sync"></span></div>
+        <p class="t-nota">Escolha a categoria de cada template do webinário. Só os categorizados entram no custo; "Não é do webinário" tira o template das contas. A escolha salva sozinha.</p>
+        <div class="form-linha"><input type="search" id="tpl-busca" placeholder="Buscar template (ex.: baw)"><label class="chave-liga"><input type="checkbox" id="tpl-sem"> Só os sem categoria</label></div>
+        <div class="tabela-wrap tabela-wrap--alta"><table class="tabela tabela--cad" id="disp-cats"></table></div>
       </section>
     </main>
 
@@ -231,11 +241,10 @@
     <!-- Cadastros -->
     <main class="aba-conteudo" id="aba-cadastros" hidden>
       <section class="cartao">
-        <div class="cartao__topo"><h2>Produtos e ofertas</h2><span class="t-nota">Produto novo que chega pela Hotmart aparece aqui como <b>pendente</b>: escolha o tipo e a imagem.</span></div>
+        <div class="cartao__topo"><h2>Produtos</h2><span class="t-nota">Produto novo que chega pela Hotmart aparece aqui como <b>pendente</b>: escolha o tipo e a imagem.</span></div>
         <div class="tabela-wrap"><table class="tabela tabela--cad" id="cad-produtos"></table></div>
         <form class="form-linha" id="cad-novo">
-          <input name="produto" placeholder="ID do produto Hotmart (se souber)">
-          <input name="oferta" placeholder="Código da oferta (opcional)">
+          <input name="produto" placeholder="ID do produto Hotmart" required>
           <input name="nome" placeholder="Nome">
           <select name="tipo"></select>
           <button class="btn-pri">Adicionar</button>
@@ -268,6 +277,6 @@
     </main>
   </div>
 
-  <script src="/dashbaw/app.js?v=5"></script>
+  <script src="/dashbaw/app.js?v=6"></script>
 </body>
 </html>
