@@ -27,7 +27,8 @@ const TIPOS_ENVIO = [
   "venda_principal_aprovada", "venda_principal_aguardando", "venda_principal_cancelada", "venda_principal_reembolso", "carrinho_principal",
   "venda_ob_principal_aprovada",
   "venda_upsell_aprovada", "venda_upsell_aguardando", "venda_upsell_cancelada", "venda_upsell_reembolso", "carrinho_upsell",
-  "webinario_acessou", "webinario_pitch", "webinario_oferta", "webinario_clicou", "webinario_nao_viu_oferta", "webinario_saiu"
+  "webinario_acessou", "webinario_pitch", "webinario_oferta", "webinario_clicou", "webinario_nao_viu_oferta", "webinario_saiu",
+  "liguelead_inscricao"   // inscrição do Full Funnel → LigueLead (create_lead); não usa a URL padrão
 ];
 
 const $ = (s) => document.querySelector(s);
@@ -564,7 +565,7 @@ function renderWebhooks(forcar) {
     const urls = CFG.fullfunnel_urls || {};
     const resumo = new Map((D.monitor.envios_tipo || []).map((t) => [t.tipo, t]));
     $("#ff-urls").innerHTML = `<thead><tr><th>Tipo de envio</th><th>URL do webhook no Full Funnel</th><th class="n">Eventos</th><th class="n">Enviados</th><th class="n">Erros</th></tr></thead><tbody>${
-      TIPOS_ENVIO.map((t) => { const r = resumo.get(t) || {}; return `<tr><td>${esc(t)}</td><td><input class="url" data-tipo="${t}" value="${esc(urls[t] || "")}" placeholder="${t === "padrao" ? "URL padrão" : "(usa a padrão)"}"></td><td class="n">${fmt(r.total || 0)}</td><td class="n">${fmt(r.enviados || 0)}</td><td class="n">${fmt(r.erros || 0)}</td></tr>`; }).join("")}</tbody>`;
+      TIPOS_ENVIO.map((t) => { const r = resumo.get(t) || {}; return `<tr><td>${esc(t)}</td><td><input class="url" data-tipo="${t}" value="${esc(urls[t] || "")}" placeholder="${t === "padrao" ? "URL padrão" : t.startsWith("liguelead") ? "URL da LigueLead (sem ela não envia)" : "(usa a padrão)"}"></td><td class="n">${fmt(r.total || 0)}</td><td class="n">${fmt(r.enviados || 0)}</td><td class="n">${fmt(r.erros || 0)}</td></tr>`; }).join("")}</tbody>`;
   }
   $("#ff-envios").innerHTML = `<thead><tr><th>Quando</th><th>Tipo</th><th>Referência</th><th>Status</th><th class="n">Tent.</th><th>Erro</th><th></th></tr></thead><tbody>${
     (D.monitor.envios || []).map((e) => `<tr><td>${quando(e.criado_em)}</td><td>${esc(e.tipo)}</td><td>${esc(e.ref)}</td><td><span class="pill pill--${e.status}">${esc(e.status)}</span></td><td class="n">${e.tentativas}</td><td>${esc(e.ultimo_erro || "")}</td><td>${["erro", "sem_url", "desligado"].includes(e.status) ? `<button class="btn-sec" data-reenviar="${e.id}">Reenviar</button>` : ""}</td></tr>`).join("") || vazioTab(7, "Nenhum envio ainda")}</tbody>`;
