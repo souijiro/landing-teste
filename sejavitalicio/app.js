@@ -203,15 +203,16 @@ function opcoesPagamento(res) {
   const parc = PARCELA_12X[res.preco];
   return `<fieldset class="pag">
       <legend class="pag__titulo">Como você prefere pagar?</legend>
-      <label class="pag__op">
+      <label class="pag__op pag__op--destaque">
+        <span class="pag__selo">Melhor opção</span>
         <input type="radio" name="pag" value="cartao" checked>
         <span class="pag__corpo">
           <span class="pag__nome">Cartão de crédito ou à vista</span>
-          ${parc ? `<span class="pag__linha"><span aria-hidden="true">💳</span> Até <b>12x de R$ ${parc}</b> no cartão</span>` : ""}
+          ${parc ? `<span class="pag__grande">12x de R$ ${parc}</span><span class="pag__linha">no cartão de crédito</span>` : ""}
           <span class="pag__linha"><span aria-hidden="true">⚡</span> ou <b>${brl(res.preco)} à vista</b> no Pix ou no cartão</span>
         </span>
       </label>
-      <label class="pag__op">
+      <label class="pag__op pag__op--simples">
         <input type="radio" name="pag" value="parcelado">
         <span class="pag__corpo">
           <span class="pag__nome">Boleto, Pix parcelado ou Parcelamento Inteligente</span>
@@ -232,12 +233,8 @@ function telaOferta(res, email) {
     ${o.selo ? `<span class="res__selo">${o.selo}</span>` : ""}
     <h2 class="res__titulo">${o.titulo}</h2>
     <p class="res__msg">${o.msg}</p>
-    <div class="res__preco">
-      <span class="res__de">De <s>${brl(PRECO_ANCORA)}</s>${temDesconto ? ` · preço oficial <s>${brl(PRECO_CHEIO)}</s>` : ""}</span><span class="res__por">por apenas</span>
-      ${PARCELA_12X[res.preco] ? `<span class="res__parcela">12x R$ ${PARCELA_12X[res.preco]}</span><span class="res__vista">ou ${brl(res.preco)} à vista</span>` : `<span class="res__valor">${brl(res.preco)}</span>`}
-    </div>
     ${res.checkout ? opcoesPagamento(res) : ""}
-    <button type="button" class="btn" id="ir-checkout" ${res.checkout ? "" : "disabled"}>${o.botao}</button>
+    <button type="button" class="btn" id="ir-checkout" ${res.checkout ? "" : "disabled"}>Consultar opções de pagamento</button>
     ${res.checkout ? `<p class="pag__seg">🔒 Pagamento seguro pela Hotmart</p>` : `<p class="res__aviso">O checkout desta oferta abre em instantes. Volte daqui a pouco para garantir sua condição.</p>`}
     <div class="res__outro"><button type="button" class="link" id="outro">Comprou com outro e-mail ou CPF? Tentar outro</button></div>`;
   mostrar("#etapa-resultado");
