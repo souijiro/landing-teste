@@ -188,6 +188,42 @@ function montarCheckout(base, categoria, email) {
   return u.toString();
 }
 
+// Duas formas de pagamento na mesma oferta da Hotmart:
+// cartão/à vista = checkout padrão (oferta 7xxei0ba, cupom ALUNOS/BLACK)
+// parcelado = boleto parcelado, Pix parcelado e parcelamento inteligente (oferta 22oyoyxe, cupom ALUNOSBOLETO/BLACKBOLETO)
+const OFERTA_PARCELADO = "22oyoyxe";
+function linkParcelado(base) {
+  const u = new URL(base);
+  u.searchParams.set("off", OFERTA_PARCELADO);
+  const cupom = u.searchParams.get("offDiscount");
+  if (cupom && !/BOLETO$/i.test(cupom)) u.searchParams.set("offDiscount", cupom + "BOLETO");
+  return u.toString();
+}
+function opcoesPagamento(res) {
+  const parc = PARCELA_12X[res.preco];
+  return `<fieldset class="pag">
+      <legend class="pag__titulo">Como você prefere pagar?</legend>
+      <label class="pag__op">
+        <input type="radio" name="pag" value="cartao" checked>
+        <span class="pag__corpo">
+          <span class="pag__nome">Cartão de crédito ou à vista</span>
+          ${parc ? `<span class="pag__linha"><span aria-hidden="true">💳</span> Até <b>12x de R$ ${parc}</b> no cartão</span>` : ""}
+          <span class="pag__linha"><span aria-hidden="true">⚡</span> ou <b>${brl(res.preco)} à vista</b> no Pix ou no cartão</span>
+        </span>
+      </label>
+      <label class="pag__op">
+        <input type="radio" name="pag" value="parcelado">
+        <span class="pag__corpo">
+          <span class="pag__nome">Boleto, Pix parcelado ou Parcelamento Inteligente</span>
+          <span class="pag__linha"><span aria-hidden="true">📄</span> <b>Boleto parcelado:</b> um boleto por mês</span>
+          <span class="pag__linha"><span aria-hidden="true">💠</span> <b>Pix parcelado:</b> um Pix por mês</span>
+          <span class="pag__linha"><span aria-hidden="true">🔁</span> <b>Parcelamento Inteligente:</b> no cartão, cobrando só a parcela do mês, sem ocupar o limite todo</span>
+          <span class="pag__nota">Você escolhe o número de parcelas no checkout.</span>
+        </span>
+      </label>
+    </fieldset>`;
+}
+
 function telaOferta(res, email) {
   const o = OFERTAS[res.categoria];
   const temDesconto = res.categoria !== "novo";
@@ -200,14 +236,16 @@ function telaOferta(res, email) {
       <span class="res__de">De <s>${brl(PRECO_ANCORA)}</s>${temDesconto ? ` · preço oficial <s>${brl(PRECO_CHEIO)}</s>` : ""}</span><span class="res__por">por apenas</span>
       ${PARCELA_12X[res.preco] ? `<span class="res__parcela">12x R$ ${PARCELA_12X[res.preco]}</span><span class="res__vista">ou ${brl(res.preco)} à vista</span>` : `<span class="res__valor">${brl(res.preco)}</span>`}
     </div>
+    ${res.checkout ? opcoesPagamento(res) : ""}
     <button type="button" class="btn" id="ir-checkout" ${res.checkout ? "" : "disabled"}>${o.botao}</button>
-    ${res.checkout ? "" : `<p class="res__aviso">O checkout desta oferta abre em instantes. Volte daqui a pouco para garantir sua condição.</p>`}
+    ${res.checkout ? `<p class="pag__seg">🔒 Pagamento seguro pela Hotmart</p>` : `<p class="res__aviso">O checkout desta oferta abre em instantes. Volte daqui a pouco para garantir sua condição.</p>`}
     <div class="res__outro"><button type="button" class="link" id="outro">Comprou com outro e-mail ou CPF? Tentar outro</button></div>`;
   mostrar("#etapa-resultado");
   if (res.checkout) {
-    const url = montarCheckout(res.checkout, res.categoria, email);
     $("#ir-checkout").addEventListener("click", () => {
-      evento("clique_checkout", { categoria: res.categoria, valor: res.preco });
+      const forma = (box.querySelector('input[name="pag"]:checked') || {}).value || "cartao";
+      const url = montarCheckout(forma === "parcelado" ? linkParcelado(res.checkout) : res.checkout, res.categoria, email);
+      evento("clique_checkout", { categoria: res.categoria, valor: res.preco, pagamento: forma });
       const aba = window.open(url, "_blank"); // com "noopener" o open devolve null e não dá para saber se abriu
       if (aba) aba.opener = null;
       else location.href = url; // bloqueador de pop-up: abre na mesma aba
@@ -215,24 +253,18 @@ function telaOferta(res, email) {
   }
   $("#outro").addEventListener("click", () => setTipoEVoltar());
 }
-// "Não sou aluno": sem consulta de cadastro, vai direto para o checkout da oferta cheia.
-// A aba é aberta já no clique (senão o bloqueador de pop-up barra) e recebe o link quando ele chega.
+// "Não sou aluno": sem consulta de cadastro, mostra a oferta cheia com as formas de pagamento.
 async function irNaoAluno() {
   if (enviando) return;
   enviando = true;
   evento("nao_aluno", {});
-  const aba = window.open("about:blank", "_blank");
   mostrar("#etapa-carregando");
   let res = null;
   try { res = await consultar("nao_aluno", null); } catch (err) { /* tratado abaixo */ }
   enviando = false;
-  if (!res || res.categoria !== "novo") { if (aba) aba.close(); return telaErro("Não conseguimos abrir o checkout agora. Tente de novo em alguns segundos."); }
+  if (!res || res.categoria !== "novo") return telaErro("Não conseguimos abrir a oferta agora. Tente de novo em alguns segundos.");
   evento("categoria_oferta", { categoria: res.categoria, valor: res.preco });
-  telaOferta(res, "");                                  // a página fica com a oferta aberta atrás do checkout
-  if (!res.checkout) { if (aba) aba.close(); return; }  // checkout ainda não configurado: fica a tela da oferta
-  const url = montarCheckout(res.checkout, res.categoria, "");
-  evento("clique_checkout", { categoria: res.categoria, valor: res.preco });
-  if (aba) { aba.opener = null; aba.location.href = url; } else location.href = url;
+  telaOferta(res, "");
 }
 $("#nao-aluno").addEventListener("click", irNaoAluno);
 $("#nao-aluno-2").addEventListener("click", irNaoAluno);

@@ -261,6 +261,21 @@ body.modal-aberto .cta-fixo { transform: translateY(110%); }
 .res__vista { display: block; margin-top: 4px; color: var(--texto-2); font-size: .95rem; font-weight: 600; }
 .res__aviso { margin: 10px 0 0; color: var(--texto-3); font-size: .8rem; }
 .res__outro { margin-top: 6px; }
+.pag { margin: 0 0 16px; padding: 0; border: 0; text-align: left; display: grid; gap: 10px; }
+.pag__titulo { padding: 0; margin: 0 0 2px; font-size: .78rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--texto-2); }
+.pag__op { position: relative; display: flex; gap: 12px; align-items: flex-start; padding: 14px 14px 14px 12px; border: 1.5px solid #333; border-radius: 14px; background: var(--card); cursor: pointer; transition: border-color .15s, background .15s; -webkit-tap-highlight-color: transparent; }
+.pag__op input { appearance: none; -webkit-appearance: none; flex: 0 0 22px; width: 22px; height: 22px; margin: 1px 0 0; border: 2px solid #555; border-radius: 50%; display: grid; place-content: center; cursor: pointer; }
+.pag__op input::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: #0b0b0b; transform: scale(0); transition: transform .12s; }
+.pag__op input:checked { background: var(--ouro); border-color: var(--ouro); }
+.pag__op input:checked::before { transform: scale(1); }
+.pag__op input:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.pag__op:has(input:checked) { border-color: var(--ouro); background: #1d1a10; }
+.pag__corpo { display: grid; gap: 5px; min-width: 0; }
+.pag__nome { font-weight: 800; font-size: .98rem; line-height: 1.25; color: #fff; }
+.pag__linha { font-size: .88rem; line-height: 1.35; color: var(--texto-2); }
+.pag__linha b { color: #fff; }
+.pag__nota { font-size: .76rem; color: var(--texto-3); }
+.pag__seg { margin: 10px 0 4px; color: var(--texto-3); font-size: .78rem; }
 .link--nao-aluno { display: block; margin: 2px auto 6px; color: #fff; font-weight: 600; }
 .erro-caixa { padding: 8px 0 4px; }
 .erro-caixa .icone { font-size: 2rem; }
@@ -469,6 +484,6 @@ body.modal-aberto .cta-fixo { transform: translateY(110%); }
     </div>
   </div>
 
-  <script src="/sejavitalicio/app.js?v=8" defer></script>
+  <script src="/sejavitalicio/app.js?v=9" defer></script>
 </body>
 </html>
