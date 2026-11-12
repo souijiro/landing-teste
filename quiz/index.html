@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<script>
+/* 1º script da página: guarda e-mail/telefone só nesta aba e limpa a URL
+   antes de carregar qualquer outra coisa. */
+(function () {
+  try {
+    var u = new URL(location.href), p = u.searchParams, mudou = false;
+    var email = p.get("email") || p.get("e-mail");
+    var tel = p.get("telefone") || p.get("tel") || p.get("phone") || p.get("whatsapp");
+    if (email || tel) {
+      var atual = {};
+      try { atual = JSON.parse(sessionStorage.getItem("quiz_docis_id") || "{}"); } catch (e) {}
+      sessionStorage.setItem("quiz_docis_id", JSON.stringify({
+        email: email || atual.email || "", telefone: tel || atual.telefone || ""
+      }));
+    }
+    ["email", "e-mail", "telefone", "tel", "phone", "whatsapp"].forEach(function (k) {
+      if (p.has(k)) { p.delete(k); mudou = true; }
+    });
+    if (mudou) history.replaceState(history.state, "", u.pathname + (p.toString() ? "?" + p : "") + u.hash);
+  } catch (e) {}
+})();
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<base href="/quiz/">
+<title>O que está te impedindo de viver da confeitaria? | Docis</title>
+<meta name="description" content="Responda 10 perguntas e descubra o que falta para transformar seus doces em uma fonte de renda de verdade.">
+<meta property="og:title" content="O que está te impedindo de viver da confeitaria? 🍫">
+<meta property="og:description" content="Responda 10 perguntas e descubra seu perfil na confeitaria.">
+<meta property="og:image" content="https://c.docis.com.br/quiz/img/result-01.webp">
+<meta name="theme-color" content="#A46AC4">
+<link rel="preload" as="image" href="img/question-01.webp">
+<style>
+:root{
+  --lilas:#A46AC4; --lilas-claro:#F4E7FA; --roxo:#59336E; --laranja:#FF873C;
+  --rosa:#FFF0F5; --branco:#fff; --texto:#3d2549; --suave:#7d6589;
+  --sombra:0 10px 30px rgba(89,51,110,.13);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--rosa);color:var(--texto)}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  font-size:16px;line-height:1.45;min-height:100vh;min-height:100dvh;-webkit-font-smoothing:antialiased;
+  background:radial-gradient(120% 60% at 50% 0%,var(--lilas-claro) 0%,var(--rosa) 70%) fixed;overflow-x:hidden}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+a{color:inherit}
+.app{max-width:480px;margin:0 auto;padding:16px 16px calc(24px + env(safe-area-inset-bottom));min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+.tela{display:none;flex:1;flex-direction:column;animation:entra .35s ease both}
+.tela.ativa{display:flex}
+@keyframes entra{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.tela,.opcao,.carregando .gota{animation:none!important;transition:none!important}}
+
+/* Abertura */
+.capa-img{width:100%;height:min(36vh,330px);object-fit:cover;object-position:50% 25%;border-radius:28px;box-shadow:var(--sombra);background:var(--lilas-claro)}
+.selo{display:inline-flex;align-self:center;margin:18px 0 8px;background:var(--branco);color:var(--lilas);font-weight:700;font-size:13px;letter-spacing:.04em;text-transform:uppercase;padding:6px 14px;border-radius:99px;box-shadow:0 2px 10px rgba(164,106,196,.15)}
+h1{font-size:clamp(25px,7vw,31px);line-height:1.15;color:var(--roxo);text-align:center;font-weight:800;letter-spacing:-.01em}
+.sub{text-align:center;color:var(--suave);margin:10px 4px 18px;font-size:16px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:22px}
+.chip{background:var(--branco);border-radius:99px;padding:8px 13px;font-size:14px;font-weight:600;color:var(--roxo);box-shadow:0 2px 8px rgba(89,51,110,.07)}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:58px;border-radius:18px;padding:14px 16px;font-weight:800;font-size:15px;letter-spacing:.01em;text-align:center;text-decoration:none;transition:transform .12s,box-shadow .2s}
+.btn:active{transform:scale(.98)}
+.btn-principal{background:var(--laranja);color:#fff;box-shadow:0 8px 22px rgba(255,135,60,.38)}
+.btn-lilas{background:var(--lilas);color:#fff;box-shadow:0 8px 22px rgba(164,106,196,.35)}
+.btn-claro{background:var(--branco);color:var(--roxo);box-shadow:var(--sombra)}
+.btn svg{flex:none}
+
+/* Pergunta */
+.topo{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.voltar{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;color:var(--roxo);background:var(--branco);box-shadow:0 2px 8px rgba(89,51,110,.08);flex:none}
+.voltar[disabled]{opacity:.35;pointer-events:none}
+.progresso{flex:1}
+.progresso-txt{display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:var(--suave);margin-bottom:6px}
+.barra{height:8px;border-radius:99px;background:#ead8f3;overflow:hidden}
+.barra i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--lilas),var(--laranja));transition:width .35s ease}
+.q-img{display:block;width:100%;max-width:300px;height:min(34vh,290px);margin:4px auto 14px;object-fit:cover;object-position:50% 25%;border-radius:24px;box-shadow:var(--sombra);background:var(--lilas-claro)}
+.q-txt{font-size:clamp(19px,5.3vw,22px);line-height:1.3;color:var(--roxo);font-weight:800;text-align:center;margin:0 4px 16px}
+.opcoes{display:flex;flex-direction:column;gap:10px}
+.opcao{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--branco);border:2px solid transparent;border-radius:18px;padding:13px 14px;min-height:62px;font-size:15.5px;line-height:1.35;box-shadow:0 3px 12px rgba(89,51,110,.07);transition:border-color .15s,background .15s,transform .12s}
+.opcao:active{transform:scale(.985)}
+.opcao .letra{flex:none;width:32px;height:32px;border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:14px;background:var(--lilas-claro);color:var(--lilas);transition:background .15s,color .15s}
+.opcao.sel{border-color:var(--lilas);background:#fbf5fe}
+.opcao.sel .letra{background:var(--lilas);color:#fff}
+@media (hover:hover){.opcao:hover{border-color:#dcc3ea}}
+
+/* Carregando */
+.carregando{align-items:center;justify-content:center;text-align:center;gap:18px}
+.gotas{display:flex;gap:10px}
+.gota{width:16px;height:16px;border-radius:50%;background:var(--lilas);animation:pula 1s infinite ease-in-out}
+.gota:nth-child(2){background:#c08ad8;animation-delay:.15s}.gota:nth-child(3){background:var(--laranja);animation-delay:.3s}
+@keyframes pula{0%,80%,100%{transform:scale(.6);opacity:.5}40%{transform:scale(1);opacity:1}}
+.carregando p{font-weight:700;color:var(--roxo);font-size:18px}
+
+/* Resultado */
+.r-card{background:var(--branco);border-radius:28px;box-shadow:var(--sombra);overflow:hidden}
+.r-img{display:block;width:100%;height:auto;aspect-ratio:640/570;object-fit:cover;background:var(--lilas-claro)}
+.r-corpo{padding:20px 20px 22px}
+.r-rotulo{font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--lilas);text-align:center}
+.r-titulo{font-size:clamp(23px,6.4vw,28px);margin:6px 0 10px}
+.r-desc{color:var(--texto);text-align:center}
+.r-msg{margin-top:14px;padding:14px 16px;background:var(--rosa);border-radius:16px;color:var(--roxo);font-weight:600;text-align:center}
+.bloco{margin-top:14px;background:var(--branco);border-radius:22px;padding:18px 18px 20px;box-shadow:0 4px 18px rgba(89,51,110,.08)}
+.bloco h2{font-size:17px;color:var(--roxo);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.bloco p{font-size:15.5px}
+.areas{display:grid;gap:10px;margin-top:14px}
+.area-linha{display:grid;grid-template-columns:70px 1fr 40px;align-items:center;gap:10px;font-size:14px;font-weight:700;color:var(--roxo)}
+.area-linha .barra{height:10px}
+.area-linha span:last-child{text-align:right;color:var(--suave);font-weight:600}
+.area-linha.foco span:first-child{color:var(--laranja)}
+.area-linha.foco .barra i{background:var(--laranja)}
+.dica{margin-top:12px;font-size:15px;color:var(--suave)}
+.cta{margin-top:14px;background:linear-gradient(160deg,var(--roxo),#7a4796);color:#fff;border-radius:24px;padding:22px 18px;text-align:center;box-shadow:var(--sombra)}
+.cta h2{font-size:21px;line-height:1.25;margin-bottom:8px}
+.cta p{opacity:.92;margin-bottom:18px;font-size:15.5px}
+.cta .btn+.btn,.cta .btn+.alt{margin-top:10px}
+.alt{display:block;font-size:13px;color:#fff;opacity:.85;text-decoration:underline;background:none}
+.aviso-app{font-size:12.5px;opacity:.8;margin-top:10px;display:none}
+.acoes{margin-top:14px;display:grid;gap:10px}
+.refazer{margin:16px auto 0;font-size:14px;color:var(--suave);text-decoration:underline}
+.rodape{margin-top:22px;text-align:center;font-size:12px;color:var(--suave)}
+.rodape a{color:var(--suave)}
+.oculto{display:none!important}
+</style>
+</head>
+<body>
+<main class="app" id="app">
+
+  <!-- ABERTURA -->
+  <section class="tela ativa" id="t-inicio" aria-labelledby="titulo">
+    <img class="capa-img" src="img/question-01.webp" alt="Confeiteira ilustrada sonhando com seus doces" width="293" height="494" fetchpriority="high">
+    <span class="selo">Teste gratuito</span>
+    <h1 id="titulo">🍫 O que está te impedindo de viver da confeitaria?</h1>
+    <p class="sub">Descubra seu nível na confeitaria e o que pode estar faltando para transformar seus doces em uma fonte de renda de verdade.</p>
+    <div class="chips">
+      <span class="chip">📝 10 perguntas rápidas</span>
+      <span class="chip">⏱️ Apenas 2 minutos</span>
+      <span class="chip">💜 Resultado personalizado</span>
+    </div>
+    <button class="btn btn-principal" id="b-comecar" type="button">QUERO DESCOBRIR MEU NÍVEL</button>
+  </section>
+
+  <!-- PERGUNTA -->
+  <section class="tela" id="t-pergunta" aria-live="polite">
+    <div class="topo">
+      <button class="voltar" id="b-voltar" type="button" aria-label="Voltar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="progresso">
+        <div class="progresso-txt"><span id="p-num">Pergunta 1 de 10</span><span id="p-pct">0%</span></div>
+        <div class="barra"><i id="p-barra"></i></div>
+      </div>
+    </div>
+    <img class="q-img" id="q-img" src="img/question-01.webp" alt="" width="293" height="494">
+    <h2 class="q-txt" id="q-txt"></h2>
+    <div class="opcoes" id="q-opcoes" role="radiogroup" aria-labelledby="q-txt"></div>
+  </section>
+
+  <!-- CALCULANDO -->
+  <section class="tela carregando" id="t-carregando">
+    <div class="gotas"><span class="gota"></span><span class="gota"></span><span class="gota"></span></div>
+    <p>Preparando o seu resultado…</p>
+  </section>
+
+  <!-- RESULTADO -->
+  <section class="tela" id="t-resultado">
+    <article class="r-card">
+      <img class="r-img" id="r-img" src="" alt="" width="640" height="570">
+      <div class="r-corpo">
+        <div class="r-rotulo">Seu perfil</div>
+        <h1 class="r-titulo" id="r-titulo"></h1>
+        <p class="r-desc" id="r-desc"></p>
+        <p class="r-msg" id="r-msg"></p>
+      </div>
+    </article>
+
+    <div class="bloco">
+      <h2>🎯 Sua principal dificuldade</h2>
+      <p id="r-desafio"></p>
+      <div class="areas" id="r-areas"></div>
+      <p class="dica" id="r-recomendacao"></p>
+    </div>
+
+    <div class="cta">
+      <h2>Quer descobrir como melhorar esses resultados?</h2>
+      <p>Na minha aula gratuita, vou mostrar técnicas e estratégias que utilizo na Docis para produzir brigadeiros incríveis e vender todos os dias.</p>
+      <!-- com ?captacao=sim -->
+      <a class="btn btn-principal oculto" id="b-aula" href="#" rel="noopener noreferrer">QUERO PARTICIPAR DA AULA GRATUITA</a>
+      <!-- sem ?captacao=sim -->
+      <a class="btn btn-principal oculto" id="b-agenda" href="#" rel="noopener noreferrer">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M8 2.5v4M16 2.5v4M3 9.5h18M12 13v5M9.5 15.5h5"/></svg>
+        <span id="b-agenda-txt">LEMBRAR DA AULA NA AGENDA</span>
+      </a>
+      <p class="aviso-app" id="agenda-quando"></p>
+      <a class="alt oculto" id="b-agenda-alt" href="#" rel="noopener noreferrer"></a>
+      <p class="aviso-app" id="aviso-app">Se a agenda não abrir, toque em ⋯ e escolha “Abrir no navegador”.</p>
+    </div>
+
+    <div class="acoes">
+      <a class="btn btn-claro" id="b-compartilhar" href="#" target="_blank" rel="noopener noreferrer">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="#25D366" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.6 11.6 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.6-.3z"/></svg>
+        COMPARTILHAR MEU RESULTADO
+      </a>
+    </div>
+    <button class="refazer" id="b-refazer" type="button">Refazer o teste</button>
+  </section>
+
+  <footer class="rodape">
+    Docis Confeitaria<span id="privacidade"></span>
+  </footer>
+</main>
+<script src="config.js"></script>
+<script src="score.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
