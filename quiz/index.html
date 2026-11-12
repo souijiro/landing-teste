@@ -114,9 +114,15 @@ h1{font-size:clamp(25px,7vw,31px);line-height:1.15;color:var(--roxo);text-align:
 .cta{margin-top:14px;background:linear-gradient(160deg,var(--roxo),#7a4796);color:#fff;border-radius:24px;padding:22px 18px;text-align:center;box-shadow:var(--sombra)}
 .cta h2{font-size:21px;line-height:1.25;margin-bottom:8px}
 .cta p{opacity:.92;margin-bottom:18px;font-size:15.5px}
-.cta .btn+.btn,.cta .btn+.alt{margin-top:10px}
-.alt{display:block;font-size:13px;color:#fff;opacity:.85;text-decoration:underline;background:none}
-.aviso-app{font-size:12.5px;opacity:.8;margin-top:10px;display:none}
+.alt{display:block;font-size:13px;color:#fff;opacity:.85;text-decoration:underline;background:none;margin-top:10px}
+.confirmado{background:rgba(255,255,255,.12);border-radius:16px;padding:14px;display:grid;gap:4px;font-size:15px}
+.confirmado strong{font-size:16px}
+#t-agenda{text-align:center}
+#t-agenda .selo{margin-top:6px}
+#t-agenda .sub{margin-bottom:20px}
+.quando{margin-top:12px;font-weight:700;color:var(--roxo);font-size:15px}
+.alt-agenda{display:block;margin-top:12px;font-size:13.5px;color:var(--suave);text-decoration:underline}
+.aviso-app{font-size:12.5px;color:var(--suave);margin-top:10px;display:none}
 .acoes{margin-top:14px;display:grid;gap:10px}
 .refazer{margin:16px auto 0;font-size:14px;color:var(--suave);text-decoration:underline}
 .rodape{margin-top:22px;text-align:center;font-size:12px;color:var(--suave)}
@@ -163,6 +169,21 @@ h1{font-size:clamp(25px,7vw,31px);line-height:1.15;color:var(--roxo);text-align:
     <p>Preparando o seu resultado…</p>
   </section>
 
+  <!-- LEMBRETE (libera o resultado; só sem ?captacao=sim) -->
+  <section class="tela" id="t-agenda">
+    <img class="q-img" src="img/question-10.webp" alt="Confeiteira ilustrada pensando no crescimento do negócio" width="293" height="494">
+    <span class="selo">Seu resultado está pronto! 🎉</span>
+    <h1>Falta só um passo</h1>
+    <p class="sub">Toque no botão e adicione um lembrete da aula no seu calendário para liberar o resultado.</p>
+    <a class="btn btn-principal" id="b-agenda" href="#" rel="noopener noreferrer">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M8 2.5v4M16 2.5v4M3 9.5h18M12 13v5M9.5 15.5h5"/></svg>
+      <span id="b-agenda-txt">ADICIONAR À AGENDA</span>
+    </a>
+    <p class="quando" id="agenda-quando"></p>
+    <a class="alt-agenda" id="b-agenda-alt" href="#" rel="noopener noreferrer"></a>
+    <p class="aviso-app" id="aviso-app">Se a agenda não abrir, toque em ⋯ e escolha “Abrir no navegador”.</p>
+  </section>
+
   <!-- RESULTADO -->
   <section class="tela" id="t-resultado">
     <article class="r-card">
@@ -187,14 +208,12 @@ h1{font-size:clamp(25px,7vw,31px);line-height:1.15;color:var(--roxo);text-align:
       <p>Na minha aula gratuita, vou mostrar técnicas e estratégias que utilizo na Docis para produzir brigadeiros incríveis e vender todos os dias.</p>
       <!-- com ?captacao=sim -->
       <a class="btn btn-principal oculto" id="b-aula" href="#" rel="noopener noreferrer">QUERO PARTICIPAR DA AULA GRATUITA</a>
-      <!-- sem ?captacao=sim -->
-      <a class="btn btn-principal oculto" id="b-agenda" href="#" rel="noopener noreferrer">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M8 2.5v4M16 2.5v4M3 9.5h18M12 13v5M9.5 15.5h5"/></svg>
-        <span id="b-agenda-txt">LEMBRAR DA AULA NA AGENDA</span>
-      </a>
-      <p class="aviso-app" id="agenda-quando"></p>
-      <a class="alt oculto" id="b-agenda-alt" href="#" rel="noopener noreferrer"></a>
-      <p class="aviso-app" id="aviso-app">Se a agenda não abrir, toque em ⋯ e escolha “Abrir no navegador”.</p>
+      <!-- sem ?captacao=sim: lembrete já foi adicionado antes do resultado -->
+      <div class="confirmado oculto" id="r-agendado">
+        <strong>✅ Lembrete na sua agenda</strong>
+        <span id="r-quando"></span>
+        <a class="alt" id="r-agenda-de-novo" href="#" rel="noopener noreferrer">Não apareceu? Adicionar de novo</a>
+      </div>
     </div>
 
     <div class="acoes">

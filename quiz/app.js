@@ -20,7 +20,7 @@
 
   // ---------- telas ----------
   function mostrar(id) {
-    ["t-inicio", "t-pergunta", "t-carregando", "t-resultado"].forEach(function (t) {
+    ["t-inicio", "t-pergunta", "t-carregando", "t-agenda", "t-resultado"].forEach(function (t) {
       $(t).classList.toggle("ativa", t === id);
     });
     window.scrollTo(0, 0);
@@ -85,7 +85,7 @@
   }
 
   function comecar() {
-    estado = { passo: 0, respostas: [] };
+    estado = { passo: 0, respostas: [], liberado: !!estado.liberado };
     guardar(); renderPergunta(); mostrar("t-pergunta");
   }
 
@@ -94,7 +94,20 @@
     estado.passo = N; guardar();
     mostrar("t-carregando");
     salvarLead();
-    setTimeout(function () { renderResultado(); mostrar("t-resultado"); }, 1300);
+    setTimeout(depoisDoQuiz, 1300);
+  }
+
+  // Sem ?captacao=sim, o resultado só abre depois do lembrete na agenda
+  function precisaAgenda() { return !(captacao && C.AULA_URL); }
+  function depoisDoQuiz() {
+    if (precisaAgenda() && !estado.liberado) { montarAgenda(); mostrar("t-agenda"); }
+    else { renderResultado(); mostrar("t-resultado"); }
+  }
+  function liberar() {
+    if (estado.liberado) return;
+    estado.liberado = true; guardar();
+    // dá tempo da agenda abrir antes de trocar a tela
+    setTimeout(function () { renderResultado(); mostrar("t-resultado"); }, 900);
   }
 
   // Grava só e-mail e telefone (recebidos na URL). Falha em silêncio.
@@ -152,9 +165,27 @@
   }
 
   // ---------- captação (?captacao=sim) ou lembrete na agenda ----------
+  function dadosAgenda() {
+    var ini = proximaAula(Date.now());
+    return { ini: ini, apple: ehApple(), ics: "/api/quiz-agenda?t=" + ini, google: linkGoogle(ini) };
+  }
+
+  function montarAgenda() {
+    var d = dadosAgenda(), ag = $("b-agenda"), alt = $("b-agenda-alt");
+    ag.href = d.apple ? d.ics : d.google;
+    if (d.apple) ag.removeAttribute("target"); else ag.target = "_blank";
+    $("b-agenda-txt").textContent = d.apple ? "ADICIONAR À AGENDA DO " + (d.apple === "ios" ? "IPHONE" : "MAC") : "ADICIONAR À AGENDA DO GOOGLE";
+    $("agenda-quando").textContent = "📅 Aula: " + quando(d.ini) + " (horário de Brasília)";
+    alt.textContent = d.apple ? "Usa o Google Agenda? Toque aqui" : "Usa iPhone ou Outlook? Baixar o arquivo da agenda";
+    alt.href = d.apple ? d.google : d.ics;
+    if (d.apple) alt.target = "_blank"; else alt.removeAttribute("target");
+    // navegador interno do Instagram/Facebook às vezes não abre a agenda
+    if (/Instagram|FBAN|FBAV|Line\//i.test(navigator.userAgent)) $("aviso-app").style.display = "block";
+  }
+
   function montarChamada() {
-    var aula = $("b-aula"), ag = $("b-agenda"), alt = $("b-agenda-alt");
-    if (captacao && C.AULA_URL) {
+    var aula = $("b-aula");
+    if (!precisaAgenda()) {
       // mantém UTMs e outros parâmetros (nunca e-mail/telefone, já removidos)
       var u = new URL(C.AULA_URL, location.href);
       params.forEach(function (v, k) { if (k !== "captacao" && !u.searchParams.has(k)) u.searchParams.set(k, v); });
@@ -162,26 +193,11 @@
       aula.classList.remove("oculto");
       return;
     }
-    var ini = proximaAula(Date.now());
-    var apple = ehApple();
-    var ics = "/api/quiz-agenda?t=" + ini;
-    var google = linkGoogle(ini);
-    ag.href = apple ? ics : google;
-    if (!apple) ag.target = "_blank";
-    $("b-agenda-txt").textContent = apple ? "ADICIONAR À AGENDA DO " + (apple === "ios" ? "IPHONE" : "MAC") : "ADICIONAR À AGENDA DO GOOGLE";
-    ag.classList.remove("oculto");
-
-    var q = $("agenda-quando");
-    q.textContent = "📅 " + quando(ini) + " (horário de Brasília)";
-    q.style.display = "block";
-
-    alt.textContent = apple ? "Usa o Google Agenda? Toque aqui" : "Usa iPhone ou Outlook? Baixar o arquivo da agenda";
-    alt.href = apple ? google : ics;
-    if (apple) alt.target = "_blank";
-    alt.classList.remove("oculto");
-
-    // navegador interno do Instagram/Facebook às vezes não abre a agenda
-    if (/Instagram|FBAN|FBAV|Line\//i.test(navigator.userAgent)) $("aviso-app").style.display = "block";
+    var d = dadosAgenda(), de = $("r-agenda-de-novo");
+    $("r-quando").textContent = "Te espero " + quando(d.ini).replace(/^Hoje/, "hoje") + " (horário de Brasília) 💜";
+    de.href = d.apple ? d.ics : d.google;
+    if (!d.apple) de.target = "_blank";
+    $("r-agendado").classList.remove("oculto");
   }
 
   function ehApple() {
@@ -225,11 +241,13 @@
 
   // ---------- eventos ----------
   $("b-comecar").addEventListener("click", comecar);
+  $("b-agenda").addEventListener("click", liberar);
+  $("b-agenda-alt").addEventListener("click", liberar);
   $("b-voltar").addEventListener("click", voltar);
   $("b-refazer").addEventListener("click", function () {
     try { localStorage.removeItem(CHAVE); } catch (e) {}
-    estado = { passo: -1, respostas: [] };
-    mostrar("t-inicio");
+    estado = { passo: -1, respostas: [], liberado: !!estado.liberado };
+    guardar(); mostrar("t-inicio");
   });
 
   if (C.PRIVACIDADE_URL) {
@@ -241,6 +259,6 @@
 
   // ---------- retomada ----------
   if (estado.passo >= 0 && estado.passo < N) { renderPergunta(); mostrar("t-pergunta"); }
-  else if (estado.passo === N && estado.respostas.length === N) { renderResultado(); mostrar("t-resultado"); }
+  else if (estado.passo === N && estado.respostas.length === N) depoisDoQuiz();
   else preCarregar(imgPergunta(0));
 })();
