@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Painel DAZ | Diagnóstico do Delivery</title>
+<meta name="theme-color" content="#17130e">
+<link rel="stylesheet" href="/daz/painel/painel.css">
+</head>
+<body>
+
+<section class="login" id="login" hidden>
+  <form class="login__caixa" id="login-form">
+    <img src="/daz/img/logo.webp" alt="Delivery de A a Z" width="1748" height="899">
+    <p class="login__titulo">Painel do Diagnóstico</p>
+    <label for="senha">Senha</label>
+    <input type="password" id="senha" autocomplete="current-password" required autofocus>
+    <button type="submit" id="login-btn">Entrar</button>
+    <p class="login__erro" id="login-erro" hidden>Senha incorreta.</p>
+  </form>
+</section>
+
+<div id="app" hidden>
+  <header class="topo">
+    <div class="topo__marca"><b>Diagnóstico do Delivery</b><span id="atualizado">—</span></div>
+    <div class="topo__acoes">
+      <select id="periodo" aria-label="Período">
+        <option value="tudo">Tudo</option>
+        <option value="hoje">Hoje</option>
+        <option value="7">Últimos 7 dias</option>
+        <option value="30">Últimos 30 dias</option>
+        <option value="mes">Este mês</option>
+      </select>
+      <button class="bt bt--claro" id="csv" title="Baixar planilha">CSV</button>
+      <button class="bt bt--claro" id="sair">Sair</button>
+    </div>
+  </header>
+
+  <main class="conteudo">
+    <section class="kpis" id="kpis"></section>
+
+    <section class="funil" id="funil"></section>
+
+    <section class="grade2">
+      <div class="caixa"><h3>Faturamento declarado</h3><div id="g-fat"></div></div>
+      <div class="caixa"><h3>Momento</h3><div id="g-mom"></div><h3 class="mt">Onde vende</h3><div id="g-plat"></div></div>
+    </section>
+
+    <section class="caixa">
+      <div class="lista-topo">
+        <h3>Leads</h3>
+        <div class="filtros">
+          <input type="search" id="busca" placeholder="Buscar nome ou WhatsApp">
+          <select id="f-status"><option value="">Todos os status</option></select>
+          <select id="f-pag"><option value="">Pagamento: todos</option></select>
+          <select id="f-fat"><option value="">Faturamento: todos</option></select>
+        </div>
+      </div>
+      <div class="tabela-wrap">
+        <table class="tabela">
+          <thead><tr>
+            <th>Entrou</th><th>Nome</th><th>WhatsApp</th><th>Faturamento</th><th>Momento</th><th>Apps</th>
+            <th>Status</th><th>Agendado</th><th>Ticket</th><th>Pagamento</th><th></th>
+          </tr></thead>
+          <tbody id="linhas"></tbody>
+        </table>
+      </div>
+      <p class="vazio" id="vazio" hidden>Nenhum lead neste filtro.</p>
+    </section>
+
+    <section class="caixa" id="agenda-caixa">
+      <h3>Próximos agendamentos</h3>
+      <div id="agenda"></div>
+    </section>
+  </main>
+</div>
+
+<!-- Ficha do lead -->
+<div class="fundo" id="fundo" hidden></div>
+<aside class="ficha" id="ficha" hidden aria-modal="true" role="dialog" aria-labelledby="f-nome">
+  <div class="ficha__topo">
+    <div><h2 id="f-nome">—</h2><p id="f-sub">—</p></div>
+    <button class="x" id="fechar" aria-label="Fechar">×</button>
+  </div>
+  <div class="ficha__corpo">
+    <div class="respostas" id="f-resp"></div>
+
+    <form id="f-form">
+      <h4>Etapa</h4>
+      <div class="etapas" id="f-etapas"></div>
+
+      <h4>Agendamento</h4>
+      <div class="linha2">
+        <label>Data e hora<input type="datetime-local" name="agendado_para"></label>
+        <label>Responsável<input type="text" name="responsavel" maxlength="60" placeholder="Quem atende"></label>
+      </div>
+
+      <h4>Fechamento da consultoria</h4>
+      <div class="linha2">
+        <label>Produto / plano<input type="text" name="produto" maxlength="80" placeholder="Ex.: Consultoria 3 meses"></label>
+        <label>Ticket (R$)<input type="text" name="ticket" inputmode="decimal" placeholder="0,00"></label>
+      </div>
+      <div class="linha2">
+        <label>Data do fechamento<input type="date" name="fechado_em"></label>
+        <label>Motivo da perda<input type="text" name="motivo_perda" maxlength="120" placeholder="Se não fechou"></label>
+      </div>
+
+      <h4>Pagamento</h4>
+      <div class="linha2">
+        <label>Status<select name="pagamento_status"></select></label>
+        <label>Forma<select name="pagamento_forma"></select></label>
+      </div>
+      <div class="linha2">
+        <label>Valor recebido (R$)<input type="text" name="valor_pago" inputmode="decimal" placeholder="0,00"></label>
+        <label>Parcelas<input type="number" name="parcelas" min="1" max="24" placeholder="1"></label>
+      </div>
+
+      <h4>Observações</h4>
+      <textarea name="obs" rows="4" maxlength="4000" placeholder="Anotações da conversa…"></textarea>
+
+      <div class="ficha__acoes">
+        <button type="button" class="bt bt--perigo" id="apagar">Apagar lead</button>
+        <span id="f-msg"></span>
+        <button type="submit" class="bt" id="salvar">Salvar</button>
+      </div>
+    </form>
+  </div>
+</aside>
+
+<script src="/daz/painel/painel.js"></script>
+</body>
+</html>

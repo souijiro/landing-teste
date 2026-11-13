@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Diagnóstico do Delivery | Delivery de A a Z</title>
+<meta name="description" content="Responda 4 perguntas rápidas e descubra se essa oferta é para você.">
+<meta name="robots" content="noindex">
+<meta property="og:title" content="Diagnóstico do Delivery">
+<meta property="og:description" content="4 perguntas rápidas para saber se essa oferta é para você.">
+<meta property="og:image" content="https://c.docis.com.br/daz/img/logo.webp">
+<meta name="theme-color" content="#f7f1e6">
+<link rel="preload" as="image" href="/daz/img/logo.webp">
+
+<!-- Google Tag Manager (GTM-55ZVC8K) — só no domínio da Docis, como nas outras páginas -->
+<script>
+  if (location.hostname === "c.docis.com.br") {
+    (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-55ZVC8K');
+  }
+</script>
+
+<style>
+:root{
+  --cream:#f7f1e6; --paper:#fffaf0; --ink:#17130e; --y:#ffc928; --r:#ef3b24; --mut:#6f6556; --line:#e4d9c5;
+  --ok:#1f9d55; --sombra:0 10px 30px rgba(23,19,14,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html,body{background:var(--cream);color:var(--ink)}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-size:16px;line-height:1.45;
+  min-height:100vh;min-height:100dvh;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+  background-image:radial-gradient(rgba(23,19,14,.06) 1px,transparent 1px);background-size:18px 18px}
+button,input{font:inherit;color:inherit}
+button{border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.app{max-width:480px;margin:0 auto;padding:16px 16px calc(28px + env(safe-area-inset-bottom));min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+.tela{display:none;flex:1;flex-direction:column;animation:entra .35s ease both}
+.tela.ativa{display:flex}
+@keyframes entra{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.tela{animation:none}}
+
+/* Abertura */
+.logo{display:block;width:min(100%,360px);height:auto;margin:10px auto 6px}
+.selo{display:inline-flex;align-items:center;gap:6px;align-self:center;margin:8px 0 14px;background:var(--ink);color:var(--y);font-weight:800;font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:7px 14px;border-radius:99px}
+h1{font-size:clamp(26px,7.4vw,34px);line-height:1.12;text-align:center;font-weight:900;letter-spacing:-.02em}
+h1 mark{background:linear-gradient(transparent 58%,var(--y) 58%);color:inherit;padding:0 2px}
+.sub{text-align:center;color:var(--mut);margin:12px 6px 22px;font-size:16.5px}
+.passos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:24px}
+.passo{background:var(--paper);border:1.5px solid var(--line);border-radius:16px;padding:12px 8px;text-align:center}
+.passo b{display:block;font-size:20px;font-weight:900}
+.passo span{font-size:12.5px;color:var(--mut);font-weight:600}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:58px;border-radius:16px;padding:14px 18px;font-weight:900;font-size:16px;letter-spacing:.01em;transition:transform .12s,opacity .2s}
+.btn:active{transform:scale(.98)}
+.btn-principal{background:var(--r);color:#fff;box-shadow:0 5px 0 #a8240f,0 10px 24px rgba(239,59,36,.28)}
+.btn-principal:active{box-shadow:0 2px 0 #a8240f;transform:translateY(3px)}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.nota{text-align:center;color:var(--mut);font-size:13px;margin-top:14px;display:flex;justify-content:center;align-items:center;gap:6px}
+
+/* Pergunta */
+.topo{display:flex;align-items:center;gap:12px;margin:4px 0 22px}
+.voltar{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:var(--paper);border:1.5px solid var(--line);flex:none}
+.progresso{flex:1}
+.progresso-txt{display:flex;justify-content:space-between;font-size:13px;font-weight:800;color:var(--mut);margin-bottom:7px}
+.barra{height:9px;border-radius:99px;background:var(--line);overflow:hidden}
+.barra i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--r),var(--y));transition:width .4s ease}
+.q-num{font-size:13px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--r);margin-bottom:6px}
+.q-txt{font-size:clamp(21px,6vw,25px);line-height:1.22;font-weight:900;letter-spacing:-.01em;margin-bottom:6px}
+.q-ajuda{color:var(--mut);font-size:15px;margin-bottom:18px}
+.opcoes{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+.opcao{display:flex;align-items:center;gap:13px;width:100%;text-align:left;background:var(--paper);border:2px solid var(--line);border-radius:16px;padding:14px 15px;min-height:62px;font-size:16px;font-weight:600;line-height:1.3;transition:border-color .15s,background .15s,transform .12s}
+.opcao:active{transform:scale(.985)}
+@media (hover:hover){.opcao:hover{border-color:#cdbb9c}}
+.marca{flex:none;width:26px;height:26px;border:2px solid #cdbb9c;border-radius:50%;display:grid;place-items:center;background:#fff;transition:all .15s}
+.multi .marca{border-radius:8px}
+.marca svg{opacity:0;transition:opacity .15s}
+.opcao.sel{border-color:var(--ink);background:#fff}
+.opcao.sel .marca{background:var(--ink);border-color:var(--ink)}
+.opcao.sel .marca svg{opacity:1}
+.app-logo{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-weight:900;font-size:13px;color:#fff}
+.opcao .txt{flex:1}
+.espaco{flex:1}
+
+/* Contato */
+.campo{display:block;margin-bottom:14px}
+.campo span{display:block;font-weight:800;font-size:14.5px;margin-bottom:7px}
+.campo input{width:100%;height:58px;border:2px solid var(--line);border-radius:14px;background:#fff;padding:0 16px;font-size:18px;font-weight:600;outline:none;transition:border-color .15s}
+.campo input:focus{border-color:var(--ink)}
+.campo.erro input{border-color:var(--r)}
+.campo small{display:none;color:var(--r);font-weight:700;font-size:13px;margin-top:6px}
+.campo.erro small{display:block}
+.tel{display:flex;gap:8px}
+.tel .ddi{flex:none;height:58px;display:flex;align-items:center;gap:6px;padding:0 13px;border:2px solid var(--line);border-radius:14px;background:var(--paper);font-weight:800;font-size:16px}
+.tel input{flex:1;min-width:0}
+.privacidade{font-size:12.5px;color:var(--mut);text-align:center;margin-top:12px}
+.erro-envio{display:none;background:#fde8e4;color:#8d1d0c;border-radius:12px;padding:12px 14px;font-size:14px;font-weight:600;margin-bottom:12px}
+
+/* Obrigado */
+#t-fim{justify-content:center;text-align:center}
+.check{width:88px;height:88px;border-radius:50%;background:var(--y);display:grid;place-items:center;margin:0 auto 22px;box-shadow:0 0 0 10px rgba(255,201,40,.25)}
+#t-fim h1{margin-bottom:12px}
+#t-fim .sub{margin-bottom:22px}
+.cartao{background:var(--paper);border:1.5px solid var(--line);border-radius:18px;padding:16px 18px;display:flex;gap:12px;align-items:center;text-align:left}
+.cartao .ic{flex:none;width:44px;height:44px;border-radius:12px;background:#25d366;display:grid;place-items:center}
+.cartao b{display:block;font-size:15.5px}
+.cartao span{color:var(--mut);font-size:14px}
+</style>
+</head>
+<body>
+<main class="app">
+
+  <!-- Abertura -->
+  <section class="tela ativa" id="t-inicio" aria-labelledby="h-inicio">
+    <img class="logo" src="/daz/img/logo.webp" alt="Delivery de A a Z" width="1748" height="899" fetchpriority="high">
+    <span class="selo">Diagnóstico do Delivery</span>
+    <h1 id="h-inicio">Antes de tudo: essa oferta é <mark>para você?</mark></h1>
+    <p class="sub">Responda 4 perguntas rápidas para sabermos se o seu momento combina com essa oferta.</p>
+    <div class="passos" aria-hidden="true">
+      <div class="passo"><b>4</b><span>perguntas</span></div>
+      <div class="passo"><b>1 min</b><span>de duração</span></div>
+      <div class="passo"><b>100%</b><span>gratuito</span></div>
+    </div>
+    <button class="btn btn-principal" id="comecar">Começar diagnóstico
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+    <p class="nota"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Suas respostas ficam só com a nossa equipe.</p>
+  </section>
+
+  <!-- Perguntas (montadas pelo script) -->
+  <section class="tela" id="t-pergunta" aria-live="polite">
+    <div class="topo">
+      <button class="voltar" id="voltar" aria-label="Voltar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div class="progresso">
+        <div class="progresso-txt"><span id="p-txt">Pergunta 1 de 4</span><span id="p-pct">0%</span></div>
+        <div class="barra"><i id="p-barra"></i></div>
+      </div>
+    </div>
+    <p class="q-num" id="q-num"></p>
+    <h2 class="q-txt" id="q-txt"></h2>
+    <p class="q-ajuda" id="q-ajuda"></p>
+    <div class="opcoes" id="opcoes"></div>
+    <div class="espaco"></div>
+    <button class="btn btn-principal" id="continuar" hidden disabled>Continuar</button>
+  </section>
+
+  <!-- Contato -->
+  <section class="tela" id="t-contato">
+    <div class="topo">
+      <button class="voltar" id="voltar2" aria-label="Voltar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div class="progresso">
+        <div class="progresso-txt"><span>Pergunta 4 de 4</span><span>90%</span></div>
+        <div class="barra"><i style="width:90%"></i></div>
+      </div>
+    </div>
+    <p class="q-num">Última etapa</p>
+    <h2 class="q-txt">Quase lá! Como falamos com você?</h2>
+    <p class="q-ajuda">Se o seu perfil for selecionado, a nossa equipe fala com você pelo WhatsApp.</p>
+    <form id="form" novalidate>
+      <div class="erro-envio" id="erro-envio" role="alert">Não conseguimos enviar agora. Confira sua internet e toque em enviar de novo.</div>
+      <label class="campo" id="c-whats">
+        <span>Informe seu WhatsApp</span>
+        <div class="tel">
+          <div class="ddi" aria-hidden="true">🇧🇷 +55</div>
+          <input id="whats" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="(11) 91234-5678" maxlength="15" required>
+        </div>
+        <small>Digite o DDD e o número do celular.</small>
+      </label>
+      <label class="campo" id="c-nome">
+        <span>Informe seu nome</span>
+        <input id="nome" type="text" autocomplete="name" placeholder="Seu nome" maxlength="80" required>
+        <small>Escreva seu nome.</small>
+      </label>
+      <button class="btn btn-principal" id="enviar" type="submit">Enviar respostas</button>
+      <p class="privacidade">Usamos seus dados só para falar com você sobre o diagnóstico.</p>
+    </form>
+  </section>
+
+  <!-- Obrigado -->
+  <section class="tela" id="t-fim">
+    <div class="check"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#17130e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+    <h1>Obrigado<span id="fim-nome"></span>!</h1>
+    <p class="sub">Recebemos suas respostas. Vamos entrar em contato via WhatsApp caso seu perfil seja selecionado.</p>
+    <div class="cartao">
+      <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg></div>
+      <div><b>Fique de olho no WhatsApp</b><span id="fim-whats">Salve nosso contato para não perder a mensagem.</span></div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+(function () {
+  "use strict";
+  var SUPABASE_URL = "https://eoqyoeohbcpdjxghfwua.supabase.co";
+  var SUPABASE_KEY = "sb_publishable_cv-1jB60ZGb1hJHYQi0qPA_LwF9DS98";
+
+  var PERGUNTAS = [
+    { id: "plataformas", tipo: "multi", txt: "Marque em qual delivery você já vende", ajuda: "Pode marcar mais de uma opção.",
+      ops: [
+        { v: "ifood", t: "iFood", cor: "#ea1d2c", sigla: "iF" },
+        { v: "99food", t: "99Food", cor: "#ffb800", sigla: "99" },
+        { v: "keeta", t: "Keeta", cor: "#ffcc00", sigla: "K" },
+        { v: "nenhum", t: "Nenhum destes", nenhum: true }
+      ] },
+    { id: "faturamento", tipo: "um", txt: "Qual foi seu faturamento no delivery no último mês fechado?", ajuda: "Considere o total vendido em todos os aplicativos e encomendas.",
+      ops: [
+        { v: "0", t: "Ainda não vendi" },
+        { v: "ate_2k", t: "Até R$ 2 mil" },
+        { v: "2k_5k", t: "De R$ 2 mil a R$ 5 mil" },
+        { v: "5k_10k", t: "De R$ 5 mil a R$ 10 mil" },
+        { v: "10k_30k", t: "De R$ 10 mil a R$ 30 mil" },
+        { v: "30k_50k", t: "De R$ 30 mil a R$ 50 mil" },
+        { v: "50k_mais", t: "Acima de R$ 50 mil" }
+      ] },
+    { id: "momento", tipo: "um", txt: "Responda o que melhor representa o seu momento atual:", ajuda: "",
+      ops: [
+        { v: "segunda_renda", t: "Eu tenho um emprego e o delivery/encomendas são minha segunda renda" },
+        { v: "vivo_do_delivery", t: "Eu vivo do delivery/encomendas" },
+        { v: "iniciando", t: "Estou iniciando no delivery/encomendas" }
+      ] }
+  ];
+  var TOTAL = 4;
+  var resp = { plataformas: [], faturamento: null, momento: null };
+  var atual = 0, enviando = false;
+
+  // UTMs e parâmetros da URL (para saber de onde veio o lead)
+  var q = new URLSearchParams(location.search), origem = {};
+  ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "src", "sck", "fbclid", "gclid"].forEach(function (k) { if (q.get(k)) origem[k] = q.get(k).slice(0, 200); });
+
+  var $ = function (s) { return document.querySelector(s); };
+  var dl = function (o) { (window.dataLayer = window.dataLayer || []).push(o); };
+  var CHECK = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+
+  function tela(id) {
+    document.querySelectorAll(".tela").forEach(function (t) { t.classList.toggle("ativa", t.id === id); });
+    window.scrollTo(0, 0);
+  }
+  function progresso(i) {
+    var p = Math.round(i / TOTAL * 100);
+    $("#p-txt").textContent = "Pergunta " + (i + 1) + " de " + TOTAL;
+    $("#p-pct").textContent = p + "%";
+    $("#p-barra").style.width = p + "%";
+  }
+
+  function mostrar(i) {
+    atual = i;
+    var P = PERGUNTAS[i];
+    progresso(i);
+    $("#q-num").textContent = "Pergunta " + (i + 1);
+    $("#q-txt").textContent = P.txt;
+    $("#q-ajuda").textContent = P.ajuda;
+    $("#q-ajuda").hidden = !P.ajuda;
+    var box = $("#opcoes");
+    box.className = "opcoes" + (P.tipo === "multi" ? " multi" : "");
+    box.setAttribute("role", P.tipo === "multi" ? "group" : "radiogroup");
+    box.innerHTML = "";
+    P.ops.forEach(function (o) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "opcao"; b.dataset.v = o.v;
+      b.setAttribute("role", P.tipo === "multi" ? "checkbox" : "radio");
+      var logo = o.sigla ? '<span class="app-logo" style="background:' + o.cor + (o.cor === "#ffcc00" || o.cor === "#ffb800" ? ';color:#17130e' : '') + '">' + o.sigla + "</span>" : "";
+      b.innerHTML = '<span class="marca">' + CHECK + "</span>" + logo + '<span class="txt"></span>';
+      b.querySelector(".txt").textContent = o.t;
+      b.addEventListener("click", function () { escolher(P, o); });
+      box.appendChild(b);
+    });
+    marcar(P);
+    $("#continuar").hidden = P.tipo !== "multi";
+    tela("t-pergunta");
+  }
+
+  function marcar(P) {
+    document.querySelectorAll("#opcoes .opcao").forEach(function (b) {
+      var sel = P.tipo === "multi" ? resp[P.id].indexOf(b.dataset.v) >= 0 : resp[P.id] === b.dataset.v;
+      b.classList.toggle("sel", sel);
+      b.setAttribute("aria-checked", sel ? "true" : "false");
+    });
+    if (P.tipo === "multi") $("#continuar").disabled = resp[P.id].length === 0;
+  }
+
+  function escolher(P, o) {
+    if (P.tipo === "multi") {
+      var lista = resp[P.id];
+      if (o.nenhum) lista = lista.indexOf(o.v) >= 0 ? [] : [o.v];
+      else {
+        lista = lista.filter(function (v) { return v !== "nenhum"; });
+        lista = lista.indexOf(o.v) >= 0 ? lista.filter(function (v) { return v !== o.v; }) : lista.concat(o.v);
+      }
+      resp[P.id] = lista;
+      marcar(P);
+    } else {
+      resp[P.id] = o.v;
+      marcar(P);
+      setTimeout(avancar, 260);
+    }
+  }
+
+  function avancar() {
+    if (atual < PERGUNTAS.length - 1) mostrar(atual + 1);
+    else { tela("t-contato"); setTimeout(function () { $("#whats").focus(); }, 350); }
+  }
+
+  $("#comecar").addEventListener("click", function () { dl({ event: "iniciou_diagnostico_delivery" }); mostrar(0); });
+  $("#continuar").addEventListener("click", avancar);
+  $("#voltar").addEventListener("click", function () { if (atual === 0) tela("t-inicio"); else mostrar(atual - 1); });
+  $("#voltar2").addEventListener("click", function () { mostrar(PERGUNTAS.length - 1); });
+
+  // WhatsApp formatado: (11) 91234-5678 / (11) 1234-5678
+  function soDig(s) { return String(s || "").replace(/\D/g, ""); }
+  function formatar(d) {
+    d = d.slice(0, 11);
+    if (d.length <= 2) return d ? "(" + d : "";
+    if (d.length <= 6) return "(" + d.slice(0, 2) + ") " + d.slice(2);
+    if (d.length <= 10) return "(" + d.slice(0, 2) + ") " + d.slice(2, 6) + "-" + d.slice(6);
+    return "(" + d.slice(0, 2) + ") " + d.slice(2, 7) + "-" + d.slice(7);
+  }
+  var whats = $("#whats");
+  whats.addEventListener("input", function () {
+    var d = soDig(whats.value);
+    if (d.length > 11 && d.indexOf("55") === 0) d = d.slice(2); // colou com +55
+    whats.value = formatar(d);
+    $("#c-whats").classList.remove("erro");
+  });
+  $("#nome").addEventListener("input", function () { $("#c-nome").classList.remove("erro"); });
+  function whatsValido(d) { return d.length === 11 && d[2] === "9" && +d.slice(0, 2) >= 11; }
+
+  $("#form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (enviando) return;
+    var d = soDig(whats.value), nome = $("#nome").value.trim().replace(/\s+/g, " ");
+    var ok = true;
+    if (!whatsValido(d)) { $("#c-whats").classList.add("erro"); ok = false; }
+    if (nome.length < 2) { $("#c-nome").classList.add("erro"); ok = false; }
+    if (!ok) { (whatsValido(d) ? $("#nome") : whats).focus(); return; }
+
+    enviando = true;
+    $("#erro-envio").style.display = "none";
+    var btn = $("#enviar"); btn.disabled = true; btn.textContent = "Enviando…";
+    fetch(SUPABASE_URL + "/rest/v1/rpc/diag_delivery_salvar", {
+      method: "POST",
+      headers: { apikey: SUPABASE_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({ p: {
+        plataformas: resp.plataformas, faturamento: resp.faturamento, momento: resp.momento,
+        whatsapp: "55" + d, nome: nome, origem: origem, pagina: location.pathname
+      } })
+    }).then(function (r) {
+      if (!r.ok) throw new Error("http " + r.status);
+      dl({ event: "lead_diagnostico_delivery", faturamento: resp.faturamento, momento: resp.momento });
+      $("#fim-nome").textContent = ", " + nome.split(" ")[0];
+      tela("t-fim");
+    }).catch(function () {
+      $("#erro-envio").style.display = "block";
+      btn.disabled = false; btn.textContent = "Enviar respostas";
+    }).then(function () { enviando = false; });
+  });
+})();
+</script>
+</body>
+</html>
