@@ -8,9 +8,7 @@
 <meta name="robots" content="noindex">
 <meta property="og:title" content="Diagnóstico do Delivery">
 <meta property="og:description" content="4 perguntas rápidas para saber se essa oferta é para você.">
-<meta property="og:image" content="https://c.docis.com.br/daz/img/logo.webp">
 <meta name="theme-color" content="#f7f1e6">
-<link rel="preload" as="image" href="/daz/img/logo.webp">
 
 <!-- Google Tag Manager (GTM-55ZVC8K) — só no domínio da Docis, como nas outras páginas -->
 <script>
@@ -43,8 +41,7 @@ button{border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:trans
 @media (prefers-reduced-motion:reduce){.tela{animation:none}}
 
 /* Abertura */
-.logo{display:block;width:min(100%,360px);height:auto;margin:10px auto 6px}
-.selo{display:inline-flex;align-items:center;gap:6px;align-self:center;margin:8px 0 14px;background:var(--ink);color:var(--y);font-weight:800;font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:7px 14px;border-radius:99px}
+.selo{display:inline-flex;align-items:center;gap:6px;align-self:center;margin:min(12vh,90px) 0 16px;background:var(--ink);color:var(--y);font-weight:800;font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:7px 14px;border-radius:99px}
 h1{font-size:clamp(26px,7.4vw,34px);line-height:1.12;text-align:center;font-weight:900;letter-spacing:-.02em}
 h1 mark{background:linear-gradient(transparent 58%,var(--y) 58%);color:inherit;padding:0 2px}
 .sub{text-align:center;color:var(--mut);margin:12px 6px 22px;font-size:16.5px}
@@ -58,6 +55,11 @@ h1 mark{background:linear-gradient(transparent 58%,var(--y) 58%);color:inherit;p
 .btn-principal:active{box-shadow:0 2px 0 #a8240f;transform:translateY(3px)}
 .btn[disabled]{opacity:.45;pointer-events:none}
 .nota{text-align:center;color:var(--mut);font-size:13px;margin-top:14px;display:flex;justify-content:center;align-items:center;gap:6px}
+
+.vagas{margin-top:auto;padding-top:22px;display:flex;justify-content:center}
+.vagas span{display:inline-flex;align-items:center;gap:8px;background:#fff3cd;border:1.5px solid var(--y);color:var(--ink);font-weight:800;font-size:14px;padding:10px 16px;border-radius:14px;text-align:center}
+#t-fim .vagas{margin-top:0;padding-top:16px}
+.vagas i{flex:none;width:8px;height:8px;border-radius:50%;background:var(--r);box-shadow:0 0 0 4px rgba(239,59,36,.18)}
 
 /* Pergunta */
 .topo{display:flex;align-items:center;gap:12px;margin:4px 0 22px}
@@ -113,7 +115,6 @@ h1 mark{background:linear-gradient(transparent 58%,var(--y) 58%);color:inherit;p
 
   <!-- Abertura -->
   <section class="tela ativa" id="t-inicio" aria-labelledby="h-inicio">
-    <img class="logo" src="/daz/img/logo.webp" alt="Delivery de A a Z" width="1748" height="899" fetchpriority="high">
     <span class="selo">Diagnóstico do Delivery</span>
     <h1 id="h-inicio">Antes de tudo: essa oferta é <mark>para você?</mark></h1>
     <p class="sub">Responda 4 perguntas rápidas para sabermos se o seu momento combina com essa oferta.</p>
@@ -126,6 +127,7 @@ h1 mark{background:linear-gradient(transparent 58%,var(--y) 58%);color:inherit;p
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
     </button>
     <p class="nota"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Suas respostas ficam só com a nossa equipe.</p>
+    <div class="vagas"><span><i></i>Apenas 5 empresários serão selecionados.</span></div>
   </section>
 
   <!-- Perguntas (montadas pelo script) -->
@@ -186,6 +188,7 @@ h1 mark{background:linear-gradient(transparent 58%,var(--y) 58%);color:inherit;p
       <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg></div>
       <div><b>Fique de olho no WhatsApp</b><span id="fim-whats">Salve nosso contato para não perder a mensagem.</span></div>
     </div>
+    <div class="vagas"><span><i></i>Apenas 5 empresários serão selecionados.</span></div>
   </section>
 
 </main>
