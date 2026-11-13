@@ -103,7 +103,12 @@
     if (precisaAgenda() && !estado.liberado) { montarAgenda(); mostrar("t-agenda"); }
     else { renderResultado(); mostrar("t-resultado"); }
   }
-  function liberar() {
+  var viaSafariAtivo = false;
+  function liberar(e) {
+    // se o iPhone não abriu o Safari (iOS antigo), mostra como abrir manualmente
+    if (viaSafariAtivo && e && e.currentTarget && e.currentTarget.id === "b-agenda") {
+      setTimeout(function () { if (!document.hidden) $("r-dica-safari").classList.remove("oculto"); }, 1500);
+    }
     if (estado.liberado) return;
     estado.liberado = true; guardar();
     // dá tempo da agenda abrir antes de trocar a tela
@@ -166,18 +171,23 @@
 
   // ---------- captação (?captacao=sim) ou lembrete na agenda ----------
   function dadosAgenda() {
-    var ini = proximaAula(Date.now());
-    return { ini: ini, apple: ehApple(), ics: "/api/quiz-agenda?t=" + ini, google: linkGoogle(ini) };
+    var ini = proximaAula(Date.now()), apple = ehApple(), ics = "/api/quiz-agenda?t=" + ini;
+    // Navegador interno (WhatsApp, Instagram, Chrome do iPhone) mostra o .ics como texto:
+    // manda o arquivo para o Safari, que abre a tela "Adicionar à agenda".
+    var viaSafari = apple === "ios" && iosForaDoSafari();
+    var icsAbrir = viaSafari ? "x-safari-https://" + location.host + ics : ics;
+    return { ini: ini, apple: apple, ics: ics, icsAbrir: icsAbrir, viaSafari: viaSafari, google: linkGoogle(ini) };
   }
 
   function montarAgenda() {
     var d = dadosAgenda(), ag = $("b-agenda"), alt = $("b-agenda-alt");
-    ag.href = d.apple ? d.ics : d.google;
+    ag.href = d.apple ? d.icsAbrir : d.google;
     if (d.apple) ag.removeAttribute("target"); else ag.target = "_blank";
     $("b-agenda-txt").textContent = d.apple ? "ADICIONAR À AGENDA DO " + (d.apple === "ios" ? "IPHONE" : "MAC") : "ADICIONAR À AGENDA DO GOOGLE";
     $("agenda-quando").textContent = "📅 Aula: " + quando(d.ini) + " (horário de Brasília)";
     alt.textContent = d.apple ? "Usa o Google Agenda? Toque aqui" : "Usa iPhone ou Outlook? Baixar o arquivo da agenda";
     alt.href = d.apple ? d.google : d.ics;
+    viaSafariAtivo = d.viaSafari;
     if (d.apple) alt.target = "_blank"; else alt.removeAttribute("target");
     // navegador interno do Instagram/Facebook às vezes não abre a agenda
     if (/Instagram|FBAN|FBAV|Line\//i.test(navigator.userAgent)) $("aviso-app").style.display = "block";
@@ -195,9 +205,16 @@
     }
     var d = dadosAgenda(), de = $("r-agenda-de-novo");
     $("r-quando").textContent = "Te espero " + quando(d.ini).replace(/^Hoje/, "hoje") + " (horário de Brasília) 💜";
-    de.href = d.apple ? d.ics : d.google;
+    de.href = d.apple ? d.icsAbrir : d.google;
     if (!d.apple) de.target = "_blank";
     $("r-agendado").classList.remove("oculto");
+  }
+
+  // Safari de verdade tem navigator.standalone; WKWebView de app (WhatsApp, Instagram, Chrome iOS) não
+  function iosForaDoSafari() {
+    var ua = navigator.userAgent || "";
+    return typeof navigator.standalone === "undefined" ||
+      /CriOS|FxiOS|EdgiOS|OPiOS|GSA\/|Instagram|FBAN|FBAV|WhatsApp|Line\//i.test(ua);
   }
 
   function ehApple() {
