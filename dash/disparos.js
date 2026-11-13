@@ -12,6 +12,7 @@ async function carregarDisparos(token) {
   try { DISP = await rpc("dash_disparos_black2026", { p_token: token }); } catch (e) { DISP = null; }
   renderDisparos();
   if (typeof VENDAS !== "undefined" && VENDAS) renderVendas(); // custo da API entra no ROI/CAC da aba Vendas
+  if (typeof renderCustos === "function") renderCustos();
 }
 
 function renderDisparos() {

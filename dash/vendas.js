@@ -139,7 +139,9 @@ function renderVendas() {
   $("#vk-barra").setAttribute("aria-valuenow", meta ? Math.round(ap.n / meta * 100) : 0);
 
   // investimento: tráfego (Meta, as duas contas) + API oficial do WhatsApp
-  const trafego = investimentoTrafego(), api = custoApiOficial(), invest = trafego + api;
+  // com a aba Custos carregada, usa os valores confirmados (e os outros custos); senão, o levantado
+  const CE = typeof custosEfetivos === "function" ? custosEfetivos() : null;
+  const trafego = CE ? CE.trafego : investimentoTrafego(), api = CE ? CE.api : custoApiOficial(), outros = CE ? CE.outros : 0, invest = trafego + api + outros;
   const roas = trafego ? ap.v / trafego : null, roi = invest ? (ap.v - invest) / invest : null, cac = ap.n ? invest / ap.n : null;
   const vezes = (x) => x == null ? "—" : x.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + "x";
   const pctRoi = (x) => x == null ? "—" : (x * 100).toLocaleString("pt-BR", { maximumFractionDigits: 0 }) + "%";
@@ -149,7 +151,7 @@ function renderVendas() {
     ["kpi--verde", "Valor aprovado (30 dias)", brlV(ap.v30), nParc ? "só as parcelas já pagas" : "sem parcelamento inteligente"],
     ["", "ROAS", vezes(roas), trafego ? `valor cheio ÷ tráfego (${brlV(trafego)})` : "sem gasto de tráfego"],
     [roi != null && roi < 0 ? "kpi--vermelho-num" : "", "ROI", pctRoi(roi), invest ? `(valor cheio − investimento) ÷ investimento` : "sem investimento"],
-    ["", "Investimento total", brlV(invest), `tráfego ${brlV(trafego)} + API oficial ${brlV(api)}`],
+    ["", "Investimento total", brlV(invest), `tráfego ${brlV(trafego)} + API oficial ${brlV(api)}${CE ? ` + outros ${brlV(outros)} (aba Custos)` : ""}`],
     ["", "CAC", cac == null ? "—" : brlV(cac), "investimento total ÷ compras aprovadas"]
   ].map(([c, r, n, s]) => `<div class="kpi ${c}"><p class="rotulo">${r}</p><p class="kpi__num">${n}</p><p class="kpi__sub">${esc(s)}</p></div>`).join("");
   renderAlunosVendas(por("aprovada").filter(ehCompra));
@@ -203,6 +205,7 @@ function renderVendas() {
   $("#vend-ultimo").textContent = VENDAS.ultimo_evento ? "último aviso da Hotmart: " + quando(VENDAS.ultimo_evento) : "nenhum aviso da Hotmart ainda";
   renderVendasTempo(V, C);
   if (typeof renderComparativo === "function") renderComparativo(); // a aba Comparativo usa as mesmas vendas
+  if (typeof renderCustos === "function" && typeof CUSTOS !== "undefined" && CUSTOS) renderCustos();
 }
 
 // ---- por dia e por hora (horário de Brasília) ----
