@@ -48,6 +48,8 @@
     { "src": "/quiz/?", "dest": "/quiz/index.html", "headers": { "Referrer-Policy": "no-referrer", "Cache-Control": "no-cache" } },
     { "src": "/baw/img/(.*)", "headers": { "Cache-Control": "public, max-age=2592000, stale-while-revalidate=86400" }, "continue": true },
     { "src": "/baw/?", "dest": "/baw/index.html" },
+    { "src": "/politica-de-privacidade/?", "dest": "/politica-de-privacidade/index.html" },
+    { "src": "/termos-de-uso/?", "dest": "/termos-de-uso/index.html" },
     { "src": "/leadscanaga/?", "dest": "/leadscanaga/index.html", "headers": { "X-Robots-Tag": "noindex, nofollow", "Cache-Control": "no-store" } }
   ]
 }
