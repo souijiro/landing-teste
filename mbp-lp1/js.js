@@ -1,15 +1,6 @@
 window.gpages_config_fallback={"v":1,"zoom":{"enabled":0},"fb":{"enabled":0,"pixel":"","event":"Empty","event_custom":"","event_access":"PageView","event_access_custom":"","event_value":"0","event_currency":""},"ga":{"enabled":0,"id":""},"gtm":{"enabled":0,"id":"GTM-55ZVC8K"},"lgpd":{"enabled":1,"type":2,"color":"ffffff","text":"Usamos cookies para personalizar conteúdos e melhorar a sua experiência.","policy_url":""},"meta":{"title":"Missão Meu Brigadeiro no Ponto Perfeito","description":"","keywords":"","robots":"all","og_title":"Missão Meu Brigadeiro no Ponto Perfeito","og_description":"MBP","og_site_name":"Docis"},"scripts_hash":"fd11934c3bd09eec"};
 window.gpages_scripts_fallback={"h":"fd11934c3bd09eec","funcionamento":[function(){
-if(!window.getCrawler()){
 
-  window.pixelId = "68851933fad7817eb1bef3c3";
-  var a = document.createElement("script");
-  a.setAttribute("async", "");
-  a.setAttribute("defer", "");
-  a.setAttribute("src", "https://cdn.utmify.com.br/scripts/pixel/pixel.js");
-  document.head.appendChild(a);
-
-}
 }]};
 var gpages_live=(window.gpages_config&&window.gpages_config.v===1)?window.gpages_config:null;
 var gpages_cfg=gpages_live||window.gpages_config_fallback||{};
