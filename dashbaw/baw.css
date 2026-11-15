@@ -83,3 +83,13 @@
 #low-horas { margin: 18px 0 20px; }
 
 .vazio-bloco { padding: 18px; text-align: center; color: var(--texto-3); border: 1px dashed var(--linha); border-radius: 12px; }
+
+/* Cabeçalho no computador: as 11 abas ficam numa linha própria, com a largura toda
+   (o dash.css da Black põe as abas numa coluna central de 440px) */
+@media (min-width: 720px) {
+  .topo { grid-template-columns: 1fr auto; }
+  .abas.abas--rolar { grid-column: 1 / -1; justify-self: stretch; width: auto; }
+}
+@media (min-width: 1200px) {
+  .abas--rolar .aba { flex: 1 0 auto; }
+}

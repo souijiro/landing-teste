@@ -1,5 +1,6 @@
 // Dash do webinário Brigadeiro de A a Z — lê tudo pela RPC dash_baw (token do login, painel 'baw').
-// Semana do webinário = segunda 19h → segunda seguinte 18h59 (São Paulo). Só a cobrança 1 conta como venda.
+// Semanas (São Paulo): low/inscrições/tráfego = segunda 00h → domingo 23h59; Brigadeiro de A a Z = segunda 21h → segunda seguinte 20h59:59
+// (a semana de cada venda vem pronta do banco). Só a cobrança 1 conta como venda.
 const SUPABASE_URL = "https://eoqyoeohbcpdjxghfwua.supabase.co";
 const SUPABASE_KEY = "sb_publishable_cv-1jB60ZGb1hJHYQi0qPA_LwF9DS98";
 const PAINEL = "baw";
@@ -49,16 +50,16 @@ const horaSP = (iso) => +_hora.format(new Date(iso));
 const quando = (iso) => (iso ? _quando.format(new Date(iso)) : "—");
 function somaDias(iso, n) { const d = new Date(iso + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
 function segundaDe(dia) { const d = new Date(dia + "T12:00:00Z"); return somaDias(dia, -((d.getUTCDay() + 6) % 7)); }
-// semana de um dia de custo: segunda até 19h ainda é da semana anterior, então segunda conta na semana anterior
-const semanaDoDia = (dia) => segundaDe(somaDias(dia, -1));
-const semanaAgora = () => segundaDe(diaSP(new Date(Date.now() - 19 * 3600e3)));
+// semana de calendário (segunda → domingo)
+const semanaDoDia = (dia) => segundaDe(dia);
+const semanaAgora = () => segundaDe(diaSP(new Date()));
 const DIAS_SEM = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
 const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 const dm = (d) => d.slice(8, 10) + "/" + d.slice(5, 7);
 function rotulo(k, modo = MODO) {
   if (!k) return "—";
   if (modo === "dia") return dm(k) + " " + DIAS_SEM[new Date(k + "T12:00:00Z").getUTCDay()];
-  if (modo === "semana") return dm(k) + " → " + dm(somaDias(k, 7));
+  if (modo === "semana") return "seg " + dm(k) + " → dom " + dm(somaDias(k, 6));
   return MESES[+k.slice(5, 7) - 1] + "/" + k.slice(0, 4);
 }
 const grupoStatus = (s) => {
@@ -137,7 +138,7 @@ function preparar(d) {
   APROV = V.filter((v) => v.grupo === "aprovada");
   LOW_DE = new Map();
   [...APROV].filter((v) => v.tipo === "low").sort((a, b) => a.em.localeCompare(b.em)).forEach((v) => { if (v.pessoa && !LOW_DE.has(v.pessoa)) LOW_DE.set(v.pessoa, v); });
-  CARR = (d.carrinhos || []).map((c) => ({ ...c, dia: diaSP(c.em), mes: diaSP(c.em).slice(0, 7), sem: segundaDe(diaSP(new Date(new Date(c.em).getTime() - 19 * 3600e3))) }));
+  CARR = (d.carrinhos || []).map((c) => ({ ...c, dia: diaSP(c.em), mes: diaSP(c.em).slice(0, 7), sem: segundaDe(diaSP(c.em)) }));
   INSC = (d.inscricoes || []).map((i) => ({ ...i, dia: diaSP(i.em), mes: diaSP(i.em).slice(0, 7), pessoa: pessoa(i) }));
   WEB = (d.webinario || []).map((w) => ({ ...w, dia: diaSP(w.em), mes: diaSP(w.em).slice(0, 7), sem: w.web, pessoa: pessoa(w) }));
   TRAF = (d.trafego || []).map((t) => ({ ...t, sem: semanaDoDia(t.dia), mes: t.dia.slice(0, 7) }));
@@ -160,7 +161,7 @@ function montarPeriodos() {
   const lista = periodos();
   if (!SEL || !lista.includes(SEL)) SEL = chaveAgora();
   $("#periodo-sel").innerHTML = lista.map((k) => `<option value="${k}" ${k === SEL ? "selected" : ""}>${esc(rotulo(k))}${k === chaveAgora() ? " (atual)" : ""}</option>`).join("");
-  $("#periodo-nota").textContent = MODO === "semana" ? "segunda 19h → segunda 19h" : "";
+  $("#periodo-nota").textContent = MODO === "semana" ? `low: seg → dom · Brigadeiro de A a Z: seg ${dm(SEL)} 21h → seg ${dm(somaDias(SEL, 7))} 20h59` : "";
   $$(".modo-nome").forEach((e) => (e.textContent = MODO === "dia" ? "dia" : MODO === "semana" ? "semana" : "mês"));
   $$(".periodo__modo button").forEach((b) => b.classList.toggle("ativo", b.dataset.modo === MODO));
 }
@@ -422,7 +423,7 @@ function listaVendas(el, vs) {
 function renderPrincipal() {
   const P = mProduto("principal", "ob_principal", SEL), W = mWeb(SEL);
   $("#princ-kpis").innerHTML = [
-    kpi("Vendas", fmt(P.vendas), MODO === "semana" ? `janela do webinário de ${dm(SEL)}` : ""),
+    kpi("Vendas", fmt(P.vendas), MODO === "semana" ? `live de ${dm(SEL)}: seg 21h → seg ${dm(somaDias(SEL, 7))} 20h59` : ""),
     kpi("Faturamento", brl0(P.tot), `principal ${brl0(P.fat)} · bumps ${brl0(P.fatOB)}`),
     kpi("Caixa em 30 dias", brl0(P.caixa), ""), kpi("Conv. presentes", pct(P.vendas, W.acessou), `${fmt(W.acessou)} presentes`),
     kpi("Conv. inscritos", pct(P.vendas, W.insc), `${fmt(W.insc)} inscritos`), kpi("Líquido", brl0(P.liq), "sem tráfego", "kpi--preto")
