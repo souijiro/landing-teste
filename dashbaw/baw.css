@@ -93,3 +93,19 @@
 @media (min-width: 1200px) {
   .abas--rolar .aba { flex: 1 0 auto; }
 }
+
+/* Aba Tráfego */
+.tr-filtros select { height: 38px; border: 1px solid #d6d0c8; border-radius: 8px; padding: 0 10px; font: 500 13px var(--fonte); background: #fff; max-width: 100%; }
+.tr-aviso:empty { display: none; }
+.thumb--vazia { display: inline-block; }
+.rank-nome .thumb { width: 40px; height: 50px; }
+.tabela--rank td:first-child { min-width: 220px; white-space: normal; }
+.tr-barras { display: flex; gap: 6px; align-items: flex-end; height: 160px; margin: 8px 0 26px; overflow-x: auto; }
+.tr-barra { flex: 1 0 34px; display: flex; flex-direction: column; align-items: center; height: 100%; }
+.tr-barra__par { flex: 1; width: 100%; display: flex; gap: 3px; align-items: flex-end; justify-content: center; }
+.tr-barra__par b { width: 12px; border-radius: 4px 4px 0 0; min-height: 2px; }
+.tr-barra__par b.inv { background: #2a78d6; }
+.tr-barra__par b.ven { background: #1baf7a; }
+.tr-barra span { font-size: .62rem; color: var(--texto-3); margin-top: 4px; }
+@media (min-width: 1080px) { .top5--meio { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+#tr-previa-img { width: 100%; max-height: calc(100dvh - 160px); object-fit: contain; background: #000; display: block; }

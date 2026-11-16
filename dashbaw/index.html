@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/dash/dash.css?v=42">
-  <link rel="stylesheet" href="/dashbaw/baw.css?v=2">
+  <link rel="stylesheet" href="/dashbaw/baw.css?v=3">
 </head>
 <body>
 
@@ -46,6 +46,7 @@
       <nav class="abas abas--rolar" role="tablist">
         <button role="tab" class="aba ativa" data-aba="painel">Painel</button>
         <button role="tab" class="aba" data-aba="low">Low ticket</button>
+        <button role="tab" class="aba" data-aba="trafego">Tráfego</button>
         <button role="tab" class="aba" data-aba="inscricoes">Inscrições</button>
         <button role="tab" class="aba" data-aba="webinario">Webinário</button>
         <button role="tab" class="aba" data-aba="principal">Brigadeiro de A a Z</button>
@@ -109,6 +110,45 @@
       <section class="cartao">
         <div class="cartao__topo"><h2>Por código src</h2></div>
         <div class="tabela-wrap"><table class="tabela" id="low-src"></table></div>
+      </section>
+    </main>
+
+    <!-- Tráfego -->
+    <main class="aba-conteudo" id="aba-trafego" hidden>
+      <section class="cartao">
+        <div class="filtros__linha tr-filtros">
+          <select id="tf-campanha" aria-label="Campanha"></select>
+          <select id="tf-conjunto" aria-label="Conjunto"></select>
+          <select id="tf-formato" aria-label="Formato"></select>
+          <span class="t-nota" id="tr-sync"></span>
+        </div>
+      </section>
+      <section class="kpis kpis--baw" id="tr-kpis"></section>
+      <p class="t-nota tr-aviso" id="tr-aviso"></p>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Funil dos anúncios</h2><span class="t-nota">Meta até a compra · Vendas Hotmart = vendas reais do low ligadas ao anúncio pelo sck</span></div>
+        <div class="funil-baw" id="tr-funil"></div>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Top 5 anúncios · geral</h2><span class="t-nota">por vendas Hotmart, depois menor CPA real</span></div>
+        <div class="top5" id="tr-top5"></div>
+      </section>
+      <section class="cartao"><div class="cartao__topo"><h2>Top 5 vídeos</h2></div><div class="top5" id="tr-top5-video"></div></section>
+      <section class="cartao"><div class="cartao__topo"><h2>Top 5 imagens e carrosséis</h2></div><div class="top5" id="tr-top5-imagem"></div></section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Investimento × vendas por dia</h2><div class="legenda"><span><i style="background:#2a78d6"></i>Investimento</span><span><i style="background:#1baf7a"></i>Vendas Hotmart</span></div></div>
+        <div class="tr-barras" id="tr-barras"></div>
+        <div class="tabela-wrap"><table class="tabela" id="tr-dia"></table></div>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Ranking</h2>
+          <select id="tr-dim" aria-label="Agrupar por"><option value="anuncio">Por anúncio</option><option value="conjunto">Por conjunto</option><option value="campanha">Por campanha</option><option value="formato">Por formato</option></select></div>
+        <div class="tabela-wrap tabela-wrap--alta"><table class="tabela tabela--rank" id="tr-rank"></table></div>
+        <p class="tabela-legenda"><span>Clique no título da coluna para ordenar e na miniatura para ver o criativo. Hook = quem viu 3 s ÷ impressões; retenção = assistiu até o fim ÷ 3 s.</span></p>
+      </section>
+      <section class="grade-2">
+        <section class="cartao"><div class="cartao__topo"><h2>Vendas por posicionamento</h2></div><div class="tabela-wrap"><table class="tabela" id="tr-pos"></table></div></section>
+        <section class="cartao"><div class="cartao__topo"><h2>Vendas por perfil</h2></div><div class="tabela-wrap"><table class="tabela" id="tr-perfil"></table></div></section>
       </section>
     </main>
 
@@ -277,6 +317,15 @@
     </main>
   </div>
 
-  <script src="/dashbaw/app.js?v=9"></script>
+  <div class="previa" id="tr-previa" hidden>
+    <div class="previa__caixa">
+      <div class="previa__topo"><strong id="tr-previa-titulo"></strong><button type="button" class="btn-sec" id="tr-previa-fechar">Fechar</button></div>
+      <img id="tr-previa-img" alt="" referrerpolicy="no-referrer">
+      <a class="previa__link" id="tr-previa-ver" target="_blank" rel="noopener">Ver o anúncio (prévia da Meta) ↗</a>
+      <a class="previa__link" id="tr-previa-gerenciador" target="_blank" rel="noopener">Abrir no Gerenciador de Anúncios ↗</a>
+    </div>
+  </div>
+  <script src="/dashbaw/app.js?v=10"></script>
+  <script src="/dashbaw/trafego.js?v=1"></script>
 </body>
 </html>

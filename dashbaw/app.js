@@ -679,16 +679,18 @@ document.addEventListener("click", async (e) => {
 // ---------- carregar ----------
 function renderTudo(forcar) {
   montarPeriodos();
-  const partes = [renderPainel, renderLow, renderInscricoes, renderWebinario, renderPrincipal, renderUpsell, renderVendas, () => renderDisparos(forcar), renderFinanceiro, () => renderWebhooks(forcar), () => renderCadastros(forcar)];
+  const partes = [renderPainel, renderLow, () => typeof renderTrafego === "function" && renderTrafego(), renderInscricoes, renderWebinario, renderPrincipal, renderUpsell, renderVendas, () => renderDisparos(forcar), renderFinanceiro, () => renderWebhooks(forcar), () => renderCadastros(forcar)];
   for (const f of partes) { try { f(); } catch (err) { console.error(f.name, err); } }
 }
 async function carregar(forcar) {
   if (!lerToken()) return mostrarLogin();
   $("#recarregar").disabled = true;
   try {
-    const [d, t] = await Promise.all([comToken("dash_baw"), comToken("dash_baw_templates").catch((e) => { if (e.code === "28000") throw e; console.error("templates", e); return null; })]);
+    const opcional = (nome) => comToken(nome).catch((e) => { if (e.code === "28000") throw e; console.error(nome, e); return null; });
+    const [d, t, tr] = await Promise.all([comToken("dash_baw"), opcional("dash_baw_templates"), opcional("dash_baw_trafego")]);
     preparar(d);
     if (t) prepararTemplates(t);
+    if (tr && typeof prepararTrafego === "function") prepararTrafego(tr);
     renderTudo(forcar === true);
     $("#atualizado").textContent = "Atualizado " + quando(new Date().toISOString()) + " · atualiza sozinho a cada 1 min";
   } catch (err) {
