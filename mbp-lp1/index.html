@@ -113,6 +113,13 @@ window.gpages_conversion = gpages_conversion;
       if(!pendingLink) return;
       var link = pendingLink;
       var src = btn.getAttribute('data-src');
+      // Hotmart src = perfil|criativo (criativo = page src, else utm_term = ad name)
+      var srcHotmart = src;
+      try {
+        var qs = new URLSearchParams(location.search);
+        var criativo = qs.get('src') || qs.get('utm_term') || '';
+        if (criativo) srcHotmart = src + '|' + criativo;
+      } catch (err) {}
       var url = link.getAttribute('href');
       // Forward the page's query string (utm_*, fbclid...) to the checkout
       try {
@@ -124,9 +131,9 @@ window.gpages_conversion = gpages_conversion;
       } catch (err) {}
       var sep = url.indexOf('?') === -1 ? '?' : '&';
       if(/[?&]src=/.test(url)){
-        url = url.replace(/([?&])src=[^&]*/, '$1src=' + encodeURIComponent(src));
+        url = url.replace(/([?&])src=[^&]*/, '$1src=' + encodeURIComponent(srcHotmart));
       } else {
-        url = url + sep + 'src=' + encodeURIComponent(src);
+        url = url + sep + 'src=' + encodeURIComponent(srcHotmart);
       }
       link.setAttribute('href', url);
       try {
