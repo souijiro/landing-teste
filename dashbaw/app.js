@@ -52,7 +52,10 @@ function somaDias(iso, n) { const d = new Date(iso + "T12:00:00Z"); d.setUTCDate
 function segundaDe(dia) { const d = new Date(dia + "T12:00:00Z"); return somaDias(dia, -((d.getUTCDay() + 6) % 7)); }
 // semana de calendário (segunda → domingo)
 const semanaDoDia = (dia) => segundaDe(dia);
-const semanaAgora = () => segundaDe(diaSP(new Date()));
+// turma atual: na segunda ainda é a turma da semana passada (a live dela é hoje); a partir de terça, a turma desta semana
+const semanaAgora = () => { const h = diaSP(new Date()), m = segundaDe(h); return h === m ? somaDias(m, -7) : m; };
+// live de uma turma (compradores do low de seg a dom) = a segunda seguinte
+const liveDe = (k) => somaDias(k, 7);
 const DIAS_SEM = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
 const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 const dm = (d) => d.slice(8, 10) + "/" + d.slice(5, 7);
@@ -133,14 +136,17 @@ function preparar(d) {
     const mk = (v.com || []).filter((c) => /MARKETPLACE/i.test(c.source || ""));
     o.taxaHm = mk.length ? mk.reduce((s, c) => s + (+c.value || 0), 0) : null;
     o.pessoa = pessoa(v);
+    if (["principal", "ob_principal", "upsell", "ob_upsell"].includes(v.tipo) && v.sem) o.sem = somaDias(v.sem, -7);
     return o;
   });
   APROV = V.filter((v) => v.grupo === "aprovada");
   LOW_DE = new Map();
   [...APROV].filter((v) => v.tipo === "low").sort((a, b) => a.em.localeCompare(b.em)).forEach((v) => { if (v.pessoa && !LOW_DE.has(v.pessoa)) LOW_DE.set(v.pessoa, v); });
   CARR = (d.carrinhos || []).map((c) => ({ ...c, dia: diaSP(c.em), mes: diaSP(c.em).slice(0, 7), sem: segundaDe(diaSP(c.em)) }));
-  INSC = (d.inscricoes || []).map((i) => ({ ...i, dia: diaSP(i.em), mes: diaSP(i.em).slice(0, 7), pessoa: pessoa(i) }));
-  WEB = (d.webinario || []).map((w) => ({ ...w, dia: diaSP(w.em), mes: diaSP(w.em).slice(0, 7), sem: w.web, pessoa: pessoa(w) }));
+  // inscrição conta na turma da live escolhida (live − 7 dias); sem a data da live, na semana em que se inscreveu
+  INSC = (d.inscricoes || []).map((i) => ({ ...i, dia: diaSP(i.em), mes: diaSP(i.em).slice(0, 7), pessoa: pessoa(i), sem: i.live ? somaDias(i.live, -7) : i.sem }));
+  // evento da live conta na turma que assistiu (live − 7 dias)
+  WEB = (d.webinario || []).map((w) => ({ ...w, dia: diaSP(w.em), mes: diaSP(w.em).slice(0, 7), sem: w.web ? somaDias(w.web, -7) : w.web, pessoa: pessoa(w) }));
   TRAF = (d.trafego || []).map((t) => ({ ...t, sem: semanaDoDia(t.dia), mes: t.dia.slice(0, 7) }));
   CUST = (d.custos || []).map((c) => ({ ...c, sem: semanaDoDia(c.dia), mes: c.dia.slice(0, 7) }));
 }
@@ -161,7 +167,7 @@ function montarPeriodos() {
   const lista = periodos();
   if (!SEL || !lista.includes(SEL)) SEL = chaveAgora();
   $("#periodo-sel").innerHTML = lista.map((k) => `<option value="${k}" ${k === SEL ? "selected" : ""}>${esc(rotulo(k))}${k === chaveAgora() ? " (atual)" : ""}</option>`).join("");
-  $("#periodo-nota").textContent = MODO === "semana" ? `low: seg → dom · Brigadeiro de A a Z: seg ${dm(SEL)} 21h → seg ${dm(somaDias(SEL, 7))} 20h59` : "";
+  $("#periodo-nota").textContent = MODO === "semana" ? `turma do low seg ${dm(SEL)} → dom ${dm(somaDias(SEL, 6))} · live seg ${dm(liveDe(SEL))} 19h · Brigadeiro de A a Z seg ${dm(liveDe(SEL))} 21h → seg ${dm(somaDias(SEL, 14))} 20h59` : "";
   $$(".modo-nome").forEach((e) => (e.textContent = MODO === "dia" ? "dia" : MODO === "semana" ? "semana" : "mês"));
   $$(".periodo__modo button").forEach((b) => b.classList.toggle("ativo", b.dataset.modo === MODO));
 }
@@ -179,7 +185,7 @@ const taxaHotmart = (vs) => soma(vs, (v) => (v.taxaHm != null ? v.taxaHm : v.fat
 const custoApiAuto = (k, cat) => soma(TPL_DIA.filter((r) => noPer(r, k) && (!cat || r.cat === cat)), (r) => r.custo);
 const custoApi = (k) => custoApiAuto(k) + custo("api_oficial", k);
 // webinário ligado a uma chave: na visão semanal, a live que abre a janela; os inscritos/lows vêm da semana anterior
-const kAnterior = (k) => (MODO === "semana" ? somaDias(k, -7) : k);
+const kAnterior = (k) => k; // (as chaves já vêm por turma do low)
 
 function mLow(k) {
   const lows = aprov("low", k), obs = aprov("ob_low", k);
@@ -206,8 +212,7 @@ function mWeb(k) {
   clicou.forEach((p) => oferta.add(p));
   const naoViu = [...acessou].filter((p) => !oferta.has(p)).length;
   const kIns = kAnterior(k);
-  // na visão semanal vale a live que a pessoa escolheu (BAW_DATA_HORA_WEBINARIO); sem ela, a semana anterior
-  const insc = INSC.filter((i) => (MODO === "semana" && i.live ? i.live === k : noPer(i, kIns))).length;
+  const insc = INSC.filter((i) => noPer(i, kIns)).length;
   const lows = aprov("low", kIns).length;
   const vendas = aprov("principal", k).length;
   return { lows, insc, acessou: acessou.size, pitch: pitch.size, oferta: oferta.size, clicou: clicou.size, naoViu, vendas, temEventos: evs.length > 0 };
@@ -265,7 +270,7 @@ function renderPainel() {
     kpi("Lucro do low", `<span class="${neg(L.liq)}">${brl0(L.liq)}</span>`, `margem ${pctV(L.margem)}`),
     kpi("CAC · ROAS", `${isFinite(L.cac) ? brl(L.cac) : "—"}`, `ROAS ${num2(L.roas)} · tráfego ${brl0(L.traf)}`),
     kpi(MODO === "semana" ? `Inscritos p/ live de ${dm(somaDias(SEL, 7))}` : "Inscritos", fmt(L.insc), `${pctV(L.pInsc)} das vendas do low`),
-    kpi(MODO === "semana" ? `Presentes na live de ${dm(SEL)}` : "Acessaram a live", fmt(W.acessou), `${pct(W.acessou, W.insc)} dos ${fmt(W.insc)} inscritos`),
+    kpi(MODO === "semana" ? `Presentes na live de ${dm(liveDe(SEL))}` : "Acessaram a live", fmt(W.acessou), `${pct(W.acessou, W.insc)} dos ${fmt(W.insc)} inscritos`),
     kpi("Brigadeiro de A a Z", fmt(P.vendas), `${brl0(P.tot)} · ${pct(P.vendas, W.acessou)} dos presentes`),
     kpi("Upsell DAZ", fmt(U.vendas), brl0(U.tot)),
     kpi("Faturamento total", brl0(F.fat), "todas as vendas aprovadas", "kpi--preto"),
@@ -275,7 +280,7 @@ function renderPainel() {
     kpi("Order bumps", fmt(L.obQtd + P.obQtd + U.obQtd), `acréscimo: low ${pctV(L.acresc)} · principal ${pctV(P.acresc)}`)
   ].join("");
   funil($("#painel-funil"), funilEtapas(W));
-  $("#funil-nota").textContent = MODO === "semana" ? `webinário de ${dm(SEL)} · lows e inscritos da semana ${rotulo(kAnterior(SEL))}` : "mesmo período para todas as etapas";
+  $("#funil-nota").textContent = MODO === "semana" ? `compradores do low de seg ${dm(SEL)} a dom ${dm(somaDias(SEL, 6))} → live de seg ${dm(liveDe(SEL))} → vendas até seg ${dm(somaDias(SEL, 14))} 20h59` : "mesmo período para todas as etapas";
   // lows
   const porLow = new Map();
   for (const v of aprov("low", SEL)) { const k = v.prodCad?.id ?? v.pid; const o = porLow.get(k) || { p: v.prodCad, nome: v.prod, n: 0, fat: 0 }; o.n++; o.fat += v.fat; porLow.set(k, o); }
@@ -406,7 +411,7 @@ function renderWebinario() {
   $("#web-nota").textContent = W.temEventos ? "" : "Ainda não chegou nenhum evento do HotWebinar neste período.";
   const ks = periodos().slice(0, 40);
   $("#web-quadro").innerHTML = `<thead><tr><th>${MODO === "semana" ? "Webinário" : "Período"}</th><th class="n">Inscritos</th><th class="n">Acessaram</th><th class="n">Comparec.</th><th class="n">Pitch</th><th class="n">Oferta</th><th class="n">Clicaram</th><th class="n">Não viram oferta</th><th class="n">Vendas BAW</th><th class="n">Conv. presentes</th><th class="n">Conv. inscritos</th></tr></thead><tbody>${
-    ks.map((k) => { const m = mWeb(k); return `<tr class="${k === SEL ? "atual" : ""}"><td>${esc(MODO === "semana" ? dm(k) + " " + "seg" : rotulo(k))}</td><td class="n">${fmt(m.insc)}</td><td class="n">${fmt(m.acessou)}</td><td class="n">${pct(m.acessou, m.insc)}</td><td class="n">${fmt(m.pitch)}</td><td class="n">${fmt(m.oferta)}</td><td class="n">${fmt(m.clicou)}</td><td class="n">${fmt(m.naoViu)}</td><td class="n">${fmt(m.vendas)}</td><td class="n">${pct(m.vendas, m.acessou)}</td><td class="n">${pct(m.vendas, m.insc)}</td></tr>`; }).join("")}</tbody>`;
+    ks.map((k) => { const m = mWeb(k); return `<tr class="${k === SEL ? "atual" : ""}"><td>${esc(MODO === "semana" ? "seg " + dm(liveDe(k)) : rotulo(k))}</td><td class="n">${fmt(m.insc)}</td><td class="n">${fmt(m.acessou)}</td><td class="n">${pct(m.acessou, m.insc)}</td><td class="n">${fmt(m.pitch)}</td><td class="n">${fmt(m.oferta)}</td><td class="n">${fmt(m.clicou)}</td><td class="n">${fmt(m.naoViu)}</td><td class="n">${fmt(m.vendas)}</td><td class="n">${pct(m.vendas, m.acessou)}</td><td class="n">${pct(m.vendas, m.insc)}</td></tr>`; }).join("")}</tbody>`;
 }
 
 // ---------- Principal / Upsell ----------
@@ -423,7 +428,7 @@ function listaVendas(el, vs) {
 function renderPrincipal() {
   const P = mProduto("principal", "ob_principal", SEL), W = mWeb(SEL);
   $("#princ-kpis").innerHTML = [
-    kpi("Vendas", fmt(P.vendas), MODO === "semana" ? `live de ${dm(SEL)}: seg 21h → seg ${dm(somaDias(SEL, 7))} 20h59` : ""),
+    kpi("Vendas", fmt(P.vendas), MODO === "semana" ? `live de ${dm(liveDe(SEL))}: seg 21h → seg ${dm(somaDias(SEL, 14))} 20h59` : ""),
     kpi("Faturamento", brl0(P.tot), `principal ${brl0(P.fat)} · bumps ${brl0(P.fatOB)}`),
     kpi("Caixa em 30 dias", brl0(P.caixa), ""), kpi("Conv. presentes", pct(P.vendas, W.acessou), `${fmt(W.acessou)} presentes`),
     kpi("Conv. inscritos", pct(P.vendas, W.insc), `${fmt(W.insc)} inscritos`), kpi("Líquido", brl0(P.liq), "sem tráfego", "kpi--preto")
@@ -433,7 +438,7 @@ function renderPrincipal() {
   for (const v of P.vs) { const l = LOW_DE.get(v.pessoa); const id = l?.prodCad?.id ?? "?"; const o = orig.get(id) || { p: l?.prodCad, nome: l ? l.prod : "Sem low (comprou sem low ticket)", n: 0, fat: 0 }; o.n++; o.fat += v.fat; orig.set(id, o); }
   const lowsAnt = new Map();
   for (const v of aprov("low", kAnterior(SEL))) { const id = v.prodCad?.id ?? "?"; lowsAnt.set(id, (lowsAnt.get(id) || 0) + 1); }
-  $("#princ-origem").innerHTML = `<thead><tr><th>Low de origem</th><th class="n">Vendas BAW</th><th class="n">Faturamento</th><th class="n">Vendas do low (semana anterior)</th><th class="n">Conversão</th></tr></thead><tbody>${
+  $("#princ-origem").innerHTML = `<thead><tr><th>Low de origem</th><th class="n">Vendas BAW</th><th class="n">Faturamento</th><th class="n">Vendas do low (mesma turma)</th><th class="n">Conversão</th></tr></thead><tbody>${
     [...orig.entries()].sort((a, b) => b[1].n - a[1].n).map(([id, o]) => `<tr><td>${imgProd(o.p)}${esc(nomeProd(o.p, o.nome))}</td><td class="n">${fmt(o.n)}</td><td class="n">${brl(o.fat)}</td><td class="n">${MODO === "semana" ? fmt(lowsAnt.get(id) || 0) : "—"}</td><td class="n">${MODO === "semana" ? pct(o.n, lowsAnt.get(id) || 0) : "—"}</td></tr>`).join("") || vazioTab(5)}</tbody>`;
   const porOB = new Map();
   for (const v of P.obs) { const id = v.prodCad?.id ?? v.pid; const o = porOB.get(id) || { p: v.prodCad, nome: v.prod, n: 0, fat: 0 }; o.n++; o.fat += v.fat; porOB.set(id, o); }
