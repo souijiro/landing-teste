@@ -12,6 +12,14 @@ function lerSck(sck) {
   if (p.length < 5) return null;
   return { posicionamento: p[0] || "?", campanha: p[1], conjunto: p[3], anuncio: p.slice(4).join(SEP_SCK) };
 }
+// desde 16/11 a página manda src = "perfil|nome do anúncio" (antes vinha o caminho completo no sck, pelo Utmify)
+const perfilDe = (v) => String(v.src || "").split("|")[0].trim() || "(sem perfil)";
+function origemVenda(v) {
+  const s = lerSck(v.sck); if (s) return s;
+  const i = String(v.src || "").indexOf("|");
+  if (i >= 0 && v.src.slice(i + 1).trim()) return { posicionamento: "", campanha: null, conjunto: null, anuncio: v.src.slice(i + 1).trim() };
+  return null;
+}
 const NOME_POS = { ig: "Instagram", fb: "Facebook", wa: "WhatsApp", an: "Audience Network", msg: "Messenger", th: "Threads" };
 
 function prepararTrafego(d) {
@@ -31,7 +39,7 @@ function vendasRastreadas() {
   const gastoDia = new Map(); for (const r of TR_DIA) gastoDia.set(r.dia + "|" + r.ad, (gastoDia.get(r.dia + "|" + r.ad) || 0) + r.inv);
   const bumpsDe = new Map(); for (const v of APROV) if (v.tipo === "ob_low") { const l = bumpsDe.get(v.pai) || []; l.push(v); bumpsDe.set(v.pai, l); }
   return APROV.filter((v) => v.tipo === "low").map((v) => {
-    const s = lerSck(v.sck);
+    const s = origemVenda(v);
     const ob = bumpsDe.get(v.t) || [];
     const fat = v.fat + ob.reduce((x, b) => x + b.fat, 0);
     let ad = null;
@@ -40,7 +48,7 @@ function vendasRastreadas() {
       // mesmo nome em mais de um anúncio: fica com o que mais gastou no dia da venda
       ad = ids.sort((a, b) => (gastoDia.get(v.dia + "|" + b) || 0) - (gastoDia.get(v.dia + "|" + a) || 0))[0] || null;
     }
-    return { v, sck: s, ad, fat, ob: ob.length, pos: s ? (NOME_POS[s.posicionamento] || s.posicionamento) : "Sem rastreio", perfil: v.src || "(sem perfil)" };
+    return { v, sck: s, ad, fat, ob: ob.length, pos: !s ? "Sem rastreio" : s.posicionamento ? (NOME_POS[s.posicionamento] || s.posicionamento) : "Não informado (src)", perfil: perfilDe(v) };
   });
 }
 
@@ -113,11 +121,11 @@ function renderTrafego() {
     kpi("Todas as vendas do low", fmt(todasLow), filtrado ? "sem filtro de campanha" : `CPA geral ${brlT(div(tot.inv, todasLow))}`),
     kpi("Hook (3 s)", pctT(tot.hook), `retenção até o fim ${pctT(tot.hold)}`)
   ].join("");
-  $("#tr-aviso").textContent = (semRastreio || naoAchado) ? `${semRastreio} venda(s) do low sem sck (orgânico, link direto ou sem rastreio) e ${naoAchado} com nome de anúncio que não achei na Meta — não entram nas colunas por anúncio.` : "";
+  $("#tr-aviso").textContent = (semRastreio || naoAchado) ? `${semRastreio} venda(s) do low sem o anúncio no sck nem no src (orgânico, link direto ou de 15/11 a 16/11 20h, quando a página não mandava o anúncio) e ${naoAchado} com nome de anúncio que não achei na Meta — não entram nas colunas por anúncio.` : "";
   funil($("#tr-funil"), [
     ["Impressões", tot.imp, "#57534e"], ["Cliques no link", tot.link, "#2a78d6"], ["Página carregada", tot.lpv, "#2a78d6"],
     ["Checkouts (Meta)", tot.chk, "#1d4f91"], ["Compras (Meta)", tot.cmp, "#eb6834"], ["Vendas Hotmart", tot.vendas, "#1baf7a"]
-  ]);
+  ], { escalaDesde: 1 });
 
   // por dia (dentro do período)
   const dias = [...agregarT(SEL, "dia").entries()].sort((a, b) => b[0].localeCompare(a[0]));

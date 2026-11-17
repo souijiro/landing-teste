@@ -109,3 +109,5 @@
 .tr-barra span { font-size: .62rem; color: var(--texto-3); margin-top: 4px; }
 @media (min-width: 1080px) { .top5--meio { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 #tr-previa-img { width: 100%; max-height: calc(100dvh - 160px); object-fit: contain; background: #000; display: block; }
+/* barra fora de escala no funil (ex.: impressões): corte em zigue-zague no fim */
+.funil-baw__trilho b.funil-baw__cortada { -webkit-mask: linear-gradient(-45deg, transparent 6px, #000 0) right / 12px 100% repeat-y, linear-gradient(#000, #000) left / calc(100% - 12px) 100% no-repeat; mask: linear-gradient(-45deg, transparent 6px, #000 0) right / 12px 100% repeat-y, linear-gradient(#000, #000) left / calc(100% - 12px) 100% no-repeat; }

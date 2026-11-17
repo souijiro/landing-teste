@@ -203,7 +203,24 @@ function mProduto(tipo, obTipo, k) {
   const tx = taxaHotmart(vs) + taxaHotmart(obs), imp = tot * taxa("imposto_venda"), com =soma(vs, (v) => v.comissao) + soma(obs, (v) => v.comissao);
   return { vendas: vs.length, fat, obQtd: obs.length, fatOB, tot, acresc: div(fatOB, fat), caixa: soma(vs, (v) => v.caixa30) + soma(obs, (v) => v.caixa30), tx, imp, com, liq: tot - tx - imp - com, vs, obs };
 }
+// Dia/Mês: o funil segue as PESSOAS que compraram o low no período até a live delas (a segunda seguinte à compra)
+// — assim quem assiste à live de segunda não se mistura com quem comprou o low na segunda (vai para a próxima live).
+function mWebPessoas(k) {
+  const live = new Map();   // pessoa → segunda da live dela
+  const lowsP = aprov("low", k);
+  for (const v of lowsP) if (v.pessoa && !live.has(v.pessoa)) live.set(v.pessoa, liveDe(segundaDe(v.dia)));
+  const evs = WEB.filter((w) => w.pessoa && live.get(w.pessoa) === w.web);
+  const set = (ev) => new Set(evs.filter((w) => w.ev === ev).map((w) => w.pessoa));
+  const acessou = set("acessou"), pitch = set("pitch"), oferta = set("oferta"), clicou = set("clicou"), naoViuEv = set("nao_viu_oferta");
+  for (const s of [pitch, oferta, clicou, naoViuEv]) s.forEach((p) => acessou.add(p));
+  clicou.forEach((p) => oferta.add(p));
+  const naoViu = [...acessou].filter((p) => !oferta.has(p)).length;
+  const insc = new Set(INSC.filter((i) => i.pessoa && live.has(i.pessoa) && (!i.live || i.live === live.get(i.pessoa))).map((i) => i.pessoa)).size;
+  const vendas = APROV.filter((v) => v.tipo === "principal" && v.pessoa && live.has(v.pessoa) && v.sem === somaDias(live.get(v.pessoa), -7)).length;
+  return { lows: lowsP.length, insc, acessou: acessou.size, pitch: pitch.size, oferta: oferta.size, clicou: clicou.size, naoViu, vendas, temEventos: evs.length > 0, porPessoa: true };
+}
 function mWeb(k) {
+  if (MODO !== "semana") return mWebPessoas(k);
   const evs = WEB.filter((w) => noPer(w, k));
   const set = (ev) => new Set(evs.filter((w) => w.ev === ev && w.pessoa).map((w) => w.pessoa));
   const acessou = set("acessou"), pitch = set("pitch"), oferta = set("oferta"), clicou = set("clicou"), naoViuEv = set("nao_viu_oferta");
@@ -242,12 +259,15 @@ function seta(valor, anteriores, menorMelhor = false) {
 }
 function kpi(rot, val, sub = "", cls = "") { return `<div class="kpi ${cls}"><p class="rotulo">${rot}</p><p class="kpi__num">${val}</p>${sub ? `<p class="kpi__sub">${sub}</p>` : ""}</div>`; }
 const vazioTab = (n, txt = "Sem dados no período") => `<tr><td colspan="${n}" class="vazio">${txt}</td></tr>`;
-function funil(el, etapas) {
-  const max = Math.max(1, ...etapas.map((e) => e[1] || 0));
+// escalaDesde: a escala das barras ignora as primeiras etapas (ex.: impressões, muito maiores que o resto);
+// elas ficam na largura toda com um corte no fim
+function funil(el, etapas, { escalaDesde = 0 } = {}) {
+  const max = Math.max(1, ...etapas.slice(escalaDesde).map((e) => e[1] || 0)) * (escalaDesde ? 1.15 : 1);
   el.innerHTML = etapas.map(([nome, n, cor], i) => {
     const ant = i ? etapas[i - 1][1] : null;
+    const w = (n || 0) / max * 100, cortada = w > 100;
     return `<div class="funil-baw__linha"><span class="funil-baw__nome">${nome}</span>
-      <div class="funil-baw__trilho"><b style="width:${Math.max(4, (n || 0) / max * 100)}%;${cor ? "background:" + cor : ""}">${fmt(n)}</b></div>
+      <div class="funil-baw__trilho"><b class="${cortada ? "funil-baw__cortada" : ""}" style="width:${Math.max(4, Math.min(100, w))}%;${cor ? "background:" + cor : ""}">${fmt(n)}</b></div>
       <span class="funil-baw__pct">${i ? pct(n, ant) : ""}</span></div>`;
   }).join("");
 }
@@ -270,7 +290,7 @@ function renderPainel() {
     kpi("Lucro do low", `<span class="${neg(L.liq)}">${brl0(L.liq)}</span>`, `margem ${pctV(L.margem)}`),
     kpi("CAC · ROAS", `${isFinite(L.cac) ? brl(L.cac) : "—"}`, `ROAS ${num2(L.roas)} · tráfego ${brl0(L.traf)}`),
     kpi(MODO === "semana" ? `Inscritos p/ live de ${dm(somaDias(SEL, 7))}` : "Inscritos", fmt(L.insc), `${pctV(L.pInsc)} das vendas do low`),
-    kpi(MODO === "semana" ? `Presentes na live de ${dm(liveDe(SEL))}` : "Acessaram a live", fmt(W.acessou), `${pct(W.acessou, W.insc)} dos ${fmt(W.insc)} inscritos`),
+    kpi(MODO === "semana" ? `Presentes na live de ${dm(liveDe(SEL))}` : "Desses, acessaram a live", fmt(W.acessou), `${pct(W.acessou, W.insc)} dos ${fmt(W.insc)} inscritos`),
     kpi("Brigadeiro de A a Z", fmt(P.vendas), `${brl0(P.tot)} · ${pct(P.vendas, W.acessou)} dos presentes`),
     kpi("Upsell DAZ", fmt(U.vendas), brl0(U.tot)),
     kpi("Faturamento total", brl0(F.fat), "todas as vendas aprovadas", "kpi--preto"),
@@ -280,7 +300,7 @@ function renderPainel() {
     kpi("Order bumps", fmt(L.obQtd + P.obQtd + U.obQtd), `acréscimo: low ${pctV(L.acresc)} · principal ${pctV(P.acresc)}`)
   ].join("");
   funil($("#painel-funil"), funilEtapas(W));
-  $("#funil-nota").textContent = MODO === "semana" ? `compradores do low de seg ${dm(SEL)} a dom ${dm(somaDias(SEL, 6))} → live de seg ${dm(liveDe(SEL))} → vendas até seg ${dm(somaDias(SEL, 14))} 20h59` : "mesmo período para todas as etapas";
+  $("#funil-nota").textContent = MODO === "semana" ? `compradores do low de seg ${dm(SEL)} a dom ${dm(somaDias(SEL, 6))} → live de seg ${dm(liveDe(SEL))} → vendas até seg ${dm(somaDias(SEL, 14))} 20h59` : MODO === "dia" ? `quem comprou o low em ${rotulo(SEL)} → live de seg ${dm(liveDe(segundaDe(SEL)))} (acompanha as mesmas pessoas)` : "quem comprou o low no mês → a live de cada um (segunda seguinte à compra)";
   // lows
   const porLow = new Map();
   for (const v of aprov("low", SEL)) { const k = v.prodCad?.id ?? v.pid; const o = porLow.get(k) || { p: v.prodCad, nome: v.prod, n: 0, fat: 0 }; o.n++; o.fat += v.fat; porLow.set(k, o); }
@@ -367,7 +387,7 @@ function renderLow() {
 
   // src
   const src = new Map();
-  for (const v of lows) { const k = v.src || v.sck || "(sem src)"; const o = src.get(k) || { n: 0, fat: 0 }; o.n++; o.fat += v.fat; src.set(k, o); }
+  for (const v of lows) { const k = String(v.src || "").split("|")[0].trim() || "(sem src)"; const o = src.get(k) || { n: 0, fat: 0 }; o.n++; o.fat += v.fat; src.set(k, o); }
   $("#low-src").innerHTML = `<thead><tr><th>src</th><th class="n">Vendas</th><th class="n">%</th><th class="n">Faturamento</th></tr></thead><tbody>${
     [...src.entries()].sort((a, b) => b[1].n - a[1].n).map(([k, o]) => `<tr><td>${esc(k)}</td><td class="n">${fmt(o.n)}</td><td class="n">${pct(o.n, lows.length)}</td><td class="n">${brl(o.fat)}</td></tr>`).join("") || vazioTab(4)}</tbody>`;
 }
