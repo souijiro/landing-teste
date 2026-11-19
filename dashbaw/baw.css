@@ -111,3 +111,9 @@
 #tr-previa-img { width: 100%; max-height: calc(100dvh - 160px); object-fit: contain; background: #000; display: block; }
 /* barra fora de escala no funil (ex.: impressões): corte em zigue-zague no fim */
 .funil-baw__trilho b.funil-baw__cortada { -webkit-mask: linear-gradient(-45deg, transparent 6px, #000 0) right / 12px 100% repeat-y, linear-gradient(#000, #000) left / calc(100% - 12px) 100% no-repeat; mask: linear-gradient(-45deg, transparent 6px, #000 0) right / 12px 100% repeat-y, linear-gradient(#000, #000) left / calc(100% - 12px) 100% no-repeat; }
+.esc-tag { display: inline-block; font-size: .72rem; font-weight: 500; padding: 2px 8px; border-radius: 6px; background: #f1ece6; color: #57534e; white-space: nowrap; }
+.esc-tag--escala { background: #e6f1fb; color: #0c447c; }
+.esc-par td { border-top: 1px solid #e7e1d9; }
+.esc-delta { font-weight: 600; white-space: nowrap; }
+.esc-delta--bom { color: #0f6e56; }
+.esc-delta--ruim { color: #a32d2d; }

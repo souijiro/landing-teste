@@ -4,7 +4,7 @@
 // Usa as funções e o período global do app.js (SEL, MODO, noPer, V, APROV, fmt, brl, pct…).
 const SEP_SCK = "hQwK21wXxR";
 let TR = { dia: [], anuncios: [] }, TR_DIA = [], ADS = new Map(), TF = { campanha: "", conjunto: "", formato: "" };
-let TR_DIM = "anuncio", TR_ORD = { col: "vendas", dir: -1 };
+let TR_DIM = "anuncio", TR_ORD = { col: "cpa", dir: 1 };
 
 const normNome = (s) => String(s || "").toUpperCase().replace(/\s*[—–-]\s*(C[ÓO]PIA|COPY)(\s*\d+)?\s*$/i, "").replace(/\s+/g, " ").trim();
 function lerSck(sck) {
@@ -137,7 +137,10 @@ function renderTrafego() {
 
   // top 5
   const porAd = [...agregarT(SEL, "anuncio").entries()].map(([id, m]) => [id, derivarT(m)]).filter(([, m]) => m.inv > 0 || m.vendas > 0);
-  const ordemTop = (a, b) => b[1].vendas - a[1].vendas || (a[1].cpa || 1e9) - (b[1].cpa || 1e9) || b[1].ctr - a[1].ctr;
+  // melhor criativo = menor CPA real (regra da usuária, 18/11); só disputa quem tem MIN_VENDAS_TOP+ vendas, o resto vem depois
+  const MIN_VENDAS_TOP = 2;
+  const qualifica = (m) => m.vendas >= MIN_VENDAS_TOP;
+  const ordemTop = (a, b) => (qualifica(b[1]) - qualifica(a[1])) || (qualifica(a[1]) ? (a[1].cpa || 1e9) - (b[1].cpa || 1e9) : b[1].vendas - a[1].vendas) || b[1].vendas - a[1].vendas || b[1].ctr - a[1].ctr;
   const fmtDe = (id) => (ADS.get(id)?.formato || "outro");
   desenharTopT($("#tr-top5"), porAd.slice().sort(ordemTop).slice(0, 5));
   desenharTopT($("#tr-top5-video"), porAd.filter(([id]) => fmtDe(id) === "video").sort(ordemTop).slice(0, 5));
@@ -155,6 +158,7 @@ function renderTrafego() {
   tabela($("#tr-pos"), "pos", "Posicionamento");
   tabela($("#tr-perfil"), "perfil", "Perfil (src)");
   $("#tr-sync").textContent = TR.sync ? "Meta lida em " + quando(TR.sync) + " · de hora em hora" : "";
+  if (typeof renderEscala === "function") renderEscala();
 }
 
 function desenharTopT(el, lista) {

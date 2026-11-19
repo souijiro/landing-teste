@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/dash/dash.css?v=42">
-  <link rel="stylesheet" href="/dashbaw/baw.css?v=4">
+  <link rel="stylesheet" href="/dashbaw/baw.css?v=5">
 </head>
 <body>
 
@@ -47,6 +47,7 @@
         <button role="tab" class="aba ativa" data-aba="painel">Painel</button>
         <button role="tab" class="aba" data-aba="low">Low ticket</button>
         <button role="tab" class="aba" data-aba="trafego">Tráfego</button>
+        <button role="tab" class="aba" data-aba="escala">Escala × teste</button>
         <button role="tab" class="aba" data-aba="inscricoes">Inscrições</button>
         <button role="tab" class="aba" data-aba="webinario">Webinário</button>
         <button role="tab" class="aba" data-aba="principal">Brigadeiro de A a Z</button>
@@ -130,7 +131,7 @@
         <div class="funil-baw" id="tr-funil"></div>
       </section>
       <section class="cartao">
-        <div class="cartao__topo"><h2>Top 5 anúncios · geral</h2><span class="t-nota">por vendas Hotmart, depois menor CPA real</span></div>
+        <div class="cartao__topo"><h2>Top 5 anúncios · geral</h2><span class="t-nota">menor CPA real, entre anúncios com 2+ vendas Hotmart</span></div>
         <div class="top5" id="tr-top5"></div>
       </section>
       <section class="cartao"><div class="cartao__topo"><h2>Top 5 vídeos</h2></div><div class="top5" id="tr-top5-video"></div></section>
@@ -149,6 +150,20 @@
       <section class="grade-2">
         <section class="cartao"><div class="cartao__topo"><h2>Vendas por posicionamento</h2></div><div class="tabela-wrap"><table class="tabela" id="tr-pos"></table></div></section>
         <section class="cartao"><div class="cartao__topo"><h2>Vendas por perfil</h2></div><div class="tabela-wrap"><table class="tabela" id="tr-perfil"></table></div></section>
+      </section>
+    </main>
+
+    <!-- Escala × teste -->
+    <main class="aba-conteudo" id="aba-escala" hidden>
+      <section class="kpis kpis--baw" id="esc-kpis"></section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Criativos escalados · escala × origem</h2><span class="t-nota">mesmo criativo na campanha de escala e onde nasceu, no período escolhido</span></div>
+        <div class="tabela-wrap"><table class="tabela tabela--rank" id="esc-comp"></table></div>
+        <p class="tabela-legenda"><span>CPA real = investimento ÷ vendas Hotmart. Como o anúncio tem o mesmo nome na escala e na origem, cada venda é dividida entre eles na proporção das compras Meta daquele dia (sem compra Meta, pelo investimento) — por isso pode aparecer venda fracionada. ▼ verde = escala mais barata que a origem.</span></p>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Candidatos à escala</h2><span class="t-nota">anúncios de teste ainda não escalados, com 2+ vendas Hotmart e CPA real até R$ 15</span></div>
+        <div class="tabela-wrap"><table class="tabela tabela--rank" id="esc-cand"></table></div>
       </section>
     </main>
 
@@ -326,6 +341,7 @@
     </div>
   </div>
   <script src="/dashbaw/app.js?v=11"></script>
-  <script src="/dashbaw/trafego.js?v=2"></script>
+  <script src="/dashbaw/trafego.js?v=3"></script>
+  <script src="/dashbaw/escala.js?v=1"></script>
 </body>
 </html>
