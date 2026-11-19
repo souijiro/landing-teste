@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <!-- base só quando servido por http(s): em /ted (sem barra) os caminhos relativos precisam dele; abrindo o arquivo direto (file://) ele quebraria as imagens -->
+  <script>if (location.protocol !== "file:") document.write('<base href="/ted/">');</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tortas Especiais da Docis — Desconto de Black</title>
+  <meta name="description" content="Desconto de Black: aprenda a famosa Banoffee da Docis e mais 13 receitas de tortas, com apostila e ficha técnica automatizada: de R$ 297 por 12x de R$ 14,82 ou R$ 148,50 à vista.">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:title" content="Tortas Especiais da Docis — Desconto de Black">
+  <meta property="og:description" content="Aprenda a fazer a famosa Banoffee e mais 13 receitas exclusivas: de R$ 297 por 12x de R$ 14,82.">
+  <meta property="og:image" content="https://c.docis.com.br/ted/img/banoffee.webp">
+
+  <!-- Google Tag Manager (GTM-55ZVC8K) — só no domínio da Docis, como nas outras páginas -->
+  <script>
+    if (location.hostname === "c.docis.com.br") {
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-55ZVC8K');
+    }
+  </script>
+
+  <!-- ===== CHECKOUT (Hotmart). Os parâmetros da URL da página (utm_*, src, sck…) são repassados ===== -->
+  <script>
+    window.CHECKOUT_URL = "https://pay.hotmart.com/E49687367O?off=9i3k9btz&checkoutMode=10";
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="preload" as="image" href="img/banoffee.webp">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #130a3b;
+      --blue: #4b84eb;
+      --yellow: #fff000;
+      --purple: #341280;
+      --green: #40c42a;
+      --green-dark: #2f9a1d;
+      --brown: #361900;
+      --black: #0b0b0f;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Montserrat', system-ui, sans-serif;
+      font-weight: 500;
+      color: var(--brown);
+      background: #fff;
+      line-height: 1.4;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    img { max-width: 100%; height: auto; display: block; }
+    a { color: inherit; text-decoration: none; }
+    .wrap { max-width: 1000px; margin: 0 auto; padding: 0 16px; }
+
+    /* Faixa Black */
+    .black-bar {
+      background: var(--black); color: #fff; text-align: center;
+      font-weight: 800; font-size: .8rem; letter-spacing: .12em; text-transform: uppercase;
+      padding: 9px 12px;
+    }
+    .black-bar { font-size: .95rem; padding: 10px 12px; }
+    .black-bar b { color: var(--yellow); font-weight: 900; font-size: 1.25em; }
+
+    /* Botão */
+    .btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 100%; max-width: 340px; margin: 0 auto; min-height: 56px;
+      background: var(--green); color: #fff;
+      font-weight: 800; font-size: 1.05rem; letter-spacing: .02em; text-transform: uppercase;
+      padding: 16px 24px; border-radius: 999px;
+      box-shadow: 0 5px 0 var(--green-dark), 0 12px 24px rgba(0,0,0,.22);
+      transition: transform .12s, box-shadow .12s, filter .2s;
+    }
+    .btn:hover { filter: brightness(1.06); }
+    .btn:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--green-dark), 0 6px 14px rgba(0,0,0,.2); }
+
+    /* Hero */
+    .hero { background: var(--blue); color: #fff; text-align: center; }
+    .hero-title {
+      background: var(--navy); color: #f0f3f5;
+      font-weight: 800; font-size: 1rem; letter-spacing: .06em; padding: 12px 12px;
+    }
+    .hero-sub em { font-style: normal; color: var(--yellow); }
+    .hero-photo { margin: 0 16px 16px; border-radius: 18px; overflow: hidden; aspect-ratio: 3 / 2; box-shadow: 0 10px 26px rgba(19,10,59,.3); }
+    .hero-photo img { width: 100%; height: 100%; object-fit: cover; }
+    .hero-sub { font-weight: 800; font-size: 1.45rem; line-height: 1.22; padding: 16px 14px 14px; text-shadow: 0 2px 6px rgba(0,0,0,.25); }
+    .tag-black {
+      display: inline-block; background: var(--black); color: var(--yellow);
+      font-weight: 900; font-size: .85rem; letter-spacing: .14em; text-transform: uppercase;
+      padding: 8px 18px; border-radius: 999px; margin-bottom: 14px;
+    }
+    .price-bar { background: var(--yellow); color: var(--purple); padding: 10px 12px 12px; }
+    .price-from { font-weight: 700; font-size: 1rem; }
+    .price-from s { opacity: .75; }
+    .price-big { font-weight: 900; font-size: 4.2rem; line-height: 1; letter-spacing: -.02em; }
+    .price-big small { font-size: .42em; font-weight: 800; margin-right: 4px; letter-spacing: 0; }
+    .price-big.old { display: flex; align-items: baseline; justify-content: center; gap: 6px; }
+    .price-big.old small { margin-right: 0; }
+    .price-big.old .de { font-size: .3em; font-weight: 800; letter-spacing: 0; }
+    .price-big.old s { text-decoration-thickness: 5px; text-decoration-color: #e01e1e; }
+    .price-now { font-weight: 900; font-size: 1.9rem; line-height: 1.1; margin-top: 4px; }
+    .price-now small { font-size: .6em; }
+    .offer-box .price-now { color: #fff; }
+    .price-split { font-weight: 700; font-size: 1.25rem; padding: 12px 12px 16px; text-shadow: 0 2px 6px rgba(0,0,0,.25); }
+    .hero-foot { background: var(--blue); font-weight: 700; font-size: 1.2rem; padding: 26px 16px 24px; text-shadow: 0 2px 6px rgba(0,0,0,.25); }
+
+    /* Banoffee em destaque */
+    .star { padding: 22px 0 8px; text-align: center; }
+    .star-badge {
+      display: inline-block; background: var(--yellow); color: var(--purple);
+      font-weight: 900; font-size: .78rem; letter-spacing: .12em; text-transform: uppercase;
+      padding: 7px 14px; border-radius: 999px; margin-bottom: 10px;
+    }
+    .star h2 { font-weight: 900; font-size: 2.3rem; color: #000; line-height: 1.05; }
+    .star-photo { margin: 16px auto 14px; border-radius: 18px; overflow: hidden; aspect-ratio: 4 / 5; max-width: 460px; }
+    .star-photo img { width: 100%; height: 100%; object-fit: cover; }
+    .star p { font-size: 1.05rem; max-width: 520px; margin: 0 auto; }
+    .star p + p { margin-top: 8px; font-weight: 800; }
+
+    /* Receitas */
+    .recipes { padding: 26px 0 10px; }
+    .grid { display: grid; gap: 30px; }
+    .recipe { text-align: center; }
+    .recipe h3 { font-weight: 800; font-size: 1.55rem; color: #000; line-height: 1.15; margin-bottom: 10px; text-transform: uppercase; }
+    .recipe .ph { border-radius: 14px; overflow: hidden; aspect-ratio: 1 / 1; }
+    .recipe .ph img { width: 100%; height: 100%; object-fit: cover; }
+    .recipe p { margin-top: 10px; font-size: 1rem; }
+    .more { text-align: center; padding: 34px 0 30px; }
+    .more h3 { font-weight: 800; font-size: 1.6rem; color: #000; margin-bottom: 14px; }
+    .more li { list-style: none; font-size: 1.02rem; padding: 3px 0; }
+
+    /* Títulos de seção (faixa navy) */
+    .band {
+      background: var(--navy); color: var(--yellow); text-align: center;
+      font-weight: 800; font-size: .98rem; letter-spacing: .02em; text-transform: uppercase;
+      padding: 13px 12px; margin-bottom: 16px;
+    }
+    .bonus { padding: 8px 0 26px; text-align: center; }
+    .bonus p { font-size: 1rem; max-width: 620px; margin: 0 auto 12px; }
+    .bonus img { margin: 0 auto 12px; border-radius: 6px; box-shadow: 0 6px 22px rgba(19,10,59,.14); }
+    .shots { display: grid; gap: 12px; }
+    .pages { display: grid; gap: 14px; grid-template-columns: 1fr 1fr; }
+    .pages img { width: 100%; margin: 0; }
+
+    /* Oferta final */
+    .offer { padding: 10px 0 34px; text-align: center; }
+    .offer-box { background: var(--navy); color: #fff; border-radius: 19px; padding: 20px 16px 22px; margin-bottom: 20px; }
+    .offer-box .tag-black { background: var(--yellow); color: var(--navy); }
+    .offer-box h2 { font-weight: 700; font-size: 1.05rem; color: var(--yellow); }
+    .offer-box .price-from { color: #fff; margin-top: 10px; }
+    .offer-box .price-big { color: var(--yellow); }
+    .offer-box .inst { font-weight: 700; font-size: 1.1rem; margin-top: 6px; }
+    .offer .btn { max-width: 420px; font-size: 1.12rem; min-height: 60px; }
+
+    /* Sobre */
+    .about { background: var(--blue); color: #fff; text-align: center; padding: 36px 0 40px; }
+    .about h2 { font-weight: 800; font-size: 2.2rem; line-height: 1.15; }
+    .about h2 span { color: var(--yellow); display: block; }
+    .about-photo { width: 232px; height: 232px; border-radius: 50%; background: #fbf000; margin: 22px auto; overflow: hidden; }
+    .about-photo img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+    .about p { font-size: 1.1rem; max-width: 640px; margin: 0 auto 18px; }
+    .about .btn { margin-top: 8px; }
+
+    /* FAQ */
+    .faq { padding: 20px 0 46px; }
+    .faq details { background: #f2f2f2; margin: 0 auto 10px; max-width: 720px; }
+    .faq summary {
+      cursor: pointer; list-style: none; padding: 14px 16px 14px 44px; position: relative;
+      font-weight: 600; font-size: 1rem; color: #40545f;
+    }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq summary::before { content: "+"; position: absolute; left: 18px; top: 50%; transform: translateY(-50%); font-size: 1.3rem; font-weight: 700; }
+    .faq details[open] summary { color: #268df3; }
+    .faq details[open] summary::before { content: "–"; }
+    .faq .ans { padding: 0 16px 16px; font-size: .92rem; color: #000; font-weight: 500; }
+    .faq .ans li { margin-left: 18px; }
+
+    footer { background: var(--navy); color: rgba(255,255,255,.7); text-align: center; font-size: .78rem; padding: 18px 16px 90px; }
+
+    /* CTA fixo (mobile) */
+    .sticky {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+      background: var(--black); color: #fff;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+      transform: translateY(110%); transition: transform .25s;
+    }
+    .sticky.on { transform: none; }
+    .sticky-txt { font-size: .72rem; font-weight: 700; line-height: 1.25; }
+    .sticky-txt b { display: block; color: var(--yellow); font-size: 1.15rem; font-weight: 900; }
+    .sticky .btn { width: auto; margin: 0; min-height: 46px; padding: 12px 20px; font-size: .88rem; box-shadow: none; white-space: nowrap; }
+
+    @media (min-width: 720px) {
+      .hero-title { font-size: 1.3rem; }
+      .hero-photo { max-width: 620px; margin-left: auto; margin-right: auto; }
+      .hero-sub { font-size: 2.2rem; max-width: 820px; margin: 0 auto; }
+      .price-big { font-size: 5.5rem; }
+      .grid { grid-template-columns: repeat(3, 1fr); }
+      .star h2 { font-size: 3rem; }
+      .shots { grid-template-columns: 1fr 1fr; max-width: 720px; margin: 0 auto; }
+      .pages { max-width: 720px; margin: 0 auto; }
+      .offer-box { max-width: 620px; margin-left: auto; margin-right: auto; }
+      .sticky { display: none; }
+      footer { padding-bottom: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="black-bar">Desconto de Black <b>50%</b></div>
+
+  <!-- ===== HERO ===== -->
+  <header class="hero" id="topo">
+    <p class="hero-title">TORTAS ESPECIAIS DA DOCIS</p>
+    <h1 class="hero-sub">Aprenda a <em>Banoffee que vende horrores</em> e mais outras 13 receitas e arrase de vender no Natal</h1>
+    <div class="hero-photo"><img src="img/banoffee.webp" width="900" height="1350" alt="Fatia da Banoffee da Docis" fetchpriority="high"></div>
+    <a class="btn js-checkout" href="https://pay.hotmart.com/E49687367O?off=9i3k9btz&checkoutMode=10">Quero com 50% OFF</a>
+    <p class="hero-foot">Veja abaixo quais são todas as receitas que você vai aprender dentro desse curso</p>
+  </header>
+
+  <main>
+    <!-- ===== BANOFFEE (destaque) ===== -->
+    <section class="star">
+      <div class="wrap">
+        <span class="star-badge">A torta mais famosa da Docis</span>
+        <h2>1 - BANOFFEE</h2>
+        <p>A combinação perfeita de banana com doce de leite na Banoffee famosa da Docis.</p>
+        <p>Aprenda a receita do Chantilly Especial</p>
+      </div>
+    </section>
+
+    <!-- ===== DEMAIS RECEITAS ===== -->
+    <section class="recipes">
+      <div class="wrap">
+        <div class="grid">
+          <article class="recipe">
+            <h3>2 - Morangoffee</h3>
+            <div class="ph"><img loading="lazy" src="img/morangoffee.webp" width="900" height="1350" alt="Morangoffee"></div>
+            <p>A irmã da torta mais queridinha da Docis, só que com morangos</p>
+          </article>
+          <article class="recipe">
+            <h3>3 - Mousse Duo Chocolate</h3>
+            <div class="ph"><img loading="lazy" src="img/mousse-duo.webp" width="900" height="1125" alt="Torta Mousse Duo Chocolate"></div>
+            <p>Uma torta para os amantes de chocolate que vende muito no delivery</p>
+          </article>
+          <article class="recipe">
+            <h3>4 - Torta de Morango</h3>
+            <div class="ph"><img loading="lazy" src="img/torta-morango.webp" width="1000" height="667" alt="Tarte aux Fraises"></div>
+            <p>Que tal aprender a fazer uma torta inspirada na confeitaria francesa: Tarte aux Fraises é refrescante e impressionante</p>
+          </article>
+          <article class="recipe">
+            <h3>5 - Cheesecake</h3>
+            <div class="ph"><img loading="lazy" src="img/cheesecake.webp" width="900" height="1350" alt="Cheesecake"></div>
+            <p>Uma receita de cheesecake perfeita com duas opções de cobertura</p>
+          </article>
+          <article class="recipe">
+            <h3>6 - Chocolate com Caramelo</h3>
+            <div class="ph"><img loading="lazy" src="img/chocolate-caramelo.webp" width="900" height="1350" alt="Torta de Chocolate com Caramelo Salgado"></div>
+            <p>A torta de Chocolate com Caramelo Salgado é perfeita pra quem adora um sabor diferente</p>
+          </article>
+          <article class="recipe">
+            <h3>7 - Choco Óreo</h3>
+            <div class="ph"><img loading="lazy" src="img/choco-oreo.webp" width="900" height="1350" alt="Torta Choco Óreo"></div>
+            <p>A inspiração veio durante uma viagem para Buenos Aires e foi adaptada para o paladar do cliente brasileiro</p>
+          </article>
+        </div>
+
+        <div class="more">
+          <h3>E MAIS</h3>
+          <ul>
+            <li>8 - Curd de Limão</li>
+            <li>9 - Curd de Maracujá</li>
+            <li>10 - Ananoffee</li>
+            <li>11 - Banana Pudding</li>
+            <li>12 - Torta Cookie</li>
+            <li>13 - Guirlanda de Brownie</li>
+            <li>14 - Doce de Leite com Nozes</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== BÔNUS ===== -->
+    <section class="bonus">
+      <div class="wrap">
+        <h2 class="band">Bônus 1: Precificação e Ficha Técnica</h2>
+        <p>A planilha da Docis é <b>automatizada</b> e vem preenchida com todas as receitas do curso.</p>
+        <p>Você baixa e atualiza os preços dos insumos e pronto, <b>tudo é calculado pra você automaticamente.</b></p>
+        <img loading="lazy" src="img/planilha.webp" width="1400" height="537" alt="Planilha de ficha técnica automatizada da Docis">
+        <div class="shots">
+          <img loading="lazy" src="img/planilha-detalhe-1.webp" width="354" height="240" alt="Detalhe da planilha: rendimento, quebra, despesas e margem de lucro">
+          <img loading="lazy" src="img/planilha-detalhe-2.webp" width="347" height="163" alt="Detalhe da planilha: custo por porção e preço de venda">
+        </div>
+      </div>
+    </section>
+
+    <section class="bonus">
+      <div class="wrap">
+        <h2 class="band">Bônus 2: Apostila de Receitas em PDF</h2>
+        <div class="pages">
+          <img loading="lazy" src="img/apostila-capa.webp" width="800" height="1252" alt="Capa da apostila Tortas Especiais">
+          <img loading="lazy" src="img/apostila-indice.webp" width="800" height="1264" alt="Índice da apostila com todas as receitas">
+        </div>
+      </div>
+    </section>
+
+    <section class="bonus">
+      <div class="wrap">
+        <h2 class="band">Bônus 3: Receitas Extra Tubete e Brownie Pop</h2>
+        <p>Além das 14 receitas de tortas, da planilha de ficha técnica automatizada e da apostila de receitas eu também gravei 2 receitas super lucrativas de lembrancinhas pra aumentar o ticket médio da sua produção</p>
+      </div>
+    </section>
+
+    <!-- ===== OFERTA ===== -->
+    <section class="offer" id="oferta">
+      <div class="wrap">
+        <div class="offer-box">
+          <span class="tag-black">Desconto de Black 50%</span>
+          <h2>Receba as 14 tortas da Docis + planilha + apostila</h2>
+          <div class="price-big old"><span class="de">de</span><small>R$</small><s>297</s></div>
+          <div class="price-now">por 12 x R$ 14<small>,82</small></div>
+          <div class="inst">ou R$ 148,50 à vista</div>
+        </div>
+        <a class="btn js-checkout" href="https://pay.hotmart.com/E49687367O?off=9i3k9btz&checkoutMode=10">Quero me matricular</a>
+      </div>
+    </section>
+
+    <!-- ===== SOBRE ===== -->
+    <section class="about">
+      <div class="wrap">
+        <h2>Quem é <span>Cilaine Rodrigues?</span></h2>
+        <div class="about-photo"><img loading="lazy" src="img/ci-sobre.webp" width="700" height="861" alt="Cilaine Rodrigues, a Ci da Docis"></div>
+        <p>A Ci, da Docis, é uma confeiteira de mão cheia! Além de produzir delícias maravilhosas e inesquecíveis, ela ainda empresta todo esse conhecimento para mais de 15 mil mulheres que já tiveram a vida totalmente transformada através da confeitaria.</p>
+        <p>A Ci migrou de um emprego na área da moda, onde ela ganhava muito bem, para empreender sozinha, numa cozinha apertada, e já quebrou a cara diversas vezes até acertar e formular esse curso no qual você vai se matricular hoje.</p>
+        <p>Tudo o que a Ci aprendeu ao longo de 6 anos empreendendo sozinha, agora está ao seu alcance de forma rápida, fácil de aprender, e sem precisar errar nenhuma vez, como aconteceu com a Ci.</p>
+        <p>O que você está esperando para se matricular e começar agora a mudar sua vida através da confeitaria?</p>
+        <a class="btn js-checkout" href="https://pay.hotmart.com/E49687367O?off=9i3k9btz&checkoutMode=10">Comprar agora</a>
+      </div>
+    </section>
+
+    <!-- ===== FAQ ===== -->
+    <section class="faq">
+      <div class="wrap">
+        <h2 class="band">Dúvidas Frequentes</h2>
+        <details open>
+          <summary>Qual é o valor do curso</summary>
+          <div class="ans">O curso custa R$ 297, mas no desconto de Black sai por 12x de R$ 14,82 ou R$ 148,50 à vista</div>
+        </details>
+        <details>
+          <summary>Quais as receitas do curso</summary>
+          <div class="ans">São 14 receitas: Banoffee, Ananoffee, Morangoffee, Tarte aux Fraises, Chocolate com caramelo, Choco Oreo, Banana Pudding, Mousse Duo Chocolate, Cheesecake, Curd de Limão, Curd de Maracujá, Guirlanda de Brownie, Doce de Leite com Nozes e a Torta Cookie</div>
+        </details>
+        <details>
+          <summary>Tem algum bônus?</summary>
+          <div class="ans">São 3 bônus:
+            <ul>
+              <li>Planilha de ficha técnica automatizada</li>
+              <li>Apostila de Receitas em PDF</li>
+              <li>Receitas do brownie pop e do tubete</li>
+            </ul>
+          </div>
+        </details>
+        <details>
+          <summary>Quanto tempo de acesso?</summary>
+          <div class="ans">O acesso ao curso é válido por 3 anos.</div>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <footer>Docis · Tortas Especiais da Docis</footer>
+
+  <div class="sticky" id="sticky">
+    <div class="sticky-txt">Desconto de Black<b>50% OFF</b></div>
+    <a class="btn" href="#oferta">Ver o desconto</a>
+  </div>
+
+  <script>
+    (function () {
+      /* repassa tudo que veio na URL da página (utm_*, src, sck, fbclid…) para o checkout */
+      var u = new URL(window.CHECKOUT_URL);
+      new URLSearchParams(location.search).forEach(function (v, k) { u.searchParams.set(k, v); });
+      var href = u.toString();
+      document.querySelectorAll(".js-checkout").forEach(function (a) { a.href = href; });
+
+      /* CTA fixo aparece depois que o botão do topo sai da tela */
+      var sticky = document.getElementById("sticky");
+      var first = document.querySelector(".hero .btn");
+      if ("IntersectionObserver" in window && first) {
+        new IntersectionObserver(function (es) {
+          sticky.classList.toggle("on", !es[0].isIntersecting && es[0].boundingClientRect.top < 0);
+        }).observe(first);
+      }
+    })();
+  </script>
+</body>
+</html>

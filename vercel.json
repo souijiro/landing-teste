@@ -46,6 +46,8 @@
     { "src": "/quiz/img/(.*)", "headers": { "Cache-Control": "public, max-age=2592000, stale-while-revalidate=86400" }, "continue": true },
     { "src": "/quiz/(sql|tools)/.*", "status": 404 },
     { "src": "/quiz/?", "dest": "/quiz/index.html", "headers": { "Referrer-Policy": "no-referrer", "Cache-Control": "no-cache" } },
+    { "src": "/[tT][eE][dD]/img/(.*)", "dest": "/ted/img/$1", "headers": { "Cache-Control": "public, max-age=2592000, stale-while-revalidate=86400" } },
+    { "src": "/[tT][eE][dD]/?", "dest": "/ted/index.html" },
     { "src": "/baw/img/(.*)", "headers": { "Cache-Control": "public, max-age=2592000, stale-while-revalidate=86400" }, "continue": true },
     { "src": "/baw/?", "dest": "/baw/index.html" },
     { "src": "/politica-de-privacidade/?", "dest": "/politica-de-privacidade/index.html" },
