@@ -1,0 +1,36 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "carta",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "serve",
+        "-l",
+        "4321",
+        "."
+      ],
+      "port": 4321
+    },
+    {
+      "name": "site-estatico",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "4330"
+      ],
+      "port": 4330
+    },
+    {
+      "name": "dash-custos",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "4341"
+      ],
+      "port": 4341
+    }
+  ]
+}

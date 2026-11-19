@@ -10,6 +10,7 @@
     { "src": "/(?!black2026/(?:img/|styles\\.css|script\\.js)|sejavitalicio/app\\.js).*", "has": [{ "type": "host", "value": "black.confeitaria5estrelas.com" }], "status": 404 },
     { "src": "/(controles(?:-[a-z0-9-]+)?(?:/.*)?)", "has": [{ "type": "host", "value": "c.docis.com.br" }], "dest": "https://docis-controles.vercel.app/$1" },
     { "src": "/(deliverydeaaz(?:/.*)?)", "has": [{ "type": "host", "value": "c.docis.com.br" }], "dest": "https://docis-delivery.vercel.app/$1" },
+    { "src": "/sorteioblack/?", "has": [{ "type": "host", "value": "c.docis.com.br" }], "dest": "https://sorteio-black-vitalicia.vercel.app/" },
     { "src": "/", "has": [{ "type": "host", "value": "c.canaga.com.br" }], "status": 302, "headers": { "Location": "/lancamento" } },
     { "src": "/lancamento/?", "has": [{ "type": "host", "value": "c.canaga.com.br" }], "dest": "/canaga/index.html" },
     { "src": "/dash/manifest.webmanifest", "dest": "/dash/manifest.webmanifest", "headers": { "Content-Type": "application/manifest+json" } },
