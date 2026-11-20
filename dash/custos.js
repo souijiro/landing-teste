@@ -45,6 +45,11 @@ function levantadoDe(chave) {
   if (chave === "api_felipe") return apiPorConta()["Felipe Russo"];
   return null; // lançado à mão
 }
+const SOCIOS = [
+  { id: "docis", nome: "Docis", img: "/black2026/img/cabeca-ci-flutuante.webp" },
+  { id: "felipe", nome: "Felipe Russo", img: "/black2026/img/cabeca-felipe-flutuante.webp" }
+];
+const cabeca = (id, cls = "") => { const s = SOCIOS.find((x) => x.id === id); return s ? `<img src="${s.img}" alt="" class="custo-cabeca ${cls}">` : ""; };
 const confirmado = (l) => l.valor != null && l.valor !== "";
 const efetivo = (l) => (confirmado(l) ? +l.valor : +(levantadoDe(l.chave) || 0));
 
@@ -52,7 +57,7 @@ const efetivo = (l) => (confirmado(l) ? +l.valor : +(levantadoDe(l.chave) || 0))
 function custosEfetivos() {
   if (!CUSTOS) return null;
   const t = { trafego: 0, api: 0, outros: 0 };
-  CUSTOS.forEach((l) => { t[l.grupo] = (t[l.grupo] || 0) + efetivo(l); });
+  CUSTOS.filter((l) => l.grupo !== "config").forEach((l) => { t[l.grupo] = (t[l.grupo] || 0) + efetivo(l); });
   t.total = t.trafego + t.api + t.outros;
   return t;
 }
@@ -72,7 +77,7 @@ function renderCustos() {
   const t = custosEfetivos();
   const ap = (typeof VENDAS !== "undefined" && VENDAS?.vendas) ? VENDAS.vendas.filter((v) => !v.teste && ST_APROVADA.includes(v.status) && ehCompra(v)) : [];
   const fat = ap.reduce((s, v) => s + valorCheio(v), 0);
-  const pend = CUSTOS.filter((l) => !confirmado(l)).length;
+  const pend = CUSTOS.filter((l) => l.grupo !== "config" && !confirmado(l)).length;
   alvo.innerHTML = [
     ["kpi--gigante kpi--destaque", "Custo total", brlV(t.total), pend ? `${fmt(pend)} ${pend > 1 ? "itens ainda sem" : "item ainda sem"} valor confirmado` : "todos os valores confirmados"],
     ["", "Tráfego pago", brlV(t.trafego), fat ? `${pct(t.trafego, fat)} do valor das vendas` : ""],
@@ -82,6 +87,7 @@ function renderCustos() {
     ["", "CAC", ap.length ? brlV(t.total / ap.length) : "—", `custo total ÷ ${fmt(ap.length)} compras aprovadas`]
   ].map(([c, r, n, s]) => `<div class="kpi ${c}"><p class="rotulo">${r}</p><p class="kpi__num">${n}</p><p class="kpi__sub">${esc(s)}</p></div>`).join("");
 
+  renderAcerto();
   $("#custo-grupos").innerHTML = GRUPOS_CUSTO.map((g) => {
     const linhas = CUSTOS.filter((l) => l.grupo === g.id);
     const tot = linhas.reduce((s, l) => s + efetivo(l), 0);
@@ -100,8 +106,8 @@ function linhaCusto(l) {
   const st = confirmado(l) ? `<span class="custo-st custo-st--ok">✓ confirmado</span>` : lev != null ? `<span class="custo-st">usando o levantado</span>` : `<span class="custo-st custo-st--falta">a preencher</span>`;
   const quando = confirmado(l) && l.em ? ` · ${horaSP.format(new Date(l.em))}` : "";
   return `<div class="custo-item" data-chave="${esc(l.chave)}">
-    <div class="custo-item__nome">${extra ? `<input class="custo-rotulo" type="text" maxlength="120" value="${esc(l.rotulo)}" aria-label="Nome do custo">` : `<b>${esc(l.rotulo)}</b>`}
-      <span class="t-nota">${st}${quando}</span></div>
+    <div class="custo-item__nome">${l.pago_por ? `<span class="custo-dono">${cabeca(l.pago_por)}</span>` : ""}<span class="custo-item__txt">${extra ? `<input class="custo-rotulo" type="text" maxlength="120" value="${esc(l.rotulo)}" aria-label="Nome do custo">` : `<b>${esc(l.rotulo)}</b>`}
+      <span class="t-nota">${st}${quando}</span></span></div>
     ${lev != null ? `<div class="custo-item__lev"><span class="t-nota">Levantado</span><b>${brlV(lev)}</b></div>` : ""}
     <label class="custo-item__val"><span class="t-nota">Valor confirmado</span>
       <span class="custo-campo"><span aria-hidden="true">R$</span><input type="text" inputmode="decimal" placeholder="${lev != null ? numBR(lev) : "0,00"}" value="${numBR(l.valor)}" aria-label="Valor confirmado de ${esc(l.rotulo)}"></span></label>
@@ -109,6 +115,9 @@ function linhaCusto(l) {
       ${lev != null ? `<button type="button" class="custo-btn" data-acao="usar">Confirmar levantado</button>` : ""}
       ${extra ? `<button type="button" class="custo-btn custo-btn--sair" data-acao="remover" aria-label="Remover ${esc(l.rotulo)}">Remover</button>` : ""}
     </div>
+    <div class="custo-quem" role="group" aria-label="Quem pagou ${esc(l.rotulo)}"><span class="t-nota">Quem pagou</span>
+      ${SOCIOS.map((s) => `<button type="button" class="custo-quem__btn" data-quem="${s.id}" aria-pressed="${l.pago_por === s.id}">${cabeca(s.id)}${s.nome}</button>`).join("")}
+      ${l.pago_por ? "" : `<span class="custo-st custo-st--falta">a definir</span>`}</div>
     <input class="custo-obs" type="text" maxlength="300" placeholder="Observação (opcional)" value="${esc(l.obs || "")}" aria-label="Observação de ${esc(l.rotulo)}">
   </div>`;
 }
@@ -119,10 +128,11 @@ async function salvarCusto(el, extra = {}) {
   if (Number.isNaN(valor)) { el.querySelector(".custo-campo input").setAttribute("aria-invalid", "true"); return; }
   const rotulo = el.querySelector(".custo-rotulo")?.value ?? l.rotulo;
   const obs = el.querySelector(".custo-obs").value.trim() || null;
-  if (!extra.remover && valor === (confirmado(l) ? +l.valor : null) && rotulo === l.rotulo && obs === (l.obs || null)) return; // nada mudou
+  const quem = "quem" in extra ? extra.quem : (l.pago_por || null);
+  if (!extra.remover && valor === (confirmado(l) ? +l.valor : null) && rotulo === l.rotulo && obs === (l.obs || null) && quem === (l.pago_por || null)) return; // nada mudou
   el.classList.add("salvando");
   try {
-    await rpc("dash_custos_black2026_salvar", { p_token: lerToken(), p_chave: chave, p_rotulo: rotulo, p_valor: valor, p_obs: obs, p_remover: !!extra.remover });
+    await rpc("dash_custos_black2026_salvar", { p_token: lerToken(), p_chave: chave, p_rotulo: rotulo, p_valor: valor, p_obs: obs, p_remover: !!extra.remover, p_pago_por: quem });
     await carregarCustos(lerToken());
   } catch (e) {
     el.classList.remove("salvando");
@@ -136,13 +146,57 @@ function ligarCustos() {
       i.addEventListener("change", () => salvarCusto(el));
       i.addEventListener("keydown", (e) => { if (e.key === "Enter") i.blur(); });
     });
+    el.querySelectorAll(".custo-quem__btn").forEach((b) => b.addEventListener("click", () => {
+      const l = CUSTOS.find((x) => x.chave === el.dataset.chave);
+      salvarCusto(el, { quem: l.pago_por === b.dataset.quem ? null : b.dataset.quem });
+    }));
     el.querySelector('[data-acao="usar"]')?.addEventListener("click", () => salvarCusto(el, { valor: Math.round(levantadoDe(el.dataset.chave) * 100) / 100 }));
     el.querySelector('[data-acao="remover"]')?.addEventListener("click", () => { if (confirm("Remover este custo?")) salvarCusto(el, { remover: true }); });
   });
   $("#custo-add")?.addEventListener("click", async (e) => {
     e.target.disabled = true;
-    try { await rpc("dash_custos_black2026_salvar", { p_token: lerToken(), p_chave: null, p_rotulo: "Outro custo", p_valor: null, p_obs: null, p_remover: false }); await carregarCustos(lerToken()); }
+    try { await rpc("dash_custos_black2026_salvar", { p_token: lerToken(), p_chave: null, p_rotulo: "Outro custo", p_valor: null, p_obs: null, p_remover: false, p_pago_por: null }); await carregarCustos(lerToken()); }
     catch (err) { e.target.disabled = false; alert("Não consegui adicionar. Tente de novo."); }
     document.querySelector('.custo-item[data-chave^="extra_"]:last-of-type .custo-rotulo')?.select();
   });
+}
+
+// ---- acerto entre os sócios: cada um paga a sua parte dos custos (divisão em custos_black2026.divisao_docis) ----
+function renderAcerto() {
+  const alvo = $("#custo-acerto");
+  if (!alvo) return;
+  const cfg = CUSTOS.find((l) => l.chave === "divisao_docis");
+  const pctDocis = cfg && cfg.valor != null ? +cfg.valor : 50;
+  const itens = CUSTOS.filter((l) => l.grupo !== "config");
+  const pago = { docis: 0, felipe: 0 }, lista = { docis: [], felipe: [] };
+  const semDono = itens.filter((l) => !l.pago_por && efetivo(l) > 0);
+  itens.forEach((l) => { if (l.pago_por && efetivo(l) > 0) { pago[l.pago_por] += efetivo(l); lista[l.pago_por].push(l); } });
+  const total = pago.docis + pago.felipe;
+  const parte = { docis: total * pctDocis / 100, felipe: total * (100 - pctDocis) / 100 };
+  const saldo = pago.docis - parte.docis; // > 0: Felipe deve à Docis
+  const de = saldo > 0 ? "felipe" : "docis", para = saldo > 0 ? "docis" : "felipe", valor = Math.abs(saldo);
+  const nome = (id) => SOCIOS.find((s) => s.id === id).nome;
+  const coluna = (id) => `<div class="acerto-socio">
+      <div class="acerto-socio__topo">${cabeca(id, "custo-cabeca--g")}<div><p class="rotulo">${nome(id)} pagou</p><p class="acerto-socio__num">${brlV(pago[id])}</p></div></div>
+      <ul class="acerto-lista">${lista[id].length ? lista[id].map((l) => `<li><span>${esc(l.rotulo)}${confirmado(l) ? "" : ' <span class="t-nota">(levantado)</span>'}</span><b>${brlV(efetivo(l))}</b></li>`).join("") : '<li class="t-nota">Nenhum custo marcado ainda.</li>'}</ul>
+      <p class="acerto-parte">Parte de ${nome(id)} (${fmt(id === "docis" ? pctDocis : 100 - pctDocis)}%): <b>${brlV(parte[id])}</b></p>
+    </div>`;
+  alvo.innerHTML = `<div class="cartao__topo"><h2>Acerto entre Docis e Felipe</h2>
+      <label class="t-nota acerto-div">Custos da Docis <span class="custo-campo custo-campo--p"><input type="text" inputmode="decimal" id="acerto-pct" value="${numBR(pctDocis).replace(",00", "")}" aria-label="Porcentagem dos custos que cabe à Docis"><span aria-hidden="true">%</span></span> · Felipe ${fmt(100 - pctDocis)}%</label></div>
+    <div class="acerto-grade">${coluna("docis")}${coluna("felipe")}</div>
+    <div class="acerto-total"><span>Custo total com dono definido</span><b>${brlV(total)}</b></div>
+    <div class="acerto-resultado ${valor < 0.01 ? "acerto-resultado--ok" : ""}">
+      ${valor < 0.01 ? `<p><b>Tudo certo:</b> cada um já pagou a sua parte.</p>`
+        : `<div class="acerto-seta">${cabeca(de, "custo-cabeca--g")}<span class="acerto-seta__linha" aria-hidden="true">→ ${brlV(valor)} →</span>${cabeca(para, "custo-cabeca--g")}</div>
+           <p><b>${nome(de)}</b> manda <b>${brlV(valor)}</b> para <b>${nome(para)}</b></p>`}
+    </div>
+    ${semDono.length ? `<p class="acerto-aviso">⚠ ${fmt(semDono.length)} ${semDono.length > 1 ? "custos sem" : "custo sem"} “quem pagou” ficaram fora do acerto: ${semDono.map((l) => esc(l.rotulo) + " (" + brlV(efetivo(l)) + ")").join(", ")}.</p>` : ""}
+    <p class="t-nota">Usa o valor confirmado de cada custo (ou o levantado, quando ainda não foi confirmado).</p>`;
+  $("#acerto-pct").addEventListener("change", async (e) => {
+    const v = lerNum(e.target.value);
+    if (Number.isNaN(v) || v == null || v > 100) { e.target.setAttribute("aria-invalid", "true"); return; }
+    try { await rpc("dash_custos_black2026_salvar", { p_token: lerToken(), p_chave: "divisao_docis", p_rotulo: null, p_valor: v, p_obs: null, p_remover: false, p_pago_por: null }); await carregarCustos(lerToken()); }
+    catch (err) { alert("Não consegui salvar a divisão. Tente de novo."); }
+  });
+  $("#acerto-pct").addEventListener("keydown", (e) => { if (e.key === "Enter") e.target.blur(); });
 }

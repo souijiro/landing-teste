@@ -609,3 +609,36 @@ td:first-child .delta { display: inline; margin-left: 4px; }
   .custo-item__lev, .custo-item__val { flex-direction: column; align-items: flex-end; gap: 2px; }
   .custo-obs { grid-column: 1 / -1; }
 }
+
+/* Custos: quem pagou + acerto */
+.custo-cabeca { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; object-position: top; background: #efe9df; flex: 0 0 auto; }
+.custo-cabeca--g { width: 46px; height: 46px; }
+.custo-item__nome { display: flex; gap: 10px; align-items: flex-start; }
+.custo-item__txt { display: grid; gap: 2px; min-width: 0; flex: 1; }
+.custo-dono .custo-cabeca { width: 34px; height: 34px; }
+.custo-quem { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.custo-quem > .t-nota:first-child { margin-right: 4px; }
+.custo-quem__btn { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 4px 12px 4px 5px; border: 1.5px solid #d6d0c6; border-radius: 999px; background: #fff; font: inherit; font-size: .8rem; font-weight: 700; cursor: pointer; }
+.custo-quem__btn[aria-pressed="true"] { border-color: #1a1a1a; background: #1a1a1a; color: #fff; }
+.custo-campo--p { width: 74px; min-height: 36px; display: inline-flex; vertical-align: middle; margin: 0 4px; }
+.acerto-div { display: flex; align-items: center; flex-wrap: wrap; gap: 2px; }
+.acerto-grade { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 10px; }
+.acerto-socio { padding: 14px; border: 1px solid var(--linha, #e7e2db); border-radius: 14px; background: #faf8f5; }
+.acerto-socio__topo { display: flex; align-items: center; gap: 12px; }
+.acerto-socio__topo .rotulo { margin: 0; }
+.acerto-socio__num { margin: 0; font-size: 1.5rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.acerto-lista { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 6px; font-size: .85rem; }
+.acerto-lista li { display: flex; justify-content: space-between; gap: 10px; padding-bottom: 6px; border-bottom: 1px dashed #e2ddd4; }
+.acerto-lista b { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.acerto-parte { margin: 10px 0 0; font-size: .85rem; color: var(--texto-2, #57534e); }
+.acerto-total { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--linha, #e7e2db); }
+.acerto-resultado { margin-top: 14px; padding: 16px; border-radius: 14px; background: #0b0b0b; color: #fff; text-align: center; }
+.acerto-resultado p { margin: 8px 0 0; font-size: 1.05rem; }
+.acerto-resultado--ok { background: #e7f4ea; color: #1e853a; }
+.acerto-seta { display: flex; align-items: center; justify-content: center; gap: 12px; }
+.acerto-seta__linha { font-weight: 800; font-size: 1.1rem; color: #ffee00; white-space: nowrap; }
+.acerto-aviso { margin: 12px 0 4px; padding: 10px 12px; border-radius: 10px; background: #fff6e0; color: #8a5a00; font-size: .85rem; }
+@media (min-width: 760px) {
+  .acerto-grade { grid-template-columns: 1fr 1fr; }
+  .custo-quem { grid-column: 1 / -1; }
+}
