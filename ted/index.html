@@ -25,7 +25,7 @@
 
   <!-- ===== CHECKOUT (Hotmart). Os parâmetros da URL da página (utm_*, src, sck…) são repassados ===== -->
   <script>
-    window.CHECKOUT_URL = "https://pay.hotmart.com/E49687367O?off=9i3k9btz&checkoutMode=10";
+    window.CHECKOUT_URL = "https://pay.hotmart.com/E49687367O?checkoutMode=10&off=9i3k9btz&offDiscount=BLACK26";
   </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -221,7 +221,7 @@
     <p class="hero-title">TORTAS ESPECIAIS DA DOCIS</p>
     <h1 class="hero-sub">Aprenda a <em>Banoffee que vende horrores</em> e mais outras 13 receitas e arrase de vender no Natal</h1>
     <div class="hero-photo"><img src="img/banoffee.webp" width="900" height="1350" alt="Fatia da Banoffee da Docis" fetchpriority="high"></div>
-    <a class="btn js-checkout" href="https://pay.hotmart.com/E49687367O?off=9i3k9btz&checkoutMode=10">Quero com 50% OFF</a>
+    <a class="btn" href="#oferta">Quero com 50% OFF</a>
     <p class="hero-foot">Veja abaixo quais são todas as receitas que você vai aprender dentro desse curso</p>
   </header>
 
@@ -328,7 +328,7 @@
           <div class="price-now">por 12 x R$ 14<small>,82</small></div>
           <div class="inst">ou R$ 148,50 à vista</div>
         </div>
-        <a class="btn js-checkout" href="https://pay.hotmart.com/E49687367O?off=9i3k9btz&checkoutMode=10">Quero me matricular</a>
+        <a class="btn js-checkout" href="https://pay.hotmart.com/E49687367O?checkoutMode=10&off=9i3k9btz&offDiscount=BLACK26">Quero me matricular</a>
       </div>
     </section>
 
@@ -341,7 +341,7 @@
         <p>A Ci migrou de um emprego na área da moda, onde ela ganhava muito bem, para empreender sozinha, numa cozinha apertada, e já quebrou a cara diversas vezes até acertar e formular esse curso no qual você vai se matricular hoje.</p>
         <p>Tudo o que a Ci aprendeu ao longo de 6 anos empreendendo sozinha, agora está ao seu alcance de forma rápida, fácil de aprender, e sem precisar errar nenhuma vez, como aconteceu com a Ci.</p>
         <p>O que você está esperando para se matricular e começar agora a mudar sua vida através da confeitaria?</p>
-        <a class="btn js-checkout" href="https://pay.hotmart.com/E49687367O?off=9i3k9btz&checkoutMode=10">Comprar agora</a>
+        <a class="btn" href="#oferta">Comprar agora</a>
       </div>
     </section>
 
@@ -389,6 +389,16 @@
       new URLSearchParams(location.search).forEach(function (v, k) { u.searchParams.set(k, v); });
       var href = u.toString();
       document.querySelectorAll(".js-checkout").forEach(function (a) { a.href = href; });
+
+      /* botões "#oferta" rolam até a seção de preço. Sem isso, o <base> faria o link
+         recarregar /ted/#oferta e perder os parâmetros da URL (utm_*, src, sck…) */
+      var oferta = document.getElementById("oferta");
+      document.querySelectorAll('a[href="#oferta"]').forEach(function (a) {
+        a.addEventListener("click", function (e) {
+          e.preventDefault();
+          oferta.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      });
 
       /* CTA fixo aparece depois que o botão do topo sai da tela */
       var sticky = document.getElementById("sticky");
