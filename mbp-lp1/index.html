@@ -115,13 +115,13 @@ window.gpages_conversion = gpages_conversion;
       var src = btn.getAttribute('data-src');
       // Hotmart src = PERFIL|CONJUNTO|ANUNCIO (desde 23/11; antes perfil|anuncio)
       //   anuncio  = utm_term, else page src (ad name)
-      //   conjunto = adset, else utm_medium (adset name); vazio se a Meta não preencher
+      //   conjunto = utm_content (os anúncios MBP mandam utm_content={{adset.name}}), else adset/utm_medium; vazio se a Meta não preencher
       var srcHotmart = src;
       try {
         var qs = new URLSearchParams(location.search);
         var limpa = function(v){ v = (v || '').replace(/\|/g, '/').trim(); return /^\{\{.*\}\}$/.test(v) ? '' : v; };
         var anuncio = limpa(qs.get('utm_term')) || limpa(qs.get('src'));
-        var conjunto = limpa(qs.get('adset')) || limpa(qs.get('utm_medium'));
+        var conjunto = limpa(qs.get('utm_content')) || limpa(qs.get('adset')) || limpa(qs.get('utm_medium'));
         if (/^(paid|cpc|cpm|social|ads?|pago|trafego|facebook|fb|ig|instagram)$/i.test(conjunto)) conjunto = '';
         if (anuncio || conjunto) srcHotmart = src + '|' + conjunto + '|' + anuncio;
       } catch (err) {}
