@@ -144,6 +144,7 @@ function preparar(d) {
   [...APROV].filter((v) => v.tipo === "low").sort((a, b) => a.em.localeCompare(b.em)).forEach((v) => { if (v.pessoa && !LOW_DE.has(v.pessoa)) LOW_DE.set(v.pessoa, v); });
   CARR = (d.carrinhos || []).map((c) => ({ ...c, dia: diaSP(c.em), mes: diaSP(c.em).slice(0, 7), sem: segundaDe(diaSP(c.em)) }));
   // inscrição conta na turma da live escolhida (live − 7 dias); sem a data da live, na semana em que se inscreveu
+  INSC_IDX = null;
   INSC = (d.inscricoes || []).map((i) => ({ ...i, dia: diaSP(i.em), mes: diaSP(i.em).slice(0, 7), pessoa: pessoa(i), sem: i.live ? somaDias(i.live, -7) : i.sem }));
   // evento da live conta na turma que assistiu (live − 7 dias)
   WEB = (d.webinario || []).map((w) => ({ ...w, dia: diaSP(w.em), mes: diaSP(w.em).slice(0, 7), sem: w.web ? somaDias(w.web, -7) : w.web, pessoa: pessoa(w) }));
@@ -187,13 +188,25 @@ const custoApi = (k) => custoApiAuto(k) + custo("api_oficial", k);
 // webinário ligado a uma chave: na visão semanal, a live que abre a janela; os inscritos/lows vêm da semana anterior
 const kAnterior = (k) => k; // (as chaves já vêm por turma do low)
 
+// comprador do low que se inscreveu (para a live dele ou uma seguinte; sem data de live, inscrição feita depois da compra)
+let INSC_IDX = null;
+function inscritoDoLow(v) {
+  if (!INSC_IDX) {
+    INSC_IDX = new Map();
+    for (const i of INSC) for (const c of [i.pessoa, i.tel ? "t:" + telChave(i.tel) : null]) if (c) { if (!INSC_IDX.has(c)) INSC_IDX.set(c, []); INSC_IDX.get(c).push(i); }
+  }
+  const live = liveDe(segundaDe(v.dia));
+  const lista = [...(INSC_IDX.get(v.pessoa) || []), ...(v.tel ? INSC_IDX.get("t:" + telChave(v.tel)) || [] : [])];
+  return lista.some((i) => (i.live ? i.live >= live : i.dia >= v.dia));
+}
 function mLow(k) {
   const lows = aprov("low", k), obs = aprov("ob_low", k);
   const vendas = lows.length, fatLT = soma(lows, (v) => v.fat), fatOB = soma(obs, (v) => v.fat), fat = fatLT + fatOB;
   const traf = trafego("low", k) + custo("trafego_low", k);
   const tx = taxaHotmart(lows) + taxaHotmart(obs), imp = fat * taxa("imposto_venda"), impT = traf * taxa("imposto_trafego");
   const liq = fat - traf - tx - imp - impT;
-  const insc = INSC.filter((i) => noPer(i, k)).length;
+  // inscritos = compradores do low do período que se inscreveram (conta no dia da COMPRA, não da inscrição)
+  const insc = lows.filter(inscritoDoLow).length;
   return { vendas, insc, pInsc: div(insc, vendas), fat, fatLT, traf, tx, imp, impT, ticket: div(fat, vendas), liq, margem: div(liq, fat),
     cac: div(traf + impT, vendas), roas: div(fat, traf), obQtd: obs.length, fatOB, acresc: div(fatOB, fatLT), caixa: soma(lows, (v) => v.caixa30) + soma(obs, (v) => v.caixa30) };
 }
@@ -219,8 +232,8 @@ function mWebPessoas(k) {
   const vendas = APROV.filter((v) => v.tipo === "principal" && v.pessoa && live.has(v.pessoa) && v.sem === somaDias(live.get(v.pessoa), -7)).length;
   return { lows: lowsP.length, insc, acessou: acessou.size, pitch: pitch.size, oferta: oferta.size, clicou: clicou.size, naoViu, vendas, temEventos: evs.length > 0, porPessoa: true };
 }
-function mWeb(k) {
-  if (MODO !== "semana") return mWebPessoas(k);
+function mWeb(k, { pessoas = true } = {}) {
+  if (MODO !== "semana" && pessoas) return mWebPessoas(k);
   const evs = WEB.filter((w) => noPer(w, k));
   const set = (ev) => new Set(evs.filter((w) => w.ev === ev && w.pessoa).map((w) => w.pessoa));
   const acessou = set("acessou"), pitch = set("pitch"), oferta = set("oferta"), clicou = set("clicou"), naoViuEv = set("nao_viu_oferta");
@@ -289,7 +302,7 @@ function renderPainel() {
     kpi("Vendas do low", fmt(L.vendas), `${brl0(L.fat)} com bumps · ticket ${brl(L.ticket || 0)}`),
     kpi("Lucro do low", `<span class="${neg(L.liq)}">${brl0(L.liq)}</span>`, `margem ${pctV(L.margem)}`),
     kpi("CAC · ROAS", `${isFinite(L.cac) ? brl(L.cac) : "—"}`, `ROAS ${num2(L.roas)} · tráfego ${brl0(L.traf)}`),
-    kpi(MODO === "semana" ? `Inscritos p/ live de ${dm(somaDias(SEL, 7))}` : "Inscritos", fmt(L.insc), `${pctV(L.pInsc)} das vendas do low`),
+    kpi(MODO === "semana" ? `Inscritos p/ live de ${dm(somaDias(SEL, 7))}` : "Compradores inscritos", fmt(L.insc), `${pctV(L.pInsc)} das vendas do low`),
     kpi(MODO === "semana" ? `Presentes na live de ${dm(liveDe(SEL))}` : "Desses, acessaram a live", fmt(W.acessou), `${pct(W.acessou, W.insc)} dos ${fmt(W.insc)} inscritos`),
     kpi("Brigadeiro de A a Z", fmt(P.vendas), `${brl0(P.tot)} · ${pct(P.vendas, W.acessou)} dos presentes`),
     kpi("Upsell DAZ", fmt(U.vendas), brl0(U.tot)),
@@ -336,7 +349,12 @@ function lowDaInscricao(i) {
   if (i.low) return PROD.find((p) => [p.apelido, p.nome, p.produto_id].some((n) => n && n.toLowerCase() === String(i.low).toLowerCase())) || { id: "ff:" + i.low, nome: i.low };
   return null;
 }
-function contarInscPorLow(k) {
+function contarInscPorLow(k) {   // compradores do low no período que se inscreveram, por low
+  const m = new Map();
+  for (const v of aprov("low", k)) if (inscritoDoLow(v)) { const id = v.prodCad?.id ?? "?"; m.set(id, (m.get(id) || 0) + 1); }
+  return m;
+}
+function contarInscPorLowData(k) {   // inscrições feitas no período, pelo low de cada inscrito
   const m = new Map();
   for (const i of INSC.filter((x) => noPer(x, k))) { const p = lowDaInscricao(i); const id = p?.id ?? "?"; m.set(id, (m.get(id) || 0) + 1); }
   return m;
@@ -356,7 +374,7 @@ function renderLow() {
   const ks = periodos().slice(0, 60);
   const linhas = ks.map((k) => ({ k, m: mLow(k) }));
   const col = [
-    ["Vendas", (m) => fmt(m.vendas), (m) => m.vendas], ["Inscr.", (m) => fmt(m.insc), (m) => m.insc], ["% inscr.", (m) => pctV(m.pInsc), (m) => m.pInsc],
+    ["Vendas", (m) => fmt(m.vendas), (m) => m.vendas], ["Compraram e se inscreveram", (m) => fmt(m.insc), (m) => m.insc], ["% inscr.", (m) => pctV(m.pInsc), (m) => m.pInsc],
     ["Fat. total", (m) => brl(m.fat), (m) => m.fat], ["Fat. LT", (m) => brl(m.fatLT)], ["Tráfego", (m) => brl(m.traf)], ["Taxa Hotmart", (m) => brl(m.tx)],
     ["Imposto", (m) => brl(m.imp)], ["Imp. tráfego", (m) => brl(m.impT)], ["Ticket médio", (m) => (isFinite(m.ticket) ? brl(m.ticket) : "—"), (m) => m.ticket],
     ["Líquido", (m) => brl(m.liq), (m) => m.liq], ["Margem", (m) => pctV(m.margem), (m) => m.margem], ["CAC", (m) => (isFinite(m.cac) ? brl(m.cac) : "—"), (m) => m.cac, true],
@@ -424,7 +442,7 @@ function renderInscricoes() {
   const ids = [...new Set(INSC.map((i) => lowDaInscricao(i)?.id ?? "?"))];
   const nomeId = (id) => { const p = PROD.find((x) => x.id === id); return p ? nomeProd(p) : id === "?" ? "Sem low" : String(id).replace(/^ff:/, ""); };
   $("#insc-quadro").innerHTML = `<thead><tr><th>Período</th><th class="n">Inscritos</th><th class="n">Vendas low</th><th class="n">% inscr.</th>${ids.map((id) => `<th class="n">${esc(nomeId(id))}</th>`).join("")}</tr></thead><tbody>${
-    ks.map((k) => { const m = contarInscPorLow(k), n = INSC.filter((i) => noPer(i, k)).length, vl = aprov("low", k).length;
+    ks.map((k) => { const m = contarInscPorLowData(k), n = INSC.filter((i) => noPer(i, k)).length, vl = aprov("low", k).length;
       return `<tr class="${k === SEL ? "atual" : ""}"><td>${esc(rotulo(k))}</td><td class="n">${fmt(n)}</td><td class="n">${fmt(vl)}</td><td class="n">${pct(n, vl)}</td>${ids.map((id) => `<td class="n">${fmt(m.get(id) || 0)}</td>`).join("")}</tr>`; }).join("")}</tbody>`;
   $("#insc-lista").innerHTML = `<thead><tr><th>Quando</th><th>Live</th><th>Nome</th><th>E-mail</th><th>WhatsApp</th><th>Low</th><th>Origem</th></tr></thead><tbody>${
     ins.slice(0, 300).map((i) => `<tr><td>${quando(i.em)}</td><td>${i.live ? dm(i.live) : "—"}</td><td>${esc(i.nome)}</td><td>${esc(i.email)}</td><td>${waLink(i.tel)}</td><td>${esc(nomeProd(lowDaInscricao(i), "—"))}</td><td>${esc([i.utm_s, i.utm_c].filter(Boolean).join(" · "))}</td></tr>`).join("") || vazioTab(7)}</tbody>`;
@@ -432,7 +450,7 @@ function renderInscricoes() {
 
 // ---------- Webinário ----------
 function renderWebinario() {
-  const W = mWeb(SEL);
+  const W = mWeb(SEL, { pessoas: false });
   $("#web-kpis").innerHTML = [
     kpi("Inscritos", fmt(W.insc)), kpi("Acessaram", fmt(W.acessou), pct(W.acessou, W.insc) + " dos inscritos"),
     kpi("No pitch", fmt(W.pitch), pct(W.pitch, W.acessou) + " de quem acessou"), kpi("Viram a oferta", fmt(W.oferta), pct(W.oferta, W.acessou)),
@@ -442,7 +460,7 @@ function renderWebinario() {
   $("#web-nota").textContent = W.temEventos ? "" : "Ainda não chegou nenhum evento do HotWebinar neste período.";
   const ks = periodos().slice(0, 40);
   $("#web-quadro").innerHTML = `<thead><tr><th>${MODO === "semana" ? "Webinário" : "Período"}</th><th class="n">Inscritos</th><th class="n">Acessaram</th><th class="n">Comparec.</th><th class="n">Pitch</th><th class="n">Oferta</th><th class="n">Clicaram</th><th class="n">Não viram oferta</th><th class="n">Vendas BAW</th><th class="n">Conv. presentes</th><th class="n">Conv. inscritos</th></tr></thead><tbody>${
-    ks.map((k) => { const m = mWeb(k); return `<tr class="${k === SEL ? "atual" : ""}"><td>${esc(MODO === "semana" ? "seg " + dm(liveDe(k)) : rotulo(k))}</td><td class="n">${fmt(m.insc)}</td><td class="n">${fmt(m.acessou)}</td><td class="n">${pct(m.acessou, m.insc)}</td><td class="n">${fmt(m.pitch)}</td><td class="n">${fmt(m.oferta)}</td><td class="n">${fmt(m.clicou)}</td><td class="n">${fmt(m.naoViu)}</td><td class="n">${fmt(m.vendas)}</td><td class="n">${pct(m.vendas, m.acessou)}</td><td class="n">${pct(m.vendas, m.insc)}</td></tr>`; }).join("")}</tbody>`;
+    ks.map((k) => { const m = mWeb(k, { pessoas: false }); return `<tr class="${k === SEL ? "atual" : ""}"><td>${esc(MODO === "semana" ? "seg " + dm(liveDe(k)) : rotulo(k))}</td><td class="n">${fmt(m.insc)}</td><td class="n">${fmt(m.acessou)}</td><td class="n">${pct(m.acessou, m.insc)}</td><td class="n">${fmt(m.pitch)}</td><td class="n">${fmt(m.oferta)}</td><td class="n">${fmt(m.clicou)}</td><td class="n">${fmt(m.naoViu)}</td><td class="n">${fmt(m.vendas)}</td><td class="n">${pct(m.vendas, m.acessou)}</td><td class="n">${pct(m.vendas, m.insc)}</td></tr>`; }).join("")}</tbody>`;
 }
 
 // ---------- Principal / Upsell ----------
