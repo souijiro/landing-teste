@@ -188,16 +188,15 @@ const custoApi = (k) => custoApiAuto(k) + custo("api_oficial", k);
 // webinário ligado a uma chave: na visão semanal, a live que abre a janela; os inscritos/lows vêm da semana anterior
 const kAnterior = (k) => k; // (as chaves já vêm por turma do low)
 
-// comprador do low que se inscreveu (para a live dele ou uma seguinte; sem data de live, inscrição feita depois da compra)
+// comprador do low que se inscreveu no webinário em algum momento (por e-mail ou telefone)
 let INSC_IDX = null;
 function inscritoDoLow(v) {
   if (!INSC_IDX) {
     INSC_IDX = new Map();
     for (const i of INSC) for (const c of [i.pessoa, i.tel ? "t:" + telChave(i.tel) : null]) if (c) { if (!INSC_IDX.has(c)) INSC_IDX.set(c, []); INSC_IDX.get(c).push(i); }
   }
-  const live = liveDe(segundaDe(v.dia));
-  const lista = [...(INSC_IDX.get(v.pessoa) || []), ...(v.tel ? INSC_IDX.get("t:" + telChave(v.tel)) || [] : [])];
-  return lista.some((i) => (i.live ? i.live >= live : i.dia >= v.dia));
+  // regra da usuária: comprou o low e se inscreveu (quando for) = inscrito no dia da compra
+  return INSC_IDX.has(v.pessoa) || (!!v.tel && INSC_IDX.has("t:" + telChave(v.tel)));
 }
 function mLow(k) {
   const lows = aprov("low", k), obs = aprov("ob_low", k);
