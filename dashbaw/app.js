@@ -299,7 +299,7 @@ function renderPainel() {
     kpi("Lucro", `<span class="${neg(F.lucro)}">${brl0(F.lucro)}</span>`, `margem ${pctV(F.margem)}`, "kpi--preto"),
     kpi("Order bumps", fmt(L.obQtd + P.obQtd + U.obQtd), `acréscimo: low ${pctV(L.acresc)} · principal ${pctV(P.acresc)}`)
   ].join("");
-  funil($("#painel-funil"), funilEtapas(W));
+  { const et = funilEtapas(W); funil($("#painel-funil"), et, { escalaDesde: et[0][0] === "Impressões" ? 2 : 0 }); }
   $("#funil-nota").textContent = MODO === "semana" ? `compradores do low de seg ${dm(SEL)} a dom ${dm(somaDias(SEL, 6))} → live de seg ${dm(liveDe(SEL))} → vendas até seg ${dm(somaDias(SEL, 14))} 20h59` : MODO === "dia" ? `quem comprou o low em ${rotulo(SEL)} → live de seg ${dm(liveDe(segundaDe(SEL)))} (acompanha as mesmas pessoas)` : "quem comprou o low no mês → a live de cada um (segunda seguinte à compra)";
   // lows
   const porLow = new Map();
@@ -311,8 +311,19 @@ function renderPainel() {
     || `<div class="vazio-bloco">Nenhuma venda de low no período.</div>`;
   renderSaude($("#painel-saude"), false);
 }
-function funilEtapas(W) {
+// tráfego das campanhas de venda do low no período (Meta por anúncio, aba Tráfego)
+function trafegoFunil(k) {
+  const t = { imp: 0, link: 0, lpv: 0, chk: 0 };
+  if (typeof TR_DIA === "undefined") return t;
+  for (const r of TR_DIA) { const a = ADS.get(r.ad); if (!noPer(r, k) || !/VENDA/i.test(a?.campanha || "")) continue; t.imp += r.imp; t.link += r.link; t.lpv += r.lpv; t.chk += r.chk; }
+  return t;
+}
+// funil completo: do anúncio até a compra do Brigadeiro de A a Z
+function funilEtapas(W, k = SEL) {
+  const T = trafegoFunil(k);
+  const traf = T.imp ? [["Impressões", T.imp, "#a8a29e"], ["Cliques no link", T.link, "#78716c"], ["Página carregada", T.lpv, "#78716c"], ["Checkouts (Meta)", T.chk, "#57534e"]] : [];
   return [
+    ...traf,
     ["Compraram o low", W.lows, "#57534e"], ["Inscritos", W.insc, "#2a78d6"], ["Acessaram", W.acessou, "#2a78d6"],
     ["Estavam no pitch", W.pitch, "#1d4f91"], ["Viram a oferta", W.oferta, "#1d4f91"], ["Clicaram na oferta", W.clicou, "#eb6834"],
     ["Compraram o BAW", W.vendas, "#1baf7a"]
@@ -427,7 +438,7 @@ function renderWebinario() {
     kpi("No pitch", fmt(W.pitch), pct(W.pitch, W.acessou) + " de quem acessou"), kpi("Viram a oferta", fmt(W.oferta), pct(W.oferta, W.acessou)),
     kpi("Clicaram", fmt(W.clicou), pct(W.clicou, W.oferta) + " de quem viu"), kpi("Não viram a oferta", fmt(W.naoViu), pct(W.naoViu, W.acessou))
   ].join("");
-  funil($("#web-funil"), funilEtapas(W));
+  { const et = funilEtapas(W); funil($("#web-funil"), et, { escalaDesde: et[0][0] === "Impressões" ? 2 : 0 }); }
   $("#web-nota").textContent = W.temEventos ? "" : "Ainda não chegou nenhum evento do HotWebinar neste período.";
   const ks = periodos().slice(0, 40);
   $("#web-quadro").innerHTML = `<thead><tr><th>${MODO === "semana" ? "Webinário" : "Período"}</th><th class="n">Inscritos</th><th class="n">Acessaram</th><th class="n">Comparec.</th><th class="n">Pitch</th><th class="n">Oferta</th><th class="n">Clicaram</th><th class="n">Não viram oferta</th><th class="n">Vendas BAW</th><th class="n">Conv. presentes</th><th class="n">Conv. inscritos</th></tr></thead><tbody>${
@@ -699,7 +710,7 @@ document.addEventListener("click", async (e) => {
 // ---------- carregar ----------
 function renderTudo(forcar) {
   montarPeriodos();
-  const partes = [renderPainel, renderLow, () => typeof renderTrafego === "function" && renderTrafego(), renderInscricoes, renderWebinario, renderPrincipal, renderUpsell, renderVendas, () => renderDisparos(forcar), renderFinanceiro, () => renderWebhooks(forcar), () => renderCadastros(forcar)];
+  const partes = [() => typeof renderTrafego === "function" && renderTrafego(), renderPainel, renderLow, () => typeof renderPlano === "function" && renderPlano(), renderInscricoes, renderWebinario, renderPrincipal, renderUpsell, renderVendas, () => renderDisparos(forcar), renderFinanceiro, () => renderWebhooks(forcar), () => renderCadastros(forcar)];
   for (const f of partes) { try { f(); } catch (err) { console.error(f.name, err); } }
 }
 async function carregar(forcar) {

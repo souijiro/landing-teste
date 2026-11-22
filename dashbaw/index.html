@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/dash/dash.css?v=42">
-  <link rel="stylesheet" href="/dashbaw/baw.css?v=5">
+  <link rel="stylesheet" href="/dashbaw/baw.css?v=6">
 </head>
 <body>
 
@@ -46,6 +46,7 @@
       <nav class="abas abas--rolar" role="tablist">
         <button role="tab" class="aba ativa" data-aba="painel">Painel</button>
         <button role="tab" class="aba" data-aba="low">Low ticket</button>
+        <button role="tab" class="aba" data-aba="plano">Plano de tráfego</button>
         <button role="tab" class="aba" data-aba="trafego">Tráfego</button>
         <button role="tab" class="aba" data-aba="escala">Escala × teste</button>
         <button role="tab" class="aba" data-aba="inscricoes">Inscrições</button>
@@ -111,6 +112,32 @@
       <section class="cartao">
         <div class="cartao__topo"><h2>Por perfil (src)</h2></div>
         <div class="tabela-wrap"><table class="tabela" id="low-src"></table></div>
+      </section>
+    </main>
+
+    <!-- Plano de tráfego -->
+    <main class="aba-conteudo" id="aba-plano" hidden>
+      <p class="t-nota pl-nota" id="pl-nota"></p>
+      <section class="kpis kpis--baw" id="pl-kpis"></section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Funil completo</h2><span class="t-nota">do anúncio até o Brigadeiro de A a Z · só conta quem comprou o low</span></div>
+        <div class="funil-baw" id="pl-funil"></div>
+        <div class="pl-funil-plano" id="pl-funil-plano"></div>
+        <p class="pl-prev" id="pl-prev"></p>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Plano antigo × plano novo</h2><span class="t-nota">antigo = TESTE, ESCALA 2, VENCEDORES 2, CAMPANHA 1 · novo = ABO RAIZ e teste 1-1-1</span></div>
+        <div class="tabela-wrap"><table class="tabela" id="pl-planos"></table></div>
+        <p class="tabela-legenda"><span>Custo real = investimento ÷ vendas Hotmart do low ligadas ao anúncio (anúncios com o mesmo nome dividem a venda pelas compras Meta do dia). Inscrição = quantos desses compradores se inscreveram no webinário. ROI A a Z = Brigadeiro de A a Z (com bump e upsell, menos reembolsos) dessas pessoas ÷ investimento.</span></p>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Criativos pela régua</h2><span class="t-nota">campeão = 5+ vendas a até R$ 12 · cortar = acima de R$ 15 ou sem venda depois de R$ 24</span></div>
+        <div class="tabela-wrap tabela-wrap--alta"><table class="tabela tabela--rank" id="pl-cri"></table></div>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Decisões sugeridas</h2><button type="button" class="btn-sec" id="pl-copiar">Copiar decisões marcadas</button></div>
+        <div class="pl-decs" id="pl-dec"></div>
+        <p class="tabela-legenda"><span>Nada muda no Meta por aqui: marque, copie e cole na conversa com o Claude para aplicar. ESCALA 2, VENCEDORES 2 e CAMPANHA 1 ficam fora das sugestões.</span></p>
       </section>
     </main>
 
@@ -340,8 +367,9 @@
       <a class="previa__link" id="tr-previa-gerenciador" target="_blank" rel="noopener">Abrir no Gerenciador de Anúncios ↗</a>
     </div>
   </div>
-  <script src="/dashbaw/app.js?v=11"></script>
+  <script src="/dashbaw/app.js?v=12"></script>
   <script src="/dashbaw/trafego.js?v=3"></script>
   <script src="/dashbaw/escala.js?v=1"></script>
+  <script src="/dashbaw/plano.js?v=1"></script>
 </body>
 </html>
