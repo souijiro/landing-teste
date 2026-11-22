@@ -12,12 +12,19 @@ function lerSck(sck) {
   if (p.length < 5) return null;
   return { posicionamento: p[0] || "?", campanha: p[1], conjunto: p[3], anuncio: p.slice(4).join(SEP_SCK) };
 }
-// desde 16/11 a página manda src = "perfil|nome do anúncio" (antes vinha o caminho completo no sck, pelo Utmify)
+// src da página: desde 23/11 "perfil|conjunto|anúncio"; de 16/11 a 22/11 "perfil|anúncio"
+// (antes vinha o caminho completo no sck, pelo Utmify). Conjunto pode vir vazio ("perfil||anúncio").
 const perfilDe = (v) => String(v.src || "").split("|")[0].trim() || "(sem perfil)";
+function lerSrc(src) {
+  const p = String(src || "").split("|").map((x) => x.trim());
+  if (p.length >= 3) return { perfil: p[0], conjunto: p[1] || null, anuncio: p.slice(2).join("|") };
+  if (p.length === 2) return { perfil: p[0], conjunto: null, anuncio: p[1] };
+  return { perfil: p[0], conjunto: null, anuncio: "" };
+}
 function origemVenda(v) {
   const s = lerSck(v.sck); if (s) return s;
-  const i = String(v.src || "").indexOf("|");
-  if (i >= 0 && v.src.slice(i + 1).trim()) return { posicionamento: "", campanha: null, conjunto: null, anuncio: v.src.slice(i + 1).trim() };
+  const r = lerSrc(v.src);
+  if (r.anuncio) return { posicionamento: "", campanha: null, conjunto: r.conjunto, anuncio: r.anuncio };
   return null;
 }
 const NOME_POS = { ig: "Instagram", fb: "Facebook", wa: "WhatsApp", an: "Audience Network", msg: "Messenger", th: "Threads" };
@@ -44,7 +51,9 @@ function vendasRastreadas() {
     const fat = v.fat + ob.reduce((x, b) => x + b.fat, 0);
     let ad = null;
     if (s) {
-      const ids = porNome.get(normNome(s.anuncio)) || [];
+      let ids = porNome.get(normNome(s.anuncio)) || [];
+      // conjunto veio no src/sck: fica só com os anúncios desse conjunto (se achar algum)
+      if (s.conjunto && ids.length > 1) { const mesmo = ids.filter((id) => normNome(ADS.get(id)?.conjunto) === normNome(s.conjunto)); if (mesmo.length) ids = mesmo; }
       // mesmo nome em mais de um anúncio: fica com o que mais gastou no dia da venda
       ad = ids.sort((a, b) => (gastoDia.get(v.dia + "|" + b) || 0) - (gastoDia.get(v.dia + "|" + a) || 0))[0] || null;
     }

@@ -113,12 +113,17 @@ window.gpages_conversion = gpages_conversion;
       if(!pendingLink) return;
       var link = pendingLink;
       var src = btn.getAttribute('data-src');
-      // Hotmart src = perfil|criativo (criativo = page src, else utm_term = ad name)
+      // Hotmart src = PERFIL|CONJUNTO|ANUNCIO (desde 23/11; antes perfil|anuncio)
+      //   anuncio  = utm_term, else page src (ad name)
+      //   conjunto = adset, else utm_medium (adset name); vazio se a Meta não preencher
       var srcHotmart = src;
       try {
         var qs = new URLSearchParams(location.search);
-        var criativo = qs.get('src') || qs.get('utm_term') || '';
-        if (criativo) srcHotmart = src + '|' + criativo;
+        var limpa = function(v){ v = (v || '').replace(/\|/g, '/').trim(); return /^\{\{.*\}\}$/.test(v) ? '' : v; };
+        var anuncio = limpa(qs.get('utm_term')) || limpa(qs.get('src'));
+        var conjunto = limpa(qs.get('adset')) || limpa(qs.get('utm_medium'));
+        if (/^(paid|cpc|cpm|social|ads?|pago|trafego|facebook|fb|ig|instagram)$/i.test(conjunto)) conjunto = '';
+        if (anuncio || conjunto) srcHotmart = src + '|' + conjunto + '|' + anuncio;
       } catch (err) {}
       var url = link.getAttribute('href');
       // Forward the page's query string (utm_*, fbclid...) to the checkout
