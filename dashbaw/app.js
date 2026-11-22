@@ -207,7 +207,7 @@ function mLow(k) {
   // inscritos = compradores do low do período que se inscreveram (conta no dia da COMPRA, não da inscrição)
   const insc = lows.filter(inscritoDoLow).length;
   return { vendas, insc, pInsc: div(insc, vendas), fat, fatLT, traf, tx, imp, impT, ticket: div(fat, vendas), liq, margem: div(liq, fat),
-    cac: div(traf + impT, vendas), roas: div(fat, traf), obQtd: obs.length, fatOB, acresc: div(fatOB, fatLT), caixa: soma(lows, (v) => v.caixa30) + soma(obs, (v) => v.caixa30) };
+    cac: div(traf + impT, vendas), roas: div(fat, traf), obQtd: obs.length, convOB: div(obs.length, vendas), fatOB, acresc: div(fatOB, fatLT), caixa: soma(lows, (v) => v.caixa30) + soma(obs, (v) => v.caixa30) };
 }
 function mProduto(tipo, obTipo, k) {
   const vs = aprov(tipo, k), obs = aprov(obTipo, k);
@@ -372,19 +372,27 @@ function renderLow() {
   ].join("");
   const ks = periodos().slice(0, 60);
   const linhas = ks.map((k) => ({ k, m: mLow(k) }));
+  // 5º item: "rec" receita (fonte verde) · "desp" despesa (fonte vermelha) · "sinal" fundo verde/vermelho conforme o sinal
   const col = [
-    ["Vendas", (m) => fmt(m.vendas), (m) => m.vendas], ["Compraram e se inscreveram", (m) => fmt(m.insc), (m) => m.insc], ["% inscr.", (m) => pctV(m.pInsc), (m) => m.pInsc],
-    ["Fat. total", (m) => brl(m.fat), (m) => m.fat], ["Fat. LT", (m) => brl(m.fatLT)], ["Tráfego", (m) => brl(m.traf)], ["Taxa Hotmart", (m) => brl(m.tx)],
-    ["Imposto", (m) => brl(m.imp)], ["Imp. tráfego", (m) => brl(m.impT)], ["Ticket médio", (m) => (isFinite(m.ticket) ? brl(m.ticket) : "—"), (m) => m.ticket],
-    ["Líquido", (m) => brl(m.liq), (m) => m.liq], ["Margem", (m) => pctV(m.margem), (m) => m.margem], ["CAC", (m) => (isFinite(m.cac) ? brl(m.cac) : "—"), (m) => m.cac, true],
-    ["ROAS", (m) => num2(m.roas), (m) => m.roas], ["Qtd OB", (m) => fmt(m.obQtd), (m) => m.obQtd], ["Fat. OB", (m) => brl(m.fatOB), (m) => m.fatOB], ["Acrésc. OB", (m) => pctV(m.acresc), (m) => m.acresc]
+    ["Vendas", (m) => fmt(m.vendas), (m) => m.vendas], ["Inscritos", (m) => fmt(m.insc), (m) => m.insc], ["% inscr.", (m) => pctV(m.pInsc), (m) => m.pInsc],
+    ["Fat. total", (m) => brl(m.fat), (m) => m.fat, false, "rec"], ["Fat. LT", (m) => brl(m.fatLT), null, false, "rec"],
+    ["Tráfego", (m) => brl(m.traf), null, false, "desp"], ["Taxa Hotmart", (m) => brl(m.tx), null, false, "desp"],
+    ["Imposto", (m) => brl(m.imp), null, false, "desp"], ["Imp. tráfego", (m) => brl(m.impT), null, false, "desp"],
+    ["Ticket médio", (m) => (isFinite(m.ticket) ? brl(m.ticket) : "—"), (m) => m.ticket, false, "rec"],
+    ["Líquido", (m) => brl(m.liq), (m) => m.liq, false, "sinal"], ["Margem", (m) => pctV(m.margem), (m) => m.margem, false, "sinal"],
+    ["CAC", (m) => (isFinite(m.cac) ? brl(m.cac) : "—"), (m) => m.cac, true, "desp"],
+    ["ROAS", (m) => num2(m.roas), (m) => m.roas], ["Qtd OB", (m) => fmt(m.obQtd), (m) => m.obQtd],
+    ["Conv. OB", (m) => pctV(m.convOB), (m) => m.convOB],
+    ["Fat. OB", (m) => brl(m.fatOB), (m) => m.fatOB, false, "rec"], ["Acrésc. OB", (m) => pctV(m.acresc), (m) => m.acresc]
   ];
+  const corCel = (c, m) => { if (c[4] === "rec") return "v-rec"; if (c[4] === "desp") return "v-desp";
+    if (c[4] === "sinal") { const x = c[2](m); return !isFinite(x) || x === 0 ? "" : x < 0 ? "v-neg" : "v-pos"; } return ""; };
   const tot = mLowTotal(ks);
   $("#low-quadro").innerHTML = `<thead><tr><th>${MODO === "dia" ? "Dia" : MODO === "semana" ? "Semana" : "Mês"}</th>${col.map((c) => `<th class="n">${c[0]}</th>`).join("")}</tr></thead>
     <tbody>${linhas.map(({ k, m }, i) => {
       const ant = linhas.slice(i + 1).filter((x) => x.m.vendas > 0);
-      return `<tr class="${k === SEL ? "atual" : ""}"><td>${esc(rotulo(k))}</td>${col.map((c) => `<td class="n">${c[1](m)}${c[2] && m.vendas ? seta(c[2](m), ant.map((x) => c[2](x.m)), c[3]) : ""}</td>`).join("")}</tr>`;
-    }).join("")}<tr class="total"><td>Total</td>${col.map((c) => `<td class="n">${c[1](tot)}</td>`).join("")}</tr></tbody>`;
+      return `<tr class="${k === SEL ? "atual" : ""}"><td>${esc(rotulo(k))}</td>${col.map((c) => `<td class="n ${corCel(c, m)}">${c[1](m)}${c[2] && m.vendas ? seta(c[2](m), ant.map((x) => c[2](x.m)), c[3]) : ""}</td>`).join("")}</tr>`;
+    }).join("")}<tr class="total"><td>Total</td>${col.map((c) => `<td class="n ${corCel(c, tot)}">${c[1](tot)}</td>`).join("")}</tr></tbody>`;
 
   // por low
   const grupos = new Map();
@@ -422,7 +430,7 @@ function renderLow() {
 function mLowTotal(ks) {
   const ms = ks.map(mLow), s = (f) => ms.reduce((a, m) => a + m[f], 0);
   const t = { vendas: s("vendas"), insc: s("insc"), fat: s("fat"), fatLT: s("fatLT"), traf: s("traf"), tx: s("tx"), imp: s("imp"), impT: s("impT"), liq: s("liq"), obQtd: s("obQtd"), fatOB: s("fatOB") };
-  return { ...t, pInsc: div(t.insc, t.vendas), ticket: div(t.fat, t.vendas), margem: div(t.liq, t.fat), cac: div(t.traf + t.impT, t.vendas), roas: div(t.fat, t.traf), acresc: div(t.fatOB, t.fatLT) };
+  return { ...t, pInsc: div(t.insc, t.vendas), ticket: div(t.fat, t.vendas), margem: div(t.liq, t.fat), cac: div(t.traf + t.impT, t.vendas), roas: div(t.fat, t.traf), convOB: div(t.obQtd, t.vendas), acresc: div(t.fatOB, t.fatLT) };
 }
 
 // ---------- Inscrições ----------

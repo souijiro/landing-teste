@@ -140,3 +140,10 @@
 .kpi__num .neg { color: #d13b3f; }
 .kpi--preto .kpi__num .neg { color: #ff8a8d; }
 .kpi--preto .kpi__num .pos { color: #7ee2a8; }
+
+/* Quadro do low: receita verde, despesa vermelha; líquido e margem com fundo pelo sinal */
+.tabela td.v-rec { color: #146c3a; font-weight: 700; }
+.tabela td.v-desp { color: #c0262b; font-weight: 700; }
+.tabela td.v-pos { background: #1a8f4c; color: #fff; font-weight: 800; }
+.tabela td.v-neg { background: #d13b3f; color: #fff; font-weight: 800; }
+.tabela td.v-pos .seta, .tabela td.v-neg .seta { color: #fff; }
