@@ -148,3 +148,35 @@
 .tabela--quadro tr td.v-pos { background: #1a8f4c; color: #fff; font-weight: 500; }
 .tabela--quadro tr td.v-neg { background: #d13b3f; color: #fff; font-weight: 500; }
 .tabela--quadro tr td.v-pos .seta, .tabela--quadro tr td.v-neg .seta { color: #fff; }
+/* aba Tráfego: bolhas custo por venda × inscrição */
+.bolhas-ctl { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; margin: 4px 0 10px; font-size: .8rem; color: var(--texto-2); }
+.bolhas-ctl select { height: 32px; border: 1px solid #d6d0c8; border-radius: 8px; padding: 0 8px; font: 500 13px var(--fonte); background: #fff; margin-left: 6px; }
+.bolhas-leg { display: inline-flex; align-items: center; gap: 6px; }
+.bolhas-leg i { width: 14px; height: 10px; border-radius: 3px; display: inline-block; }
+.bolhas-leg i.q-bom { background: #e1f5ee; border: 1px solid #9fe1cb; }
+.bolhas-leg i.q-linha { height: 0; border-top: 2px dashed #b4b2a9; border-radius: 0; }
+.bolhas { padding: 36px 64px 8px 52px; }
+.bolhas__area { position: relative; height: 440px; border-left: 1px solid #c3c2b7; border-bottom: 1px solid #c3c2b7; }
+.bolhas__q { position: absolute; background: #e1f5ee; opacity: .7; }
+.bolhas__gy, .bolhas__gx { position: absolute; pointer-events: none; }
+.bolhas__gy { left: 0; right: 0; border-top: 1px solid #ece8e2; }
+.bolhas__gx { top: 0; bottom: 0; border-left: 1px solid #f3f0eb; }
+.bolhas__gy em, .bolhas__gx em { position: absolute; font-style: normal; font-size: .68rem; color: var(--texto-3); white-space: nowrap; }
+.bolhas__gy em { right: calc(100% + 8px); transform: translateY(-50%); }
+.bolhas__gx em { top: calc(100% + 6px); transform: translateX(-50%); }
+.bolhas__ref { position: absolute; pointer-events: none; }
+.bolhas__ref--v { top: 0; bottom: 0; border-left: 2px dashed #b4b2a9; }
+.bolhas__ref--h { left: 0; right: 0; border-top: 2px dashed #b4b2a9; }
+.bolhas__ref em { position: absolute; font-style: normal; font-size: .68rem; color: var(--texto-3); white-space: nowrap; }
+.bolhas__ref--v em { top: -18px; left: 4px; }
+.bolhas__ref--h em { right: -60px; top: -8px; }
+.bolha { position: absolute; transform: translate(-50%, -50%); border-radius: 50%; padding: 0; border: 3px solid #2a78d6; background: #e6f1fb; overflow: visible; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,.18); transition: transform .12s; }
+.bolha:hover, .bolha:focus-visible { transform: translate(-50%, -50%) scale(1.12); z-index: 5; outline: none; }
+.bolha img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
+.bolha--boa { border-color: #1d9e75; }
+.bolha--ruim { border-color: #e24b4a; }
+.bolha__rot { position: absolute; left: 50%; top: calc(100% + 2px); transform: translateX(-50%); background: rgba(255,255,255,.92); border-radius: 6px; padding: 1px 6px; font-size: .66rem; font-weight: 600; color: #1c1917; white-space: nowrap; line-height: 1.35; text-align: center; pointer-events: none; }
+.bolha__rot b { display: block; font-weight: 500; color: var(--texto-2); }
+.bolhas__eixos { display: flex; justify-content: center; margin-top: 26px; font-size: .72rem; color: var(--texto-3); }
+.bolhas__ylbl { position: absolute; left: -44px; top: -30px; font-size: .72rem; color: var(--texto-3); white-space: nowrap; pointer-events: none; }
+@media (max-width: 640px) { .bolhas { padding: 30px 44px 8px 40px; } .bolhas__area { height: 360px; } .bolha__rot b { display: none; } }

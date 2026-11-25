@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/dash/dash.css?v=42">
-  <link rel="stylesheet" href="/dashbaw/baw.css?v=7">
+  <link rel="stylesheet" href="/dashbaw/baw.css?v=8">
 </head>
 <body>
 
@@ -156,6 +156,15 @@
       <section class="cartao">
         <div class="cartao__topo"><h2>Funil dos anúncios</h2><span class="t-nota">Meta até a compra · Vendas Hotmart = vendas reais do low ligadas ao anúncio pelo sck</span></div>
         <div class="funil-baw" id="tr-funil"></div>
+      </section>
+      <section class="cartao">
+        <div class="cartao__topo"><h2>Custo por venda × inscrição no webinário</h2><span class="t-nota">um círculo por criativo (somando campanhas e conjuntos) · tamanho = vendas · respeita período e filtros</span></div>
+        <div class="bolhas-ctl">
+          <label>Mínimo de vendas <select id="tr-bol-min" aria-label="Mínimo de vendas por criativo"><option value="2">2</option><option value="3" selected>3</option><option value="5">5</option><option value="10">10</option></select></label>
+          <span class="bolhas-leg"><i class="q-bom"></i>barato e qualifica</span><span class="bolhas-leg"><i class="q-linha"></i>corte R$ 15 · média de inscrição</span>
+        </div>
+        <div class="bolhas" id="tr-bolhas"></div>
+        <p class="tabela-legenda"><span>Eixo horizontal: CPA real (investimento ÷ vendas Hotmart do low). Eixo vertical: % dos compradores que se inscreveram no webinário. Quem comprou nos últimos dias ainda pode se inscrever, então a % dos criativos novos tende a subir. Clique no círculo para ver o criativo.</span></p>
       </section>
       <section class="cartao">
         <div class="cartao__topo"><h2>Top 5 anúncios · geral</h2><span class="t-nota">menor CPA real, entre anúncios com 2+ vendas Hotmart</span></div>
@@ -368,7 +377,7 @@
     </div>
   </div>
   <script src="/dashbaw/app.js?v=14"></script>
-  <script src="/dashbaw/trafego.js?v=4"></script>
+  <script src="/dashbaw/trafego.js?v=5"></script>
   <script src="/dashbaw/escala.js?v=1"></script>
   <script src="/dashbaw/plano.js?v=1"></script>
 </body>

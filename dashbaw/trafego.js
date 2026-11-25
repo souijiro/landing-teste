@@ -156,6 +156,7 @@ function renderTrafego() {
   desenharTopT($("#tr-top5-imagem"), porAd.filter(([id]) => fmtDe(id) !== "video").sort(ordemTop).slice(0, 5));
 
   renderRankingT();
+  renderBolhasT();
 
   // posicionamento e perfil (vendas do low no período)
   const vp = VR.filter((s) => noPer(s.v));
@@ -212,6 +213,49 @@ document.addEventListener("click", (e) => {
   const c = th.dataset.ord; TR_ORD = { col: c, dir: TR_ORD.col === c ? -TR_ORD.dir : (["cpm", "cpc", "cpaMeta", "cpa"].includes(c) ? 1 : -1) }; renderRankingT();
 });
 document.addEventListener("change", (e) => { if (e.target.id === "tr-dim") { TR_DIM = e.target.value; renderRankingT(); } });
+
+// ---------- bolhas: custo por venda × % de compradores inscritos no webinário ----------
+// Um círculo por criativo (nome do anúncio, somando campanhas/conjuntos), com a thumb dentro. Respeita SEL e os filtros.
+const CORTE_CPA_T = 15;
+function renderBolhasT() {
+  const el = $("#tr-bolhas"); if (!el) return;
+  const minV = +($("#tr-bol-min")?.value || 3);
+  const g = new Map();
+  const grupo = (adId) => { const k = normNome(ADS.get(adId)?.nome || adId); if (!g.has(k)) g.set(k, { inv: 0, vendas: 0, insc: 0, porAd: new Map() }); return g.get(k); };
+  for (const r of TR_DIA) if (noPer(r) && passaFiltro(r.ad)) { const o = grupo(r.ad); o.inv += r.inv; o.porAd.set(r.ad, (o.porAd.get(r.ad) || 0) + r.inv); }
+  for (const s of VR) if (noPer(s.v) && s.ad && passaFiltro(s.ad)) { const o = grupo(s.ad); o.vendas++; if (inscritoDoLow(s.v)) o.insc++; if (!o.porAd.has(s.ad)) o.porAd.set(s.ad, 0); }
+  const pts = [...g.values()].filter((o) => o.vendas >= minV && o.inv > 0).map((o) => {
+    const ids = [...o.porAd.entries()].sort((a, b) => b[1] - a[1]).map(([id]) => id);
+    const rep = ids.find((id) => ADS.get(id)?.thumb) || ids[0];
+    return { ...o, ad: rep, a: ADS.get(rep) || {}, cpa: o.inv / o.vendas, tx: o.insc / o.vendas };
+  });
+  if (!pts.length) { el.innerHTML = `<p class="t-nota">Nenhum criativo com ${minV}+ vendas Hotmart no período e filtros escolhidos.</p>`; return; }
+  const totV = pts.reduce((a, p) => a + p.vendas, 0), media = pts.reduce((a, p) => a + p.insc, 0) / totV;
+  const xs = pts.map((p) => p.cpa), x0 = Math.max(0, Math.floor(Math.min(...xs, CORTE_CPA_T) * 0.88)), x1 = Math.ceil(Math.max(...xs, CORTE_CPA_T) * 1.06);
+  const y1 = Math.min(1, Math.ceil((Math.max(...pts.map((p) => p.tx), media) + 0.08) * 10) / 10), y0 = -y1 * 0.1;   // folga embaixo p/ quem tem 0%
+  const X = (v) => ((v - x0) / (x1 - x0)) * 100, Y = (v) => 100 - ((v - y0) / (y1 - y0)) * 100;
+  const maxV = Math.max(...pts.map((p) => p.vendas)), R = (v) => 15 + Math.sqrt(v / maxV) * 25;  // raio em px: 15–40
+  const passo = (x1 - x0) > 40 ? 10 : (x1 - x0) > 14 ? 5 : 2, tx = []; for (let v = Math.ceil(x0 / passo) * passo; v <= x1; v += passo) tx.push(v);
+  const ty = []; for (let v = 0; v <= y1 + 1e-9; v += y1 > 0.6 ? 0.2 : 0.1) ty.push(Math.round(v * 100) / 100);
+  pts.sort((a, b) => b.vendas - a.vendas);   // maiores atrás
+  const VERS = { HOOK: "Hook", BROLL: "B-roll", ORIGINAL: "Orig." };
+  const curto = (n) => { const m = String(n).match(/^(\d{4})\b.*?(?:V-(HOOK|BROLL|ORIGINAL))?$/i); return m ? m[1] + (m[2] ? " " + VERS[m[2].toUpperCase()] : "") : String(n).replace(/^MBP\s+/i, "").slice(0, 12); };
+  el.innerHTML = `<div class="bolhas__area">
+    <div class="bolhas__q" style="left:0;top:0;width:${X(CORTE_CPA_T)}%;height:${Y(media)}%"></div>
+    ${ty.map((v) => `<span class="bolhas__gy" style="top:${Y(v)}%"><em>${Math.round(v * 100)}%</em></span>`).join("")}
+    ${tx.map((v) => `<span class="bolhas__gx" style="left:${X(v)}%"><em>R$ ${v}</em></span>`).join("")}
+    <span class="bolhas__ref bolhas__ref--v" style="left:${X(CORTE_CPA_T)}%"><em>corte R$ ${CORTE_CPA_T}</em></span>
+    <span class="bolhas__ref bolhas__ref--h" style="top:${Y(media)}%"><em>média ${Math.round(media * 100)}%</em></span>
+    ${pts.map((p) => { const r = R(p.vendas);
+      const dica = `${p.a.nome || p.ad}\nCPA real ${brl(p.cpa)} · ${p.vendas} vendas · ${p.insc} inscritos (${Math.round(p.tx * 100)}%)\nInvestimento ${brl(p.inv)} · custo por inscrito ${p.insc ? brl(p.inv / p.insc) : "—"}`;
+      return `<button type="button" class="bolha${p.cpa <= CORTE_CPA_T && p.tx >= media ? " bolha--boa" : p.cpa > CORTE_CPA_T && p.tx < media ? " bolha--ruim" : ""}" data-ad="${esc(p.ad)}" title="${esc(dica)}" aria-label="${esc(dica)}"
+        style="left:${X(p.cpa)}%;top:${Y(p.tx)}%;width:${r * 2}px;height:${r * 2}px">
+        ${p.a.thumb ? `<img src="${esc(p.a.thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : ""}
+        <span class="bolha__rot">${esc(curto(p.a.nome || p.ad))}<b>${p.vendas}v · ${Math.round(p.tx * 100)}%</b></span></button>`; }).join("")}
+    <span class="bolhas__ylbl">↑ % dos compradores inscritos</span>
+  </div><div class="bolhas__eixos"><span>← mais barato · CPA real (R$) · mais caro →</span></div>`;
+}
+document.addEventListener("change", (e) => { if (e.target.id === "tr-bol-min") renderBolhasT(); });
 
 // ---------- prévia do criativo ----------
 document.addEventListener("click", (e) => {
