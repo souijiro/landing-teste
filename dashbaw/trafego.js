@@ -219,18 +219,24 @@ document.addEventListener("change", (e) => { if (e.target.id === "tr-dim") { TR_
 // Eixo X = investimento ÷ compradores do low que se inscreveram (regra da usuária, 26/11: custo por lead qualificado, não por compra).
 // Criativo com vendas mas nenhum inscrito fica numa faixa à direita ("sem inscrito").
 function renderBolhasT() {
-  const el = $("#tr-bolhas"); if (!el) return;
-  const minV = +($("#tr-bol-min")?.value || 3);
+  desenharBolhas($("#tr-bolhas"), "criativo", +($("#tr-bol-min")?.value || 3));
+  desenharBolhas($("#tr-bolhas-camp"), "campanha", 1);
+}
+// modo "criativo": um círculo por nome de anúncio (com thumb); "campanha": um círculo por campanha
+function desenharBolhas(el, modo, minV) {
+  if (!el) return;
+  const porCamp = modo === "campanha";
   const g = new Map();
-  const grupo = (adId) => { const k = normNome(ADS.get(adId)?.nome || adId); if (!g.has(k)) g.set(k, { inv: 0, vendas: 0, insc: 0, porAd: new Map() }); return g.get(k); };
+  const grupo = (adId) => { const a = ADS.get(adId) || {}; const k = porCamp ? (a.campanha_id || "?") : normNome(a.nome || adId);
+    if (!g.has(k)) g.set(k, { inv: 0, vendas: 0, insc: 0, porAd: new Map(), camp: a.campanha || "(sem campanha)" }); return g.get(k); };
   for (const r of TR_DIA) if (noPer(r) && passaFiltro(r.ad)) { const o = grupo(r.ad); o.inv += r.inv; o.porAd.set(r.ad, (o.porAd.get(r.ad) || 0) + r.inv); }
   for (const s of VR) if (noPer(s.v) && s.ad && passaFiltro(s.ad)) { const o = grupo(s.ad); o.vendas++; if (inscritoDoLow(s.v)) o.insc++; if (!o.porAd.has(s.ad)) o.porAd.set(s.ad, 0); }
   const pts = [...g.values()].filter((o) => o.vendas >= minV && o.inv > 0).map((o) => {
     const ids = [...o.porAd.entries()].sort((a, b) => b[1] - a[1]).map(([id]) => id);
     const rep = ids.find((id) => ADS.get(id)?.thumb) || ids[0];
-    return { ...o, ad: rep, a: ADS.get(rep) || {}, cpa: o.inv / o.vendas, cpl: o.insc ? o.inv / o.insc : null, tx: o.insc / o.vendas };
+    return { ...o, ad: rep, a: porCamp ? { nome: o.camp } : (ADS.get(rep) || {}), cpa: o.inv / o.vendas, cpl: o.insc ? o.inv / o.insc : null, tx: o.insc / o.vendas };
   });
-  if (!pts.length) { el.innerHTML = `<p class="t-nota">Nenhum criativo com ${minV}+ vendas Hotmart no período e filtros escolhidos.</p>`; return; }
+  if (!pts.length) { el.innerHTML = `<p class="t-nota">Nenhum${porCamp ? "a campanha com vendas" : ` criativo com ${minV}+ vendas`} Hotmart no período e filtros escolhidos.</p>`; return; }
   const totV = pts.reduce((a, p) => a + p.vendas, 0), totI = pts.reduce((a, p) => a + p.insc, 0), totInv = pts.reduce((a, p) => a + p.inv, 0);
   const media = totI / totV, ref = totI ? totInv / totI : null;   // média de inscrição e custo médio por inscrito do conjunto
   const com = pts.filter((p) => p.cpl != null), sem = pts.filter((p) => p.cpl == null);
@@ -246,7 +252,8 @@ function renderBolhasT() {
   const ty = []; for (let v = 0; v <= y1 + 1e-9; v += y1 > 0.6 ? 0.2 : 0.1) ty.push(Math.round(v * 100) / 100);
   pts.sort((a, b) => b.vendas - a.vendas);
   const VERS = { HOOK: "Hook", BROLL: "B-roll", ORIGINAL: "Orig." };
-  const curto = (n) => { const m = String(n).match(/^(\d{4})\b.*?(?:V-(HOOK|BROLL|ORIGINAL))?$/i); return m ? m[1] + (m[2] ? " " + VERS[m[2].toUpperCase()] : "") : String(n).replace(/^MBP\s+/i, "").slice(0, 12); };
+  const curtoCamp = (n) => String(n).replace(/^\[MBP\]\s*/i, "").replace(/\[VENDA\]\s*/i, "").slice(0, 26);
+  const curto = (n) => { if (porCamp) return curtoCamp(n); const m = String(n).match(/^(\d{4})\b.*?(?:V-(HOOK|BROLL|ORIGINAL))?$/i); return m ? m[1] + (m[2] ? " " + VERS[m[2].toUpperCase()] : "") : String(n).replace(/^MBP\s+/i, "").slice(0, 12); };
   el.innerHTML = `<div class="bolhas__area">
     ${ref != null ? `<div class="bolhas__q" style="left:0;top:0;width:${X(ref)}%;height:${Y(media)}%"></div>` : ""}
     ${sem.length ? `<div class="bolhas__sem" style="left:${100 - faixa * 100}%;width:${faixa * 100}%"><em>sem inscrito</em></div>` : ""}
@@ -257,9 +264,9 @@ function renderBolhasT() {
     ${pts.map((p) => { const r = R(p.vendas);
       const dica = `${p.a.nome || p.ad}\nCusto por inscrito ${p.cpl != null ? brl(p.cpl) : "— (nenhum inscrito)"} · ${p.insc} inscritos de ${p.vendas} compradores (${Math.round(p.tx * 100)}%)\nInvestimento ${brl(p.inv)} · CPA real ${brl(p.cpa)}`;
       const boa = ref != null && p.cpl != null && p.cpl <= ref && p.tx >= media, ruim = p.cpl == null || (ref != null && p.cpl > ref && p.tx < media);
-      return `<button type="button" class="bolha${boa ? " bolha--boa" : ruim ? " bolha--ruim" : ""}" data-ad="${esc(p.ad)}" title="${esc(dica)}" aria-label="${esc(dica)}"
+      return `<button type="button" class="bolha${porCamp ? " bolha--camp" : ""}${boa ? " bolha--boa" : ruim ? " bolha--ruim" : ""}" ${porCamp ? "" : `data-ad="${esc(p.ad)}"`} title="${esc(dica)}" aria-label="${esc(dica)}"
         style="left:${X(p.cpl)}%;top:${Y(p.tx)}%;width:${r * 2}px;height:${r * 2}px">
-        ${p.a.thumb ? `<img src="${esc(p.a.thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : ""}
+        ${!porCamp && p.a.thumb ? `<img src="${esc(p.a.thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : ""}
         <span class="bolha__rot">${esc(curto(p.a.nome || p.ad))}<b>${p.cpl != null ? "R$ " + Math.round(p.cpl) : "0 insc."} · ${p.vendas}v</b></span></button>`; }).join("")}
     <span class="bolhas__ylbl">↑ % dos compradores inscritos</span>
   </div><div class="bolhas__eixos"><span>← mais barato · custo por lead qualificado (inscrito no webinário) · mais caro →</span></div>`;

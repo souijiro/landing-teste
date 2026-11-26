@@ -183,3 +183,7 @@
 /* bolhas: faixa à direita para criativos sem nenhum inscrito */
 .bolhas__sem { position: absolute; top: 0; bottom: 0; background: repeating-linear-gradient(135deg, #fbe4e4 0 8px, #fdf1f1 8px 16px); border-left: 1px dashed #d13b3f; }
 .bolhas__sem em { position: absolute; top: 4px; left: 50%; transform: translateX(-50%); font-style: normal; font-size: .62rem; font-weight: 700; color: #b3262b; white-space: nowrap; }
+/* bolhas por campanha: círculo cheio, sem thumb */
+.bolha.bolha--camp { background: #2a78d6; opacity: .85; }
+.bolha.bolha--camp.bolha--boa { background: #1baf7a; }
+.bolha.bolha--camp.bolha--ruim { background: #d13b3f; }
