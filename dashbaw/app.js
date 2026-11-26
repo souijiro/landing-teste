@@ -735,7 +735,7 @@ document.addEventListener("click", async (e) => {
 // ---------- carregar ----------
 function renderTudo(forcar) {
   montarPeriodos();
-  const partes = [() => typeof renderTrafego === "function" && renderTrafego(), renderPainel, renderLow, () => typeof renderPlano === "function" && renderPlano(), renderInscricoes, renderWebinario, renderPrincipal, renderUpsell, renderVendas, () => renderDisparos(forcar), renderFinanceiro, () => renderWebhooks(forcar), () => renderCadastros(forcar)];
+  const partes = [() => typeof renderTrafego === "function" && renderTrafego(), renderPainel, renderLow, renderWebinario, renderPrincipal, renderUpsell, renderVendas, () => renderDisparos(forcar), renderFinanceiro, () => renderWebhooks(forcar), () => renderCadastros(forcar)];
   for (const f of partes) { try { f(); } catch (err) { console.error(f.name, err); } }
 }
 async function carregar(forcar) {

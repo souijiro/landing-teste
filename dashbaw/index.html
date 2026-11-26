@@ -46,10 +46,7 @@
       <nav class="abas abas--rolar" role="tablist">
         <button role="tab" class="aba ativa" data-aba="painel">Painel</button>
         <button role="tab" class="aba" data-aba="low">Low ticket</button>
-        <button role="tab" class="aba" data-aba="plano">Plano de tráfego</button>
         <button role="tab" class="aba" data-aba="trafego">Tráfego</button>
-        <button role="tab" class="aba" data-aba="escala">Escala × teste</button>
-        <button role="tab" class="aba" data-aba="inscricoes">Inscrições</button>
         <button role="tab" class="aba" data-aba="webinario">Webinário</button>
         <button role="tab" class="aba" data-aba="principal">Brigadeiro de A a Z</button>
         <button role="tab" class="aba" data-aba="upsell">Upsell DAZ</button>
@@ -115,32 +112,6 @@
       </section>
     </main>
 
-    <!-- Plano de tráfego -->
-    <main class="aba-conteudo" id="aba-plano" hidden>
-      <p class="t-nota pl-nota" id="pl-nota"></p>
-      <section class="kpis kpis--baw" id="pl-kpis"></section>
-      <section class="cartao">
-        <div class="cartao__topo"><h2>Funil completo</h2><span class="t-nota">do anúncio até o Brigadeiro de A a Z · só conta quem comprou o low</span></div>
-        <div class="funil-baw" id="pl-funil"></div>
-        <div class="pl-funil-plano" id="pl-funil-plano"></div>
-        <p class="pl-prev" id="pl-prev"></p>
-      </section>
-      <section class="cartao">
-        <div class="cartao__topo"><h2>Plano antigo × plano novo</h2><span class="t-nota">antigo = TESTE, ESCALA 2, VENCEDORES 2, CAMPANHA 1 · novo = ABO RAIZ e teste 1-1-1</span></div>
-        <div class="tabela-wrap"><table class="tabela" id="pl-planos"></table></div>
-        <p class="tabela-legenda"><span>Custo real = investimento ÷ vendas Hotmart do low ligadas ao anúncio (anúncios com o mesmo nome dividem a venda pelas compras Meta do dia). Inscrição = quantos desses compradores se inscreveram no webinário. ROI A a Z = Brigadeiro de A a Z (com bump e upsell, menos reembolsos) dessas pessoas ÷ investimento.</span></p>
-      </section>
-      <section class="cartao">
-        <div class="cartao__topo"><h2>Criativos pela régua</h2><span class="t-nota">campeão = 5+ vendas a até R$ 12 · cortar = acima de R$ 15 ou sem venda depois de R$ 24</span></div>
-        <div class="tabela-wrap tabela-wrap--alta"><table class="tabela tabela--rank" id="pl-cri"></table></div>
-      </section>
-      <section class="cartao">
-        <div class="cartao__topo"><h2>Decisões sugeridas</h2><button type="button" class="btn-sec" id="pl-copiar">Copiar decisões marcadas</button></div>
-        <div class="pl-decs" id="pl-dec"></div>
-        <p class="tabela-legenda"><span>Nada muda no Meta por aqui: marque, copie e cole na conversa com o Claude para aplicar. ESCALA 2, VENCEDORES 2 e CAMPANHA 1 ficam fora das sugestões.</span></p>
-      </section>
-    </main>
-
     <!-- Tráfego -->
     <main class="aba-conteudo" id="aba-trafego" hidden>
       <section class="cartao">
@@ -158,13 +129,13 @@
         <div class="funil-baw" id="tr-funil"></div>
       </section>
       <section class="cartao">
-        <div class="cartao__topo"><h2>Custo por venda × inscrição no webinário</h2><span class="t-nota">um círculo por criativo (somando campanhas e conjuntos) · tamanho = vendas · respeita período e filtros</span></div>
+        <div class="cartao__topo"><h2>Custo por lead qualificado × inscrição no webinário</h2><span class="t-nota">um círculo por criativo (somando campanhas e conjuntos) · tamanho = vendas · respeita período e filtros</span></div>
         <div class="bolhas-ctl">
           <label>Mínimo de vendas <select id="tr-bol-min" aria-label="Mínimo de vendas por criativo"><option value="2">2</option><option value="3" selected>3</option><option value="5">5</option><option value="10">10</option></select></label>
-          <span class="bolhas-leg"><i class="q-bom"></i>barato e qualifica</span><span class="bolhas-leg"><i class="q-linha"></i>corte R$ 15 · média de inscrição</span>
+          <span class="bolhas-leg"><i class="q-bom"></i>barato e qualifica</span><span class="bolhas-leg"><i class="q-linha"></i>médias de custo por inscrito e de inscrição</span>
         </div>
         <div class="bolhas" id="tr-bolhas"></div>
-        <p class="tabela-legenda"><span>Eixo horizontal: CPA real (investimento ÷ vendas Hotmart do low). Eixo vertical: % dos compradores que se inscreveram no webinário. Quem comprou nos últimos dias ainda pode se inscrever, então a % dos criativos novos tende a subir. Clique no círculo para ver o criativo.</span></p>
+        <p class="tabela-legenda"><span>Eixo horizontal: custo por lead qualificado = investimento do criativo ÷ compradores dele que se inscreveram no webinário (criativos sem nenhum inscrito ficam na faixa da direita). Eixo vertical: % dos compradores que se inscreveram no webinário. Quem comprou nos últimos dias ainda pode se inscrever, então a % dos criativos novos tende a subir. Clique no círculo para ver o criativo.</span></p>
       </section>
       <section class="cartao">
         <div class="cartao__topo"><h2>Top 5 anúncios · geral</h2><span class="t-nota">menor CPA real, entre anúncios com 2+ vendas Hotmart</span></div>
@@ -186,33 +157,6 @@
       <section class="grade-2">
         <section class="cartao"><div class="cartao__topo"><h2>Vendas por posicionamento</h2></div><div class="tabela-wrap"><table class="tabela" id="tr-pos"></table></div></section>
         <section class="cartao"><div class="cartao__topo"><h2>Vendas por perfil</h2></div><div class="tabela-wrap"><table class="tabela" id="tr-perfil"></table></div></section>
-      </section>
-    </main>
-
-    <!-- Escala × teste -->
-    <main class="aba-conteudo" id="aba-escala" hidden>
-      <section class="kpis kpis--baw" id="esc-kpis"></section>
-      <section class="cartao">
-        <div class="cartao__topo"><h2>Criativos escalados · escala × origem</h2><span class="t-nota">mesmo criativo na campanha de escala e onde nasceu, no período escolhido</span></div>
-        <div class="tabela-wrap"><table class="tabela tabela--rank" id="esc-comp"></table></div>
-        <p class="tabela-legenda"><span>CPA real = investimento ÷ vendas Hotmart. Como o anúncio tem o mesmo nome na escala e na origem, cada venda é dividida entre eles na proporção das compras Meta daquele dia (sem compra Meta, pelo investimento) — por isso pode aparecer venda fracionada. ▼ verde = escala mais barata que a origem.</span></p>
-      </section>
-      <section class="cartao">
-        <div class="cartao__topo"><h2>Candidatos à escala</h2><span class="t-nota">anúncios de teste ainda não escalados, com 2+ vendas Hotmart e CPA real até R$ 15</span></div>
-        <div class="tabela-wrap"><table class="tabela tabela--rank" id="esc-cand"></table></div>
-      </section>
-    </main>
-
-    <!-- Inscrições -->
-    <main class="aba-conteudo" id="aba-inscricoes" hidden>
-      <section class="kpis kpis--baw" id="insc-kpis"></section>
-      <section class="cartao">
-        <div class="cartao__topo"><h2>Inscritos por <span class="modo-nome">semana</span></h2></div>
-        <div class="tabela-wrap"><table class="tabela" id="insc-quadro"></table></div>
-      </section>
-      <section class="cartao">
-        <div class="cartao__topo"><h2>Últimas inscrições</h2></div>
-        <div class="tabela-wrap tabela-wrap--alta"><table class="tabela" id="insc-lista"></table></div>
       </section>
     </main>
 
@@ -376,9 +320,7 @@
       <a class="previa__link" id="tr-previa-gerenciador" target="_blank" rel="noopener">Abrir no Gerenciador de Anúncios ↗</a>
     </div>
   </div>
-  <script src="/dashbaw/app.js?v=14"></script>
-  <script src="/dashbaw/trafego.js?v=5"></script>
-  <script src="/dashbaw/escala.js?v=1"></script>
-  <script src="/dashbaw/plano.js?v=1"></script>
+  <script src="/dashbaw/app.js?v=15"></script>
+  <script src="/dashbaw/trafego.js?v=6"></script>
 </body>
 </html>

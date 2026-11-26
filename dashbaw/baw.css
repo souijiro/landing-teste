@@ -180,3 +180,6 @@
 .bolhas__eixos { display: flex; justify-content: center; margin-top: 26px; font-size: .72rem; color: var(--texto-3); }
 .bolhas__ylbl { position: absolute; left: -44px; top: -30px; font-size: .72rem; color: var(--texto-3); white-space: nowrap; pointer-events: none; }
 @media (max-width: 640px) { .bolhas { padding: 30px 44px 8px 40px; } .bolhas__area { height: 360px; } .bolha__rot b { display: none; } }
+/* bolhas: faixa à direita para criativos sem nenhum inscrito */
+.bolhas__sem { position: absolute; top: 0; bottom: 0; background: repeating-linear-gradient(135deg, #fbe4e4 0 8px, #fdf1f1 8px 16px); border-left: 1px dashed #d13b3f; }
+.bolhas__sem em { position: absolute; top: 4px; left: 50%; transform: translateX(-50%); font-style: normal; font-size: .62rem; font-weight: 700; color: #b3262b; white-space: nowrap; }
